@@ -1,0 +1,137 @@
+[
+  {
+    "Rank": 0.0,
+    "Name": "Brunilda Di Leva",
+    "Defence": 9,
+    "Attack": 8,
+    "Stamina": 7,
+    "Leadership": 3,
+    "Passing": 4
+  },
+  {
+    "Rank": 0.0,
+    "Name": "Аніта корнилов",
+    "Defence": 9,
+    "Attack": 7,
+    "Stamina": 2,
+    "Leadership": 6,
+    "Passing": 9
+  },
+  {
+    "Rank": 0.0,
+    "Name": "Χαραλαμποσ Siganos",
+    "Defence": 2,
+    "Attack": 2,
+    "Stamina": 1,
+    "Leadership": 7,
+    "Passing": 6
+  },
+  {
+    "Rank": 0.0,
+    "Name": "Mansi Braschler",
+    "Defence": 3,
+    "Attack": 2,
+    "Stamina": 2,
+    "Leadership": 6,
+    "Passing": 4
+  },
+  {
+    "Rank": 0.0,
+    "Name": "Marti Letras Mayorga",
+    "Defence": 6,
+    "Attack": 7,
+    "Stamina": 1,
+    "Leadership": 4,
+    "Passing": 8
+  },
+  {
+    "Rank": 0.0,
+    "Name": "Klaudia Dorado",
+    "Defence": 8,
+    "Attack": 2,
+    "Stamina": 9,
+    "Leadership": 4,
+    "Passing": 5
+  },
+  {
+    "Rank": 0.0,
+    "Name": "Katarzyna Vicente",
+    "Defence": 4,
+    "Attack": 2,
+    "Stamina": 6,
+    "Leadership": 4,
+    "Passing": 8
+  },
+  {
+    "Rank": 0.0,
+    "Name": "Lesley Lucas",
+    "Defence": 4,
+    "Attack": 1,
+    "Stamina": 9,
+    "Leadership": 7,
+    "Passing": 4
+  },
+  {
+    "Rank": 0.0,
+    "Name": "Белла фішер",
+    "Defence": 4,
+    "Attack": 8,
+    "Stamina": 1,
+    "Leadership": 9,
+    "Passing": 5
+  },
+  {
+    "Rank": 0.0,
+    "Name": "Viviana Rolão Louca",
+    "Defence": 9,
+    "Attack": 9,
+    "Stamina": 7,
+    "Leadership": 8,
+    "Passing": 8
+  },
+  {
+    "Rank": 0.0,
+    "Name": "Victor-Daniel Pascacio Boa",
+    "Defence": 6,
+    "Attack": 2,
+    "Stamina": 4,
+    "Leadership": 4,
+    "Passing": 8
+  },
+  {
+    "Rank": 0.0,
+    "Name": "Ixchel Goins Helena",
+    "Defence": 8,
+    "Attack": 6,
+    "Stamina": 3,
+    "Leadership": 5,
+    "Passing": 6
+  },
+  {
+    "Rank": 0.0,
+    "Name": "Rikki Lowther",
+    "Defence": 5,
+    "Attack": 8,
+    "Stamina": 9,
+    "Leadership": 1,
+    "Passing": 5
+  },
+  {
+    "Rank": 0.0,
+    "Name": "Lara Bertók",
+    "Defence": 4,
+    "Attack": 4,
+    "Stamina": 1,
+    "Leadership": 7,
+    "Passing": 1
+  },
+  {
+    "Rank": 0.0,
+    "Name": "Aarushi Gali",
+    "Defence": 1,
+    "Attack": 6,
+    "Stamina": 6,
+    "Leadership": 3,
+    "Passing": 9
+  }
+]

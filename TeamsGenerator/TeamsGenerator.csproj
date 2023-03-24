@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>TeamsGenerator</RootNamespace>
+    <AssemblyName>TeamsGenerator</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Algo\AlgoRunner.cs" />
+    <Compile Include="Algo\AlgoType.cs" />
+    <Compile Include="Algo\Contracts\IAlgoManager.cs" />
+    <Compile Include="Algo\Contracts\IPlayersReader.cs" />
+    <Compile Include="BackAndForthAlgo\BackAndForth.cs" />
+    <Compile Include="Algo\Contracts\ITeamsAlgo.cs" />
+    <Compile Include="BackAndForthAlgo\BackAndForthManager.cs" />
+    <Compile Include="BackAndForthAlgo\PlayersReader.cs" />
+    <Compile Include="CLI\CopyAndExit.cs" />
+    <Compile Include="CLI\Exit.cs" />
+    <Compile Include="CLI\Reshuffle.cs" />
+    <Compile Include="Demo\BestToWorsePlayer.cs" />
+    <Compile Include="Demo\Generator.cs" />
+    <Compile Include="SkillWiseAlgo\SkillWiseManager.cs" />
+    <Compile Include="SkillWiseAlgo\PlayersReader.cs" />
+    <Compile Include="Algo\Contracts\IPlayer.cs" />
+    <Compile Include="SkillWiseAlgo\SkillWise.cs" />
+    <Compile Include="BackAndForthAlgo\BackAndForthPlayer.cs" />
+    <Compile Include="DataReaders\IDataReader.cs" />
+    <Compile Include="DataReaders\ExcelReader.cs" />
+    <Compile Include="DataReaders\JsonReader.cs" />
+    <Compile Include="DataReaders\TextFileReader.cs" />
+    <Compile Include="Utilities\GlobalParameters.cs" />
+    <Compile Include="Utilities\Helper.cs" />
+    <Compile Include="CLI\IPrinterOptionCallback.cs" />
+    <Compile Include="SkillWiseAlgo\SkillWisePlayer.cs" />
+    <Compile Include="CLI\Printer.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Algo\ShirtColor.cs" />
+    <Compile Include="Algo\ShirtColorManager.cs" />
+    <Compile Include="Algo\Team.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="BackAndForthAlgo\players.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="SkillWiseAlgo\players.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
