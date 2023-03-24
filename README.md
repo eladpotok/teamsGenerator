@@ -35,6 +35,12 @@ But now, the order of the picking teams is not random, but ordered by the team t
 ## Add your own algorithm
 First, think of an algorithm which makes sense and could be helpful and disribute it!
 
-In Algo folder you could find AlgoType enum which declares the existing algo type. Add you new enum value.
-Now, Create your own folder for your algorithm with the name of your algo with a postfix of Algo.
+In Algo directory you could find `AlgoType` enum which declares the existing algo types. Add you new enum value.
+Now, Create your own directory for your algorithm with the name of your algo with a postfix of Algo.
 For instace, if you create an algorithm with the name **TheBestAlgoEver** you should add enum with the name `TheBestAlgoEver` and folder with the name `TheBestAlgoEverAlgo`.
+
+Now, just follow the interface I exposed.
+`IAlgoManager` is an interface for your algorithm manager which contains the `ITeamsAlgo` and `IPlayerReader`.
+`ITeamsAlgo` is basically the algorithm core, and `IPlayerReader` is an engine of reading your players list.
+
+`players.json` is a very important file you should persist. This json file (or any other type, you can define your own file format) contians an array of players. Your new directory must contains this file in order to load this file while generating the teams.
