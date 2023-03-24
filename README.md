@@ -2,7 +2,7 @@
 This repo is about genberator of teams in soccer (or other sports) with a multiple open source algorithms.
 
 
-# Algorithms Explanation:
+# Algorithms Explanation
 
 ## Back And Forth Algorithm:
 Set randomly an order of the teams. The first team pick a player, the second team pick the next player, the third team pick two players.
@@ -30,3 +30,11 @@ After this step. we have 3 teams, and each team contain one player according to 
 Now we pick a new skill (of the rest skills), and put the players in the same way.
 But now, the order of the picking teams is not random, but ordered by the team total rank (calculated by the summary of the players rank in the team).
 
+# Development 
+
+## Add your own algorithm
+First, think of an algorithm which makes sense and could be helpful and disribute it!
+
+In Algo folder you could find AlgoType enum which declares the existing algo type. Add you new enum value.
+Now, Create your own folder for your algorithm with the name of your algo with a postfix of Algo.
+For instace, if you create an algorithm with the name **TheBestAlgoEver** you should add enum with the name `TheBestAlgoEver` and folder with the name `TheBestAlgoEverAlgo`.
