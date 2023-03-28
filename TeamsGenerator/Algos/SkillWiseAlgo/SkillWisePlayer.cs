@@ -1,6 +1,6 @@
-﻿using TeamsGenerator.Algo.Contracts;
+﻿using TeamsGenerator.Orchestration.Contracts;
 
-namespace TeamsGenerator.SkillWiseAlgo
+namespace TeamsGenerator.Algos.SkillWiseAlgo
 {
     public class SkillWisePlayer : IPlayer
     {

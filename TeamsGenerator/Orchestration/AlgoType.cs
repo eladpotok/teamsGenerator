@@ -1,4 +1,4 @@
-﻿namespace TeamsGenerator.Algo
+﻿namespace TeamsGenerator.Orchestration
 {
     public enum AlgoType
     {

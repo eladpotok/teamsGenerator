@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TeamsGenerator.Algo;
-using TeamsGenerator.Algo.Contracts;
+using TeamsGenerator.Orchestration;
+using TeamsGenerator.Orchestration.Contracts;
 using TeamsGenerator.Utilities;
 
-namespace TeamsGenerator.BackAndForthAlgo
+namespace TeamsGenerator.Algos.BackAndForthAlgo
 {
 
     /// <summary>

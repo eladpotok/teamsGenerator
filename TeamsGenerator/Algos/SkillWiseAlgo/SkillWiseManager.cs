@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TeamsGenerator.Algo;
-using TeamsGenerator.Algo.Contracts;
+using TeamsGenerator.Orchestration;
+using TeamsGenerator.Orchestration.Contracts;
 
-namespace TeamsGenerator.SkillWiseAlgo
+namespace TeamsGenerator.Algos.SkillWiseAlgo
 {
     public class SkillWiseManager : IAlgoManager
     {
@@ -24,5 +22,6 @@ namespace TeamsGenerator.SkillWiseAlgo
             Algo = new SkillWise(players.Cast<SkillWisePlayer>().ToList());
             return Algo.GetTeams(3);
         }
+
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace TeamsGenerator.Algo.Contracts
+﻿namespace TeamsGenerator.Orchestration.Contracts
 {
     public interface IPlayer
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace TeamsGenerator.Algo
+namespace TeamsGenerator.Orchestration
 {
     public static class ShirtColorManager
     {

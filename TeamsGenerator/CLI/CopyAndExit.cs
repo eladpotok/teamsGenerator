@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Windows;
-using TeamsGenerator.Algo;
+using TeamsGenerator.Orchestration;
 using TeamsGenerator.Utilities;
 
 namespace TeamsGenerator.CLI

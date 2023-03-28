@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.OleDb;
-using TeamsGenerator.SkillWiseAlgo;
+using TeamsGenerator.Algos.SkillWiseAlgo;
 
 namespace TeamsGenerator.DataReaders
 {

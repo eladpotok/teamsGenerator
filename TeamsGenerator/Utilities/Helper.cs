@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TeamsGenerator.Algo;
-using TeamsGenerator.Algo.Contracts;
+using TeamsGenerator.Orchestration;
+using TeamsGenerator.Orchestration.Contracts;
 
 namespace TeamsGenerator.Utilities
 {

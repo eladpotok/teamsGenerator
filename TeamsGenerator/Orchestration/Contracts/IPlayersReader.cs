@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TeamsGenerator.Algo.Contracts
+namespace TeamsGenerator.Orchestration.Contracts
 {
     public interface IPlayersReader
     {

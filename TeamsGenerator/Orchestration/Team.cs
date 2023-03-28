@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
-using TeamsGenerator.Algo.Contracts;
+using TeamsGenerator.Orchestration;
+using TeamsGenerator.Orchestration.Contracts;
 
-namespace TeamsGenerator.Algo
+namespace TeamsGenerator.Orchestration
 {
     public class Team
     {
