@@ -2,18 +2,16 @@
 
 namespace TeamsGenerator.CLI
 {
-    public class Reshuffle : IPrinterOptionCallback
+    public class BackToAlgo : IPrinterOptionCallback
     {
-
         private readonly Action _command;
 
-
-        public Reshuffle(Action command)
+        public BackToAlgo(Action command)
         {
             _command = command;
         }
 
-        public string CommandDescription => "re-shuffle";
+        public string CommandDescription => "Going Back to Algorithms";
 
         public void DoCommand()
         {

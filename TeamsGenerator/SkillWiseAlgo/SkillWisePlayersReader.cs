@@ -8,11 +8,11 @@ using TeamsGenerator.DataReaders;
 
 namespace TeamsGenerator.SkillWiseAlgo
 {
-    public class PlayersReader : IPlayersReader
+    public class SkillWisePlayersReader : IPlayersReader
     {
         private readonly string _path;
 
-        public PlayersReader(string path)
+        public SkillWisePlayersReader(string path)
         {
             _path = path;
         }

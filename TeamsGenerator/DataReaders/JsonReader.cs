@@ -19,7 +19,7 @@ namespace TeamsGenerator.DataReaders
 
         public T Read()
         {
-            var json = File.ReadAllText(_jsonFileName);
+            var json = File.ReadAllText($"{_jsonFileName}.json");
             var players = JsonConvert.DeserializeObject<T>(json);
             return players;
         }

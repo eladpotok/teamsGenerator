@@ -54,14 +54,15 @@
     <Compile Include="BackAndForthAlgo\BackAndForth.cs" />
     <Compile Include="Algo\Contracts\ITeamsAlgo.cs" />
     <Compile Include="BackAndForthAlgo\BackAndForthManager.cs" />
-    <Compile Include="BackAndForthAlgo\PlayersReader.cs" />
+    <Compile Include="BackAndForthAlgo\BackAndForthPlayersReader.cs" />
+    <Compile Include="CLI\BackToAlgo.cs" />
     <Compile Include="CLI\CopyAndExit.cs" />
     <Compile Include="CLI\Exit.cs" />
     <Compile Include="CLI\Reshuffle.cs" />
     <Compile Include="Demo\BestToWorsePlayer.cs" />
     <Compile Include="Demo\Generator.cs" />
     <Compile Include="SkillWiseAlgo\SkillWiseManager.cs" />
-    <Compile Include="SkillWiseAlgo\PlayersReader.cs" />
+    <Compile Include="SkillWiseAlgo\SkillWisePlayersReader.cs" />
     <Compile Include="Algo\Contracts\IPlayer.cs" />
     <Compile Include="SkillWiseAlgo\SkillWise.cs" />
     <Compile Include="BackAndForthAlgo\BackAndForthPlayer.cs" />

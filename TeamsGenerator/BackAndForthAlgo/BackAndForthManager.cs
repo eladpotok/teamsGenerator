@@ -13,9 +13,9 @@ namespace TeamsGenerator.BackAndForthAlgo
         public ITeamsAlgo Algo { get; set; }
         public IPlayersReader PlayersReader { get; set; }
 
-        public BackAndForthManager(string path)
+        public BackAndForthManager(IPlayersReader playerReader)
         {
-            PlayersReader = new PlayersReader(path);
+            PlayersReader = playerReader;
         }
 
         public List<Team> GenerateTeams()

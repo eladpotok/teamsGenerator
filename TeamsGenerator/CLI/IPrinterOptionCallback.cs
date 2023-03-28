@@ -7,5 +7,7 @@ namespace TeamsGenerator.CLI
     internal interface IPrinterOptionCallback
     {
         void DoCommand();
+
+        string CommandDescription { get; }
     }
 }

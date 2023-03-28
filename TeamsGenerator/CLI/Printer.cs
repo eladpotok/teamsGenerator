@@ -41,9 +41,7 @@ namespace TeamsGenerator.CLI
             var commandSelected = false;
             while (!commandSelected && !optionalKeys.Contains(input))
             {
-                Console.WriteLine("(1) Press 1 for Copy and Exit\n" +
-                              "(2) Press 2 for re-shuffle\n" +
-                              "(3) Press 3 for Exit");
+                PrintOptions(callbackMapper);
                 input = Console.ReadLine().ToLower();
 
                 if (callbackMapper.Keys.Contains(input))
@@ -61,6 +59,16 @@ namespace TeamsGenerator.CLI
             }
 
             callbackMapper[input].DoCommand();
+        }
+
+        private static void PrintOptions(Dictionary<string, IPrinterOptionCallback> callbackMapper)
+        {
+            var index = 1;
+            foreach (var command in callbackMapper)
+            {
+                Console.WriteLine($"({index}) Press {index} for {command.Value.CommandDescription}");
+                index++;
+            }
         }
 
         private static ConsoleColor GetConsoleColor(ShirtColor color)

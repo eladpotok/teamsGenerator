@@ -16,6 +16,7 @@ namespace TeamsGenerator.CLI
             _showPlayerStats = showPlayerStats;
         }
 
+        public string CommandDescription => "Copy and Exit";
 
         public void DoCommand()
         {

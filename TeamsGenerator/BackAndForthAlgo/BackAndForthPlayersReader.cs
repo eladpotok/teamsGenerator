@@ -8,11 +8,11 @@ using TeamsGenerator.DataReaders;
 
 namespace TeamsGenerator.BackAndForthAlgo
 {
-    public class PlayersReader : IPlayersReader
+    public class BackAndForthPlayersReader : IPlayersReader
     {
         private readonly string _path;
 
-        public PlayersReader(string path)
+        public BackAndForthPlayersReader(string path)
         {
             _path = path;
         }

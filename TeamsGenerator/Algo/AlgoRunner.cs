@@ -14,16 +14,16 @@ namespace TeamsGenerator.Algo
     {
         private static Dictionary<AlgoType, Func<string, IAlgoManager>> _algoMappers = new Dictionary<AlgoType, Func<string, IAlgoManager>>() 
         {
-            { AlgoType.BackAndForth, (path) => new BackAndForthManager(path) },
-            { AlgoType.SkillWise, (path) => new SkillWiseManager(path) },
+            { AlgoType.BackAndForth, (path) => new BackAndForthManager(new BackAndForthPlayersReader(path)) },
+            { AlgoType.SkillWise, (path) => new SkillWiseManager(new SkillWisePlayersReader(path)) },
         };
 
         public static List<Team> Run(AlgoType algoType)
         {
             var algoTypeName = ((AlgoType[])Enum.GetValues(typeof(AlgoType)))[(int)algoType-1];
-            var playersFilePath = $"{Environment.CurrentDirectory}\\{algoTypeName}Algo\\players.json";
+            var playersFilePathWithoutExtension = $"{Environment.CurrentDirectory}\\{algoTypeName}Algo\\players";
             var algoCreator = _algoMappers[algoTypeName];
-            var algoManager = algoCreator.Invoke(playersFilePath);
+            var algoManager = algoCreator.Invoke(playersFilePathWithoutExtension);
             return algoManager.GenerateTeams();
         }
     }

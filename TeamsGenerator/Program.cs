@@ -13,8 +13,13 @@ namespace TeamsGenerator
         [STAThread]
         static void Main(string[] args)
         {
+            PrintMainMenu();
+        }
+
+        private static void PrintMainMenu()
+        {
             Console.WriteLine("Hello There! Please provide the algorithm number you want to use from the following list:");
-            
+
             var allAlgos = GetListOfAlgo();
             PrintAlgoOptions(allAlgos);
 
@@ -70,7 +75,8 @@ namespace TeamsGenerator
 
                 { "1", new CopyAndExit(teams, false) },
                 { "2", new Reshuffle(Reshuffle) },
-                { "3", new Exit() },
+                { "3", new BackToAlgo(Back) },
+                { "4", new Exit() }
             };
 
             Printer.Print(teams, optionsCallback);
@@ -78,6 +84,12 @@ namespace TeamsGenerator
             void Reshuffle()
             {
                 Generate(algoType, isColorFeatureOn);
+            }
+
+            void Back() 
+            {
+                Console.Clear();
+                PrintMainMenu();
             }
         }
     }

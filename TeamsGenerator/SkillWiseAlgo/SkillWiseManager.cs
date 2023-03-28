@@ -13,9 +13,9 @@ namespace TeamsGenerator.SkillWiseAlgo
         public ITeamsAlgo Algo { get; set; }
         public IPlayersReader PlayersReader { get; set; }
 
-        public SkillWiseManager(string path)
+        public SkillWiseManager(IPlayersReader playersReader)
         {
-            PlayersReader = new PlayersReader(path);
+            PlayersReader = playersReader;
         }
 
         public List<Team> GenerateTeams()
