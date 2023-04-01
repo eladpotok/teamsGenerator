@@ -25,7 +25,7 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
         public Func<SkillWisePlayer, double> Invoker { get; set; }
     }
 
-    internal class SkillWise : ITeamsAlgo
+    internal class SkillWise 
     {
         private List<SkillWisePlayer> _players;
 

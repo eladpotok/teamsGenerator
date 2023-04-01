@@ -14,7 +14,7 @@ namespace TeamsGenerator.Algos.BackAndForthAlgo
     /// The team picks a player according to the rank order.
     /// </summary>
 
-    internal class BackAndForth : ITeamsAlgo
+    internal class BackAndForth
     {
 
         private List<IPlayer> _orderedPlayers;

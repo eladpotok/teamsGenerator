@@ -8,9 +8,6 @@ namespace TeamsGenerator.Orchestration.Contracts
 {
     public interface IAlgoManager
     {
-        ITeamsAlgo Algo { get; set; }
-        IPlayersReader PlayersReader { get; set; }
-
-        List<Team> GenerateTeams();
+        List<Team> GenerateTeams(List<IPlayer> players);
     }
 }

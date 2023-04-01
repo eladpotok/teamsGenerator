@@ -6,19 +6,14 @@ namespace TeamsGenerator.Algos.BackAndForthAlgo
 {
     public class BackAndForthManager : IAlgoManager
     {
-        public ITeamsAlgo Algo { get; set; }
-        public IPlayersReader PlayersReader { get; set; }
-
-        public BackAndForthManager(IPlayersReader playerReader)
+        public BackAndForthManager()
         {
-            PlayersReader = playerReader;
         }
 
-        public List<Team> GenerateTeams()
+        public List<Team> GenerateTeams(List<IPlayer> players)
         {
-            var players = PlayersReader.GetPlayers();
-            Algo = new BackAndForth(players);
-            return Algo.GetTeams(3);
+            var algo = new BackAndForth(players);
+            return algo.GetTeams(3);
         }
     }
 }

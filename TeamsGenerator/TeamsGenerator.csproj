@@ -52,7 +52,6 @@
     <Compile Include="Orchestration\AlgoType.cs" />
     <Compile Include="Orchestration\Contracts\IAlgoManager.cs" />
     <Compile Include="Orchestration\Contracts\IPlayersReader.cs" />
-    <Compile Include="Orchestration\Contracts\ITeamsAlgo.cs" />
     <Compile Include="Algos\BackAndForthAlgo\BackAndForthManager.cs" />
     <Compile Include="Algos\BackAndForthAlgo\BackAndForthPlayersReader.cs" />
     <Compile Include="CLI\BackToAlgo.cs" />

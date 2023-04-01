@@ -8,19 +8,15 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
 {
     public class SkillWiseManager : IAlgoManager
     {
-        public ITeamsAlgo Algo { get; set; }
-        public IPlayersReader PlayersReader { get; set; }
-
-        public SkillWiseManager(IPlayersReader playersReader)
+        public SkillWiseManager()
         {
-            PlayersReader = playersReader;
+        
         }
 
-        public List<Team> GenerateTeams()
+        public List<Team> GenerateTeams(List<IPlayer> players)
         {
-            var players = PlayersReader.GetPlayers();
-            Algo = new SkillWise(players.Cast<SkillWisePlayer>().ToList());
-            return Algo.GetTeams(3);
+            var algo = new SkillWise(players.Cast<SkillWisePlayer>().ToList());
+            return algo.GetTeams(3);
         }
 
     }
