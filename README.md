@@ -48,3 +48,13 @@ Here are 3 interfaces you should implement:
 `IPlayerReader` receives the `path` string as parameter and returns collection of `IPlayer` with the relevant data (according to the implementation).
 
 In case your algorithm engine works with local files, you should create a file with the name `players` with any extension you desire. The file path is provided to your `IPlayersReader` implementor and reading the players as you wish.
+
+## Add a CLI command
+Under CLI folder you can find all of the commands and the printer classes.
+Creation of a new command for CLI requires these steps:
+
+1. Create an implementation of `IPrinterOptionCallback`.
+2. Fill the `Description` and `DoCommand`.
+3. Add your command to the `optionsCallback` dictionary in `Program.cs` file. 
+
+
