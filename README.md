@@ -43,6 +43,7 @@ Here are 3 interfaces you should implement:
 
 1. `IAlgoManager` is the one who implements teams generation.
 2. `IPlayerReader` is the one who implements the players reading. 
+3. `IPlayer` is an interface which reflects the player model.
 
 `IPlayerReader` receives the `path` string as parameter and returns collection of `IPlayer` with the relevant data (according to the implementation).
 
