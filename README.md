@@ -58,3 +58,11 @@ Creation of a new command for CLI requires these steps:
 3. Add your command to the `optionsCallback` dictionary in `Program.cs` file. 
 
 
+# Run
+This runner is an endpoint application which runs on Windows machine only. 
+In order to run the user should maintain a config.json file.
+The file contains an array of `shirtColors` which is an array of objects based on `name` which is the color name, and `whatsappSymbol` which is the color symbol that integrated with whastapp app.
+
+After this file is created, the user should edit the `player` file which is stored in the algo folder.
+
+Then all the user need is to run the app, choose the relevant algorithm and receive its teams.
