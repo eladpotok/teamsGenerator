@@ -35,12 +35,26 @@ But now, the order of the picking teams is not random, but ordered by the team t
 ## Add your own algorithm
 First, think of an algorithm which makes sense and could be helpful and disribute it!
 
-In Algo directory you could find `AlgoType` enum which declares the existing algo types. Add you new enum value.
-Now, Create your own directory for your algorithm with the name of your algo with a postfix of Algo.
+In `Algos` folder you could find `AlgoType` enum which declares the existing algo types. Add you new enum value that suitable to your algorithm name.
+Now, Create your own folder for your algorithm with the name of your algo with a postfix of Algo.
 For instace, if you create an algorithm with the name **TheBestAlgoEver** you should add enum with the name `TheBestAlgoEver` and folder with the name `TheBestAlgoEverAlgo`.
 
-Now, just follow the interface I exposed.
-`IAlgoManager` is an interface for your algorithm manager which contains the `ITeamsAlgo` and `IPlayerReader`.
-`ITeamsAlgo` is basically the algorithm core, and `IPlayerReader` is an engine of reading your players list.
+Here are 3 interfaces you should implement:
 
-`players.json` is a very important file you should persist. This json file (or any other type, you can define your own file format) contians an array of players. Your new directory must contains this file in order to load this file while generating the teams.
+1. `IAlgoManager` is the one who implements teams generation.
+2. `IPlayerReader` is the one who implements the players reading. 
+3. `IPlayer` is an interface which reflects the player model.
+
+`IPlayerReader` receives the `path` string as parameter and returns collection of `IPlayer` with the relevant data (according to the implementation).
+
+In case your algorithm engine works with local files, you should create a file with the name `players` with any extension you desire. The file path is provided to your `IPlayersReader` implementor and reading the players as you wish.
+
+## Add a CLI command
+Under CLI folder you can find all of the commands and the printer classes.
+Creation of a new command for CLI requires these steps:
+
+1. Create an implementation of `IPrinterOptionCallback`.
+2. Fill the `Description` and `DoCommand`.
+3. Add your command to the `optionsCallback` dictionary in `Program.cs` file. 
+
+
