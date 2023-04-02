@@ -103,7 +103,7 @@ namespace TeamsGenerator
             foreach (var team in teams)
             {
                 var shirtColor = shirtsColors[0];
-                results.Add(new DisplayTeam() { Players = team.Players, Rank = team.TotalRank, Color = shirtColor.Name, TeamSymbol = shirtColor.WhatsappSymbol });
+                results.Add(new DisplayTeam() { Players = team.Players, Rank = team.TotalRank, Color = shirtColor.Name, TeamSymbol = shirtColor.Symbol });
                 shirtsColors.RemoveAt(0);
             }
 

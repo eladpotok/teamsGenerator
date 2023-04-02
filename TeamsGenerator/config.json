@@ -2,35 +2,35 @@
   "shirtColors": [
     {
       "name": "Red",
-      "whatsappSymbol": "🟥"
+      "symbol": "🟥"
     },
     {
       "name": "Green",
-      "whatsappSymbol": "🟩"
+      "symbol": "🟩"
     },
     {
       "name": "Yellow",
-      "whatsappSymbol": "🟨"
+      "symbol": "🟨"
     },
     {
       "name": "White",
-      "whatsappSymbol": "⬜"
+      "symbol": "⬜"
     },
     {
       "name": "Black",
-      "whatsappSymbol": "⬛"
+      "symbol": "⬛"
     },
     {
       "name": "Blue",
-      "whatsappSymbol": "🟦"
+      "symbol": "🟦"
     },
     {
       "name": "Orange",
-      "whatsappSymbol": "🟧"
+      "symbol": "🟧"
     },
     {
       "name": "Purple",
-      "whatsappSymbol": "🟪"
+      "symbol": "🟪"
     }
   ],
   "teamsCount": 3,
