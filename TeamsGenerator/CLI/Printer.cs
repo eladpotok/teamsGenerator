@@ -7,9 +7,8 @@ namespace TeamsGenerator.CLI
 {
     internal static class Printer
     {
-        public static void Print(List<Team> teams, Dictionary<string, IPrinterOptionCallback> callbackMapper, bool isColorFeatureOn = false)
+        public static void Print(List<DisplayTeam> teams, Dictionary<string, IPrinterOptionCallback> callbackMapper, bool isColorFeatureOn = false)
         {
-
             var count = 1;
             foreach (var team in teams)
             {
@@ -68,9 +67,9 @@ namespace TeamsGenerator.CLI
             }
         }
 
-        private static ConsoleColor GetConsoleColor(ShirtColor color)
+        private static ConsoleColor GetConsoleColor(string color)
         {
-            var colorResult = (ConsoleColor)Enum.Parse(typeof(ConsoleColor), color.ToString());
+            var colorResult = (ConsoleColor)Enum.Parse(typeof(ConsoleColor), color);
             return colorResult;
         }
     }

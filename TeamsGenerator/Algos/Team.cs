@@ -1,19 +1,16 @@
 ﻿using System.Collections.Generic;
-using TeamsGenerator.Orchestration;
 using TeamsGenerator.Orchestration.Contracts;
 
-namespace TeamsGenerator.Orchestration
+namespace TeamsGenerator.Algos
 {
     public class Team
     {
-        public ShirtColor Color { get; set; }
         public List<IPlayer> Players { get; set; }
 
         public double TotalRank { get; set; }
 
-        public Team(ShirtColor color)
+        public Team()
         {
-            Color = color;
             Players = new List<IPlayer>();
         }
 
@@ -23,9 +20,5 @@ namespace TeamsGenerator.Orchestration
             TotalRank += player.Rank;
         }
 
-        public double GetAvarage()
-        {
-            return TotalRank / Players.Count;
-        }
     }
 }

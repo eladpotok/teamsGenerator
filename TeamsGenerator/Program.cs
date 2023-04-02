@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using TeamsGenerator.Algos;
 using TeamsGenerator.CLI;
 using TeamsGenerator.Orchestration;
+using TeamsGenerator.Utilities;
 
 namespace TeamsGenerator
 {
@@ -51,7 +53,7 @@ namespace TeamsGenerator
 
         private static bool ValidateAlgoInput(string algoToUseInput, int rangeOfAnswers, out int result)
         {
-            result  = - 1;
+            result = -1;
             if (!int.TryParse(algoToUseInput, out var algoToUse)) return false;
             if (algoToUse < 1 || algoToUse > rangeOfAnswers) return false;
 
@@ -67,28 +69,45 @@ namespace TeamsGenerator
 
         private static void Generate(AlgoType algoType, bool isColorFeatureOn = false)
         {
-            var teams = AlgoRunner.Run(algoType);
+            var config = Helper.ReadConfig();
+            var teams = AlgoRunner.Run(algoType, config);
+            var teamsToDisplay = GetDisplayTeams(config, teams);
+
 
             var optionsCallback = new Dictionary<string, IPrinterOptionCallback>() {
 
-                { "1", new CopyAndExit(teams, false) },
+                { "1", new CopyAndExit(teamsToDisplay, false) },
                 { "2", new Reshuffle(Reshuffle) },
                 { "3", new BackToAlgo(Back) },
                 { "4", new Exit() }
             };
 
-            Printer.Print(teams, optionsCallback);
+            Printer.Print(teamsToDisplay, optionsCallback);
 
             void Reshuffle()
             {
                 Generate(algoType, isColorFeatureOn);
             }
 
-            void Back() 
+            void Back()
             {
                 Console.Clear();
                 PrintMainMenu();
             }
+        }
+
+        private static List<DisplayTeam> GetDisplayTeams(Config config, List<Team> teams)
+        {
+            var results = new List<DisplayTeam>();
+            var shirtsColors = Helper.Shuffle(config.ShirtColors);
+            foreach (var team in teams)
+            {
+                var shirtColor = shirtsColors[0];
+                results.Add(new DisplayTeam() { Players = team.Players, Rank = team.TotalRank, Color = shirtColor.Name, TeamSymbol = shirtColor.WhatsappSymbol });
+                shirtsColors.RemoveAt(0);
+            }
+
+            return results;
         }
     }
 }

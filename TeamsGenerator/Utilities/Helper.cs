@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using TeamsGenerator.DataReaders;
 using TeamsGenerator.Orchestration;
 using TeamsGenerator.Orchestration.Contracts;
 
@@ -31,25 +33,15 @@ namespace TeamsGenerator.Utilities
             return result;
         }
 
-        public static string CopyToClipboard(List<Team> teams, bool showPlayerStats)
+        public static string CopyResultsToClipboard(List<DisplayTeam> teams, bool showPlayerStats)
         {
-            var iconColors = new Dictionary<ShirtColor, string>() {
-                { ShirtColor.Green, "🟩" },
-                { ShirtColor.Yellow, "🟨" },
-                { ShirtColor.White, "⬜" },
-                { ShirtColor.Red, "🟥" },
-                { ShirtColor.Black, "⬛" },
-                { ShirtColor.Blue, "🟦" },
-                { ShirtColor.Orange , "🟧" }
-            };
-
             System.Threading.Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("en-us");
             var textToCopy = "*" + DateTime.Now.ToString("dddd", new CultureInfo("en-us")) + "  " + DateTime.Now.ToShortDateString() + "*\n";
             var count = 1;
             foreach (var team in teams)
             {
                 var teamColor = team.Color;
-                textToCopy += $"{iconColors[team.Color]}Team: {count} | Color: {team.Color}";
+                textToCopy += $"{team.TeamSymbol}Team: {count} | Color: {team.Color}";
                 textToCopy += showPlayerStats ? $"({team.GetAvarage()})\n" : "\n";
                 foreach (var player in team.Players)
                 {
@@ -102,5 +94,14 @@ namespace TeamsGenerator.Utilities
             result.Reverse();
             return result;
         }
+
+        public static Config ReadConfig()
+        {
+            var configFilePath = $"{Environment.CurrentDirectory}\\config";
+            var reader = new JsonReader<Config>(configFilePath);
+            var config = reader.Read();
+            return config;
+        }
     }
+
 }

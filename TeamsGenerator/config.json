@@ -1,0 +1,38 @@
+{
+  "shirtColors": [
+    {
+      "name": "Red",
+      "whatsappSymbol": "🟥"
+    },
+    {
+      "name": "Green",
+      "whatsappSymbol": "🟩"
+    },
+    {
+      "name": "Yellow",
+      "whatsappSymbol": "🟨"
+    },
+    {
+      "name": "White",
+      "whatsappSymbol": "⬜"
+    },
+    {
+      "name": "Black",
+      "whatsappSymbol": "⬛"
+    },
+    {
+      "name": "Blue",
+      "whatsappSymbol": "🟦"
+    },
+    {
+      "name": "Orange",
+      "whatsappSymbol": "🟧"
+    },
+    {
+      "name": "Purple",
+      "whatsappSymbol": "🟪"
+    }
+  ],
+  "teamsCount": 3,
+  "printForPlatform": "whatsapp"
+}

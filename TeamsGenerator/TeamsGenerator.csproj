@@ -47,7 +47,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Algos\BackAndForthAlgo\BackAndForth.cs" />
+    <Compile Include="Algos\AlgoManagerBase.cs" />
+    <Compile Include="Algos\SkillWiseAlgo\OrderBy.cs" />
     <Compile Include="Orchestration\AlgoRunner.cs" />
     <Compile Include="Orchestration\AlgoType.cs" />
     <Compile Include="Orchestration\Contracts\IAlgoManager.cs" />
@@ -63,12 +64,14 @@
     <Compile Include="Algos\SkillWiseAlgo\SkillWiseManager.cs" />
     <Compile Include="Algos\SkillWiseAlgo\SkillWisePlayersReader.cs" />
     <Compile Include="Orchestration\Contracts\IPlayer.cs" />
-    <Compile Include="Algos\SkillWiseAlgo\SkillWise.cs" />
     <Compile Include="Algos\BackAndForthAlgo\BackAndForthPlayer.cs" />
     <Compile Include="DataReaders\IDataReader.cs" />
     <Compile Include="DataReaders\ExcelReader.cs" />
     <Compile Include="DataReaders\JsonReader.cs" />
     <Compile Include="DataReaders\TextFileReader.cs" />
+    <Compile Include="Orchestration\Configuration\Config.cs" />
+    <Compile Include="Orchestration\Configuration\ShirtColor.cs" />
+    <Compile Include="Orchestration\DisplayTeam.cs" />
     <Compile Include="Utilities\GlobalParameters.cs" />
     <Compile Include="Utilities\Helper.cs" />
     <Compile Include="CLI\IPrinterOptionCallback.cs" />
@@ -76,9 +79,7 @@
     <Compile Include="CLI\Printer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Orchestration\ShirtColor.cs" />
-    <Compile Include="Orchestration\ShirtColorManager.cs" />
-    <Compile Include="Orchestration\Team.cs" />
+    <Compile Include="Algos\Team.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -86,6 +87,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Algos\SkillWiseAlgo\players.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />

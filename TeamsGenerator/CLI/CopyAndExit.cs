@@ -7,10 +7,10 @@ namespace TeamsGenerator.CLI
 {
     public class CopyAndExit : IPrinterOptionCallback
     {
-        private readonly List<Team> _teams;
+        private readonly List<DisplayTeam> _teams;
         private readonly bool _showPlayerStats;
 
-        public CopyAndExit(List<Team> teams, bool showPlayerStats)
+        public CopyAndExit(List<DisplayTeam> teams, bool showPlayerStats)
         {
             _teams = teams;
             _showPlayerStats = showPlayerStats;
@@ -20,7 +20,7 @@ namespace TeamsGenerator.CLI
 
         public void DoCommand()
         {
-            Clipboard.SetText(Helper.CopyToClipboard(_teams, _showPlayerStats));
+            Clipboard.SetText(Helper.CopyResultsToClipboard(_teams, _showPlayerStats));
         }
     }
 }
