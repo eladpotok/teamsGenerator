@@ -59,6 +59,8 @@ Creation of a new command for CLI requires these steps:
 
 
 # Run
+
+## Endpoint (Standalone)
 This runner is an endpoint application which runs on Windows machine only. 
 In order to run the user should maintain a config.json file.
 The file contains an array of `shirtColors` which is an array of objects based on `name` which is the color name, and `whatsappSymbol` which is the color symbol that integrated with whastapp app.
@@ -66,3 +68,7 @@ The file contains an array of `shirtColors` which is an array of objects based o
 After this file is created, the user should edit the `player` file which is stored in the algo folder.
 
 Then all the user need is to run the app, choose the relevant algorithm and receive its teams.
+
+## Web Service
+In order that any one at the world could use your algorithm, you should maintain the web service.
+In `WebAppAPI` we should add our algorithm to the both dictionary (follow the existing items), and in addition we need to add a new `AlgoType` enum.
