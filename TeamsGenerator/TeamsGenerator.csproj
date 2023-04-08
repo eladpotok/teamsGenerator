@@ -39,6 +39,7 @@
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -49,9 +50,19 @@
   <ItemGroup>
     <Compile Include="Algos\AlgoManagerBase.cs" />
     <Compile Include="Algos\SkillWiseAlgo\OrderBy.cs" />
+    <Compile Include="API\GetTeamsResponse.cs" />
+    <Compile Include="API\InitialAppConfig.cs" />
+    <Compile Include="API\PlayerProperties.cs" />
+    <Compile Include="API\WebAppAPI.cs" />
+    <Compile Include="API\WebAppAlgoInfo.cs" />
+    <Compile Include="API\WebAppConfigResponse.cs" />
+    <Compile Include="CLI\CliDisplayTeam.cs" />
     <Compile Include="Orchestration\AlgoRunner.cs" />
     <Compile Include="Orchestration\AlgoType.cs" />
+    <Compile Include="Orchestration\AlgoConfig.cs" />
+    <Compile Include="Orchestration\Configuration\ConfigurationManager.cs" />
     <Compile Include="Orchestration\Contracts\IAlgoManager.cs" />
+    <Compile Include="Orchestration\Contracts\IDisplayTeam.cs" />
     <Compile Include="Orchestration\Contracts\IPlayersReader.cs" />
     <Compile Include="Algos\BackAndForthAlgo\BackAndForthManager.cs" />
     <Compile Include="Algos\BackAndForthAlgo\BackAndForthPlayersReader.cs" />
@@ -70,8 +81,8 @@
     <Compile Include="DataReaders\JsonReader.cs" />
     <Compile Include="DataReaders\TextFileReader.cs" />
     <Compile Include="Orchestration\Configuration\Config.cs" />
-    <Compile Include="Orchestration\Configuration\ShirtColor.cs" />
-    <Compile Include="Orchestration\DisplayTeam.cs" />
+    <Compile Include="API\WebAppTeam.cs" />
+    <Compile Include="ConsolePlayground.cs" />
     <Compile Include="Utilities\GlobalParameters.cs" />
     <Compile Include="Utilities\Helper.cs" />
     <Compile Include="CLI\IPrinterOptionCallback.cs" />

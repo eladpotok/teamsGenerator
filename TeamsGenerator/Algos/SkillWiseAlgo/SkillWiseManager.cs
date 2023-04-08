@@ -11,7 +11,7 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
     {
         private List<SkillWisePlayer> _players;
 
-        public SkillWiseManager(Config config) : base(config)
+        public SkillWiseManager(AlgoConfig config) : base(config)
         {
         }
 

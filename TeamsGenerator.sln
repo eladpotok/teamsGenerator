@@ -5,6 +5,8 @@ VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamsGenerator", "TeamsGenerator\TeamsGenerator.csproj", "{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamsGeneratorWebAPI", "TeamsGeneratorWebAPI\TeamsGeneratorWebAPI.csproj", "{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

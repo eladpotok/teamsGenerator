@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using TeamsGenerator.Orchestration;
+using TeamsGenerator.Algos;
+using TeamsGenerator.API;
 
 namespace TeamsGenerator.CLI
 {
     internal static class Printer
     {
-        public static void Print(List<DisplayTeam> teams, Dictionary<string, IPrinterOptionCallback> callbackMapper, bool isColorFeatureOn = false)
+        public static void Print(List<CliDisplayTeam> teams, Dictionary<string, IPrinterOptionCallback> callbackMapper, bool isColorFeatureOn = false)
         {
             var count = 1;
             foreach (var team in teams)

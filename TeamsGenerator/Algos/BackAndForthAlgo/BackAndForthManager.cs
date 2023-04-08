@@ -9,7 +9,7 @@ namespace TeamsGenerator.Algos.BackAndForthAlgo
     {
         private List<IPlayer> _orderedPlayers;
 
-        public BackAndForthManager(Config config) : base(config)
+        public BackAndForthManager(AlgoConfig config) : base(config)
         {
         }
 

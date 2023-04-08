@@ -10,9 +10,9 @@ namespace TeamsGenerator.Algos
 {
     public abstract class AlgoManagerBase 
     {
-        protected readonly Config _config;
+        protected readonly AlgoConfig _config;
 
-        public AlgoManagerBase(Config config)
+        public AlgoManagerBase(AlgoConfig config)
         {
             _config = config;
         }
