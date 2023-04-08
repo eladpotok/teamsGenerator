@@ -1,0 +1,23 @@
+
+.group-player-name {
+    text-align: left;
+    color: black;
+    font-style: bold;
+}
+
+
+.row {
+    display: flex;
+}
+
+
+.move-to-group {
+    margin-left: 4px;
+    background-color: transparent;
+    border-width: 1px;
+    border-radius: 5px;
+}
+
+.demo-loadmore-list {
+    min-height: 350px;
+  }

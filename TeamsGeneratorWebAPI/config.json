@@ -1,0 +1,14 @@
+{
+  "ColorNameToSymbol": {
+    "Red": "🟥",
+    "Green": "🟩",
+    "Yellow": "🟨",
+    "White": "⬜",
+    "Black": "⬛",
+    "Blue": "🟦",
+    "Orange": "🟧",
+    "Purple": "🟪"
+  },
+  "teamsCount": 3,
+  "printForPlatform": "whatsapp"
+}

@@ -1,0 +1,64 @@
+export default function getPlayersDEMO(){
+   return  [
+        {
+          "Name": "Tomislav Petkovic",
+          "Rank": 9.4
+        },
+        {
+          "Name": "Halo Virlan",
+          "Rank": 6.0
+        },
+        {
+          "Name": "Elide Rog Nation",
+          "Rank": 7.6
+        },
+        {
+          "Name": "Supreet Moun",
+          "Rank": 3.3
+        },
+        {
+          "Name": "Sari Teklu",
+          "Rank": 8.5
+        },
+        {
+          "Name": "Telmo Black Lisbon",
+          "Rank": 5.9
+        },
+        {
+          "Name": "Ειρηνη σαμαρα",
+          "Rank": 5.6
+        },
+        {
+          "Name": "Johny Rocha",
+          "Rank": 1.8
+        },
+        {
+          "Name": "Elias Baroni",
+          "Rank": 1.8
+        },
+        {
+          "Name": "Joan-Ramon Olucha Martin Merino",
+          "Rank": 2.0
+        },
+        {
+          "Name": "Marine Corten",
+          "Rank": 7.5
+        },
+        {
+          "Name": "Marin Chouza Creighton",
+          "Rank": 9.6
+        },
+        {
+          "Name": "Zoe Hanslik",
+          "Rank": 2.3
+        },
+        {
+          "Name": "Bertalan Wàhïd",
+          "Rank": 2.0
+        },
+        {
+          "Name": "Marina Ursic",
+          "Rank": 8.8
+        }
+      ]
+}
