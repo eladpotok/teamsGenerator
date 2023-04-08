@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { Button, Form, Input, Popconfirm, Table, Slider, Modal, Upload, Card, Space, Descriptions, Divider, message } from 'antd';
-import { InfoCircleOutlined, UserOutlined, UploadOutlined, UserAddOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { InfoCircleOutlined, UserOutlined, UploadOutlined, UserAddOutlined, QuestionCircleOutlined, ExportOutlined } from '@ant-design/icons';
 import { getPlayersPropertiesByAlgo, getTeams } from '../Adapters/DB/WebApiAdapter'
 import './PlayersTable.css';
 import React from 'react';
@@ -9,6 +9,7 @@ import { TeamsContext } from "../Store/TeamsContext";
 import MyCard from "./UI/MyCard";
 import { ConfigurationContext } from "../Store/ConfigurationContext";
 import { PlayersContext } from "../Store/PlayersContext";
+import { v4 as uuidv4 } from 'uuid';
 
 
 function PlayersTable(props) {
@@ -56,7 +57,8 @@ function PlayersTable(props) {
         setColumns(columns)
     }
 
-    const onFinish = (values) => {
+    const formFinishedHandler = (values) => {
+        values['key'] = uuidv4();
         addPlayerHandler(values)
         resetFromHandler();
     };
@@ -74,7 +76,7 @@ function PlayersTable(props) {
         resetFromHandler();
     };
 
-    const fileBrowserHandler = (files) => {
+    const readFileHandler = (files) => {
         const fileReader = new FileReader();
 
         fileReader.onload = e => {
@@ -94,6 +96,18 @@ function PlayersTable(props) {
         fileReader.readAsText(files[0], "UTF-8");
     }
 
+    const writeFileHandler = (files) => {
+        const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
+            JSON.stringify(playersContext.players)
+          )}`;
+          const link = document.createElement("a");
+          link.href = jsonString;
+          link.download = "players.json";
+      
+          link.click();
+      
+    }
+
     const handleError = (error, file) => {
         console.log('error code ' + error.code + ': ' + error.message)
     }
@@ -102,23 +116,6 @@ function PlayersTable(props) {
         playersContext.setPlayers([])
     }
 
-    async function generateTeamsHandler() {
-
-        const selectedConfig  =configContext.getSelectedConfig();
-        if (selectedConfig.shirtsColors.length < 3) {
-            messageApi.open({
-                type: 'error',
-                content: 'Must choose 3 shirts colors at least',
-              });
-            return;
-        }
-        
-        props.onGenerateClicked(props.algoKey)
-
-        // const getTeamsResponse = await getTeams(props.algoKey, players, configContext.getSelectedConfig())
-        // teamsContext.setTeams(getTeamsResponse.teams)
-        // teamsContext.setResultAsText(getTeamsResponse.teamsResultAsCopyText)
-    }
 
     const [selectedPlayersKey, setSelectedPlayersKey] = useState([]);
 
@@ -134,19 +131,21 @@ function PlayersTable(props) {
     };
 
     const [form] = Form.useForm();
+
+    console.log("algos", playerProperties)
     return (
         <Card >
             {contextHolder}
             <Modal onCancel={closeModalHandler} open={openNewPlayerModal} footer={[]} title='Add Player'>
-                <Form {...layout} form={form} onFinish={onFinish} style={{ marginTop: '15px' }}>
+                <Form {...layout} form={form} onFinish={formFinishedHandler} style={{ marginTop: '15px' }}>
 
-                    {playerProperties && playerProperties.map((property) => {
+                    {playerProperties && playerProperties.filter(f => f.showInClient).map((property) => 
 
-                        return <Form.Item name={property.name} label={property.name} rules={[{ required: true }]}>
+                        <Form.Item name={property.name} label={property.name} rules={[{ required: true }]}>
                             <Input type={property.type} tep={0.1} max={10} min={1} />
                         </Form.Item>
 
-                    })}
+                    )}
 
                     <div style={{ display: 'flex', 'flex-direction': 'row', 'align-items': 'flex-end', 'justifyContent': 'flex-end' }}>
                         <Button type="primary" htmlType="submit" style={{ marginRight: 16 }}>
@@ -190,7 +189,7 @@ function PlayersTable(props) {
 
                 <Files
                     className='files-dropzone'
-                    onChange={fileBrowserHandler}
+                    onChange={readFileHandler}
                     onError={handleError}
                     accepts={['.json']}
                     maxFileSize={10000000}
@@ -200,6 +199,11 @@ function PlayersTable(props) {
                         Import
                     </Button>
                 </Files>
+
+                <Button onClick={writeFileHandler} icon={<ExportOutlined />} type='primary' style={{ borderRadius: '5px', marginRight: '5px' }}>
+                        Export
+                </Button>
+
 
             </div>
             

@@ -38,7 +38,21 @@ namespace TeamsGenerator.API
 
             foreach (var prop in playerProperties)
             {
-                PlayerProperties.Add(new PlayerProperties() { Name = prop.Name, Type = inputToTypeMapper[prop.PropertyType] });
+                var propertyAttributes = prop.GetCustomAttributes(true);
+
+                var showInClient = true;
+                if (propertyAttributes != null)
+                {
+                    foreach (var att in propertyAttributes)
+                    {
+                        if(att is EditableInClientAttribute editableInClient)
+                        {
+                            showInClient = editableInClient.Show;
+                        }
+                    }
+                }
+
+                PlayerProperties.Add(new PlayerProperties() { Name = prop.Name, Type = inputToTypeMapper[prop.PropertyType] , ShowInClient = showInClient });
             }
 
         }

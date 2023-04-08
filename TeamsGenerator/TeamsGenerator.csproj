@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="Algos\AlgoManagerBase.cs" />
     <Compile Include="Algos\SkillWiseAlgo\OrderBy.cs" />
+    <Compile Include="API\EditableInClientAttribute.cs" />
     <Compile Include="API\GetTeamsResponse.cs" />
     <Compile Include="API\InitialAppConfig.cs" />
     <Compile Include="API\PlayerProperties.cs" />

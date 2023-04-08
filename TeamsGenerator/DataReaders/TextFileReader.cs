@@ -28,7 +28,7 @@ namespace TeamsGenerator.DataReaders
                     var name = splittedLine[0];
                     var rank = splittedLine[1];
 
-                    var player = new SkillWisePlayer() { Name = name, Rank = float.Parse(rank) };
+                    var player = new SkillWisePlayer() { Name = name, Rank = double.Parse(rank) };
                     result.Add(player);
                 }
 

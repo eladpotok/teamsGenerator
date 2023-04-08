@@ -22,13 +22,6 @@ namespace TeamsGenerator.Orchestration
 
         public static List<Algos.Team> Run(AlgoType algoType, List<IPlayer> players, AlgoConfig config)
         {
-            //var algoTypeName = ((AlgoType[])Enum.GetValues(typeof(AlgoType)))[(int)algoType - 1];
-            //var playersFilePathWithoutExtension = $"{Process.GetCurrentProcess().StartInfo.WorkingDirectory}\\algos\\{algoTypeName}Algo\\players";
-            //var playersFilePathWithoutExtension = @"C:\Users\potok\OneDrive\שולחן העבודה\לימודים\Projects\teamsGenerator\TeamsGenerator\Algos\BackAndForthAlgo\players.json";
-            //var algoCreator = _algoTypeToPlayersReaderMapper[algoTypeName];
-            //var playersReader = algoCreator.Invoke(playersFilePathWithoutExtension);
-            //var players = playersReader.GetPlayers();
-
             var algo = _algoTypeToTeamsGeneratorMapper[algoType];
             var teams = algo.Invoke(config).GenerateTeams(players) ?? null;
             return teams;

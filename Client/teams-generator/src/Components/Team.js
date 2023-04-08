@@ -2,7 +2,7 @@
 import { useContext } from 'react';
 import './Team.css'
 import { TeamsContext } from '../Store/TeamsContext';
-import { Button, Col, List, Popconfirm, Row, Skeleton } from 'antd';
+import { Button, Col, List, Popconfirm, Row, Skeleton, Tooltip } from 'antd';
 import { QuestionCircleOutlined, UserOutlined } from '@ant-design/icons';
 
 function Team(props) {
@@ -36,7 +36,9 @@ function Team(props) {
                             <Popconfirm title="Remove player" onConfirm={() => { removePlayer(props.team, player) }}
                                 description={"Are you sure to remove " + player.name + "?"}
                                 icon={<QuestionCircleOutlined style={{ color: 'red' }} />}>
-                                <Button style={{margin: '4px'}} size='small' type="primary" danger>-</Button>
+                                <Tooltip title="Remove Player">
+                                    <Button style={{margin: '4px'}} size='small' type="primary" danger>-</Button>
+                                </Tooltip>
                             </Popconfirm>
                         </Col>
 
@@ -44,7 +46,9 @@ function Team(props) {
                             <Popconfirm title="Move player" onConfirm={() => { moveToOtherTeam(props.team, team, player) }}
                                 description={"Are you sure to move " + player.name + " to team " + team.teamId}
                                 icon={<QuestionCircleOutlined style={{ color: 'red' }} />}>
-                                <Button style={{margin: '4px'}} size='small' disabled={props.team.players.length === 1} className="move-to-group" >{team.teamId}</Button>
+                                <Tooltip title={"Move Player to Team " + team.teamId}>
+                                    <Button style={{margin: '4px'}} size='small' disabled={props.team.players.length === 1} className="move-to-group" >{team.teamId}</Button>
+                                </Tooltip>
                             </Popconfirm>
                         )}
                     </Row>
