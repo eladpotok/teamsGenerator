@@ -111,9 +111,10 @@ function PlayersTable(props) {
     const handleError = (error, file) => {
         console.log('error code ' + error.code + ': ' + error.message)
     }
-
+ 
     function clearPlayersHandler() {
         playersContext.setPlayers([])
+        teamsContext.setTeams(null)
     }
 
 
@@ -167,7 +168,7 @@ function PlayersTable(props) {
                     <Descriptions.Item  label='Total Players'>{playersContext.players.length}</Descriptions.Item>
                 </Descriptions>
 
-                <Popconfirm title="Clear all Players" onConfirm={() => { clearPlayersHandler() }}
+                <Popconfirm disabled={playersContext.players.length == 0} title="Clear all Players" onConfirm={() => { clearPlayersHandler() }}
                             description={"Are you sure you want to clear all players?"}
                             icon={<QuestionCircleOutlined style={{ color: 'red' }} />}>
                     <Button disabled={playersContext.players.length == 0} type='primary' danger  style={{ borderRadius: '5px',  marginRight: '5px' }}>
@@ -175,7 +176,7 @@ function PlayersTable(props) {
                     </Button>                
                 </Popconfirm>
 
-                <Popconfirm title="Remove selected Players" onConfirm={() => { removePlayerHandler() }}
+                <Popconfirm disabled={selectedPlayersKey.length == 0} title="Remove selected Players" onConfirm={() => { removePlayerHandler() }}
                             description={"Are you sure you want to remove the selected players?"}
                             icon={<QuestionCircleOutlined style={{ color: 'red' }} />}>
                     <Button disabled={selectedPlayersKey.length == 0} type='primary' danger  style={{ borderRadius: '5px', marginRight: '5px' }}>

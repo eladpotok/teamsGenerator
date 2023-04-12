@@ -8,6 +8,8 @@ import { ConfigurationContextProvider } from './Store/ConfigurationContext';
 import MyCard from './Components/UI/MyCard';
 import { Card, ConfigProvider } from 'antd';
 import { PlayersContextProvider } from './Store/PlayersContext';
+import { BrowserView, MobileView } from 'react-device-detect';
+import MobileMainScreen from './Components/Mobile/MobileMainScreen';
 
 function App() {
   const players = getPlayersDEMO()
@@ -16,7 +18,7 @@ function App() {
       <TeamsContextProvider>
         <PlayersContextProvider>
           <Card style={{ marginTop: '4%', marginRight: '10%', marginLeft: '10%' }}>
-            <MainMenu />
+          <MainMenu />
           </Card>
         </PlayersContextProvider>
       </TeamsContextProvider>

@@ -16,6 +16,7 @@ export const ConfigurationContextProvider = (props) => {
     const [algo, setAlgo] = useState(0)
 
     const [selectedShirtsColors, setSelectedShirtsColors] = useState(null)
+    const [selectedEventDate, setSelectedEventDate] = useState(null)
 
     function getSelectedConfig() {
         return {
@@ -25,13 +26,20 @@ export const ConfigurationContextProvider = (props) => {
         }
     }
 
+    function updateConfig(configParam){
+        setConfig(configParam)
+        setSelectedShirtsColors(configParam.config.shirtsColors.slice(0,3))
+    }
+
     return <ConfigurationContext.Provider value={{
-        setConfig: setConfig,
+        setConfig: updateConfig,
         config: config,
         setSelectedShirtsColors: setSelectedShirtsColors,
         selectedShirtsColors: selectedShirtsColors,
         getSelectedConfig: getSelectedConfig,
         setAlgo,
+        setSelectedEventDate:setSelectedEventDate,
+        selectedEventDate:selectedEventDate,
         algo
         
     }}>

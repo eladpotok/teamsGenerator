@@ -1,11 +1,11 @@
 import { useContext, useEffect, useState } from "react";
 import { getInitialAlgoConfig, getTeams } from '../Adapters/DB/WebApiAdapter'
-import { Button, Card, Descriptions, Modal, Tabs,message } from 'antd';
+import { Button, Card, Descriptions, Modal, Tabs,Tooltip,message } from 'antd';
 import PlayersTable from "./PlayersTable";
 import Teams from "./Teams";
 import { TeamsContext } from "../Store/TeamsContext";
 import Config from "./Config";
-import { QuestionCircleOutlined } from "@ant-design/icons";
+import { QuestionCircleOutlined, QuestionCircleTwoTone } from "@ant-design/icons";
 import { ConfigurationContext } from "../Store/ConfigurationContext";
 import { PlayersContext } from "../Store/PlayersContext";
 
@@ -20,7 +20,6 @@ function MainMenu(props) {
 
     async function generateTeamsHandler() {
         const selectedConfig = configContext.getSelectedConfig();
-
         if (selectedConfig.shirtsColors.length < 3) {
             messageApi.open({
                 type: 'error',
@@ -42,7 +41,6 @@ function MainMenu(props) {
         (async () => {
             if (!configContext.config) {
                 let initialAlgoConfig = await getInitialAlgoConfig();
-                console.log("initialAlgoConfig", initialAlgoConfig.algos[0].algoKey)
                 configContext.setConfig(initialAlgoConfig);
                 configContext.setAlgo(initialAlgoConfig.algos[0].algoKey)
             }
@@ -77,9 +75,11 @@ function MainMenu(props) {
                 { teamsContext.teams &&   <Button  onClick={()=>{setTeamsModalOpened(true)}} type="primary" style={{ borderRadius: '5px', marginTop: '5px', marginRight: '10px' }}>
                         Show Last Results
                     </Button>}
-
-                    <Button hidden={playersContext.players.length < 5} onClick={generateTeamsHandler} type="primary" style={{ borderRadius: '5px', marginTop: '5px' }}>
-                        Run!
+                    {playersContext.players.length < 5 && <Tooltip title='Available only when 5 players added'>
+                        <QuestionCircleTwoTone  style={{marginTop: '10px', marginRight: '5px', fontSize: '24px'}} />
+                    </Tooltip>}
+                    <Button disabled={playersContext.players.length < 5} onClick={generateTeamsHandler} type="primary" style={{ borderRadius: '5px', marginTop: '5px' }}>
+                            Run!
                     </Button>
                 </div>
 

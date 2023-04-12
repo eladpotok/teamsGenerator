@@ -68,7 +68,7 @@ function Teams(props) {
                     <Button icon={<CopyOutlined />} onClick={copyToClipboard} style={{ borderRadius: '5px', marginTop: '5px', marginRight: '5px' }} />
 
 
-                    <WhatsappShareButton url={getTextResult(teamsContext.teams, configContext.config.config.eventDate)}>
+                    <WhatsappShareButton url={getTextResult(teamsContext.teams, configContext.selectedEventDate)}>
                         <WhatsappIcon style={{ borderRadius: '5px', marginBottom: '-10px', marginRight: '5px' }} size={32} />
                     </WhatsappShareButton >
                 </div>
