@@ -1,9 +1,9 @@
 
 import { useContext } from 'react';
+import { Button, Col, Popconfirm, Row, Tooltip } from 'antd';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 import './Team.css'
-import { TeamsContext } from '../Store/TeamsContext';
-import { Button, Col, List, Popconfirm, Row, Skeleton, Tooltip } from 'antd';
-import { QuestionCircleOutlined, UserOutlined } from '@ant-design/icons';
+import { TeamsContext } from '../../Store/TeamsContext';
 
 function Team(props) {
     const teamsContext = useContext(TeamsContext);
@@ -28,7 +28,7 @@ function Team(props) {
             {props.team.players.map(player =>
                 <div>
                     <Row >
-                        <Col style={{ width: '100px', 'text-overflow': 'ellipsis', 'white-space': 'nowrap', 'overflow': 'hidden' , margin: '4px' }} flex='auto'>
+                        <Col  style={{ width: '100px', 'text-overflow': 'ellipsis', 'white-space': 'nowrap', 'overflow': 'hidden' , margin: '4px' }} flex='auto'>
                             {player.name}
                         </Col>
 

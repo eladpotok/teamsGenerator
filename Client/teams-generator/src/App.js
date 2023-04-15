@@ -1,28 +1,32 @@
-import logo from './logo.svg';
 import './App.css';
-import PlayersTable from './Components/PlayersTable';
 import getPlayersDEMO from './Adapters/DB/playersDB';
 import MainMenu from './Components/MainMenu';
 import { TeamsContextProvider } from './Store/TeamsContext';
-import { ConfigurationContextProvider } from './Store/ConfigurationContext';
-import MyCard from './Components/UI/MyCard';
-import { Card, ConfigProvider } from 'antd';
+import { ConfigurationContext, ConfigurationContextProvider } from './Store/ConfigurationContext';
+import { Card } from 'antd';
 import { PlayersContextProvider } from './Store/PlayersContext';
 import { BrowserView, MobileView } from 'react-device-detect';
+import { ConfigurationStoreContext, ConfigurationStoreContextProvider } from './Store/ConfigurationStoreContext';
 import MobileMainScreen from './Components/Mobile/MobileMainScreen';
+import { useContext, useEffect } from 'react';
+import { getInitialConfig } from './Adapters/DB/WebApiAdapter';
+import Main from './Components/Main';
 
 function App() {
   const players = getPlayersDEMO()
+
+
+
   return (
-    <ConfigurationContextProvider>
-      <TeamsContextProvider>
-        <PlayersContextProvider>
-          <Card style={{ marginTop: '4%', marginRight: '10%', marginLeft: '10%' }}>
-          <MainMenu />
-          </Card>
-        </PlayersContextProvider>
-      </TeamsContextProvider>
-    </ConfigurationContextProvider>
+    <ConfigurationStoreContextProvider>
+      <ConfigurationContextProvider>
+        <TeamsContextProvider>
+          <PlayersContextProvider>
+              <Main/>
+          </PlayersContextProvider>
+        </TeamsContextProvider>
+      </ConfigurationContextProvider>
+    </ConfigurationStoreContextProvider>
   )
 }
 

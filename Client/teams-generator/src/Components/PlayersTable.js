@@ -6,35 +6,35 @@ import './PlayersTable.css';
 import React from 'react';
 import Files from 'react-files'
 import { TeamsContext } from "../Store/TeamsContext";
-import MyCard from "./UI/MyCard";
 import { ConfigurationContext } from "../Store/ConfigurationContext";
 import { PlayersContext } from "../Store/PlayersContext";
 import { v4 as uuidv4 } from 'uuid';
+import { ConfigurationStoreContext } from "../Store/ConfigurationStoreContext";
+import CompoundedSpace from "antd/es/space";
+import ImportPlayer from "./Common/ImportPlayer";
+import { writeFileHandler } from '../Utilities/Helpers'
 
 
 function PlayersTable(props) {
-
-    const [playerProperties, setPlayerProperties] = useState(null)
-    const [columns, setColumns] = useState([])
-    const [addedPlayer, setAddedPlayer] = useState({})
+    
+    const [columns, setColumns] = useState(null)
     const [openNewPlayerModal, setOpenNewPlayerModal] = useState(false)
-    const [messageApi, contextHolder] = message.useMessage();
+    const [selectedPlayersKey, setSelectedPlayersKey] = useState([]);
+
     const key = 'updatable';
-
-    const playerIndex = 1
     const teamsContext = useContext(TeamsContext);
-    const configContext = useContext(ConfigurationContext);
     const playersContext = useContext(PlayersContext)
-
+    const storeConfigContext = useContext(ConfigurationStoreContext);
+    
+    const playersProperties = storeConfigContext.storeConfig.algos[props.algoKey].playerProperties
+    
     useEffect(() => {
         (async () => {
-            if (!playerProperties) {
-                let properties = await getPlayersPropertiesByAlgo(props.algoKey);
-                setPlayerProperties(properties);
-                generateTableColumns(properties);
+            if (!columns) {
+                generateTableColumns(storeConfigContext.storeConfig.algos[props.algoKey].playerProperties);
             }
         })()
-    }, [playerProperties])
+    }, [columns])
 
 
     function addPlayerHandler(player) {
@@ -44,11 +44,12 @@ function PlayersTable(props) {
     function removePlayerHandler() {
         const updatedPlayers = playersContext.players.filter(player => !selectedPlayersKey.includes(player.key))
         playersContext.setPlayers(updatedPlayers)
+        setSelectedPlayersKey([])
     }
 
 
     function generateTableColumns(playersProperties) {
-        const columns = playersProperties.map((property) => {
+        const columns = playersProperties.filter(f => f.showInClient).map((property) => {
             return {
                 title: property.name,
                 dataIndex: property.name
@@ -71,54 +72,21 @@ function PlayersTable(props) {
         form.resetFields();
     };
 
-    const closeModalHandler = () => {
+    const modalCancelHandler = () => {
         setOpenNewPlayerModal(false);
         resetFromHandler();
     };
 
-    const readFileHandler = (files) => {
-        const fileReader = new FileReader();
 
-        fileReader.onload = e => {
-            playersContext.setPlayers(JSON.parse(e.target.result))
-            messageApi.open({
-                key,
-                type: 'success',
-                content: 'Loaded!',
-                duration: 2,
-              })
-        };
-        messageApi.open({
-            key,
-            type: 'loading',
-            content: 'Loading...',
-          })
-        fileReader.readAsText(files[0], "UTF-8");
-    }
 
-    const writeFileHandler = (files) => {
-        const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
-            JSON.stringify(playersContext.players)
-          )}`;
-          const link = document.createElement("a");
-          link.href = jsonString;
-          link.download = "players.json";
-      
-          link.click();
-      
-    }
-
-    const handleError = (error, file) => {
-        console.log('error code ' + error.code + ': ' + error.message)
-    }
+ 
+ 
  
     function clearPlayersHandler() {
         playersContext.setPlayers([])
-        teamsContext.setTeams(null)
     }
 
 
-    const [selectedPlayersKey, setSelectedPlayersKey] = useState([]);
 
     const onSelectChange = (newSelectedPlayers) => {
         setSelectedPlayersKey(newSelectedPlayers)
@@ -133,14 +101,13 @@ function PlayersTable(props) {
 
     const [form] = Form.useForm();
 
-    console.log("algos", playerProperties)
+    
     return (
         <Card >
-            {contextHolder}
-            <Modal onCancel={closeModalHandler} open={openNewPlayerModal} footer={[]} title='Add Player'>
+            <Modal onCancel={modalCancelHandler} open={openNewPlayerModal} footer={[]} title='Add Player'>
                 <Form {...layout} form={form} onFinish={formFinishedHandler} style={{ marginTop: '15px' }}>
 
-                    {playerProperties && playerProperties.filter(f => f.showInClient).map((property) => 
+                    {playersProperties && playersProperties.filter(f => f.showInClient).map((property) => 
 
                         <Form.Item name={property.name} label={property.name} rules={[{ required: true }]}>
                             <Input type={property.type} tep={0.1} max={10} min={1} />
@@ -188,20 +155,13 @@ function PlayersTable(props) {
                     Add
                 </Button>
 
-                <Files
-                    className='files-dropzone'
-                    onChange={readFileHandler}
-                    onError={handleError}
-                    accepts={['.json']}
-                    maxFileSize={10000000}
-                    minFileSize={0}
-                    clickable>
+                <ImportPlayer>
                     <Button icon={<UploadOutlined />} type='primary' style={{ borderRadius: '5px', marginRight: '5px' }}>
                         Import
                     </Button>
-                </Files>
+                </ImportPlayer>
 
-                <Button onClick={writeFileHandler} icon={<ExportOutlined />} type='primary' style={{ borderRadius: '5px', marginRight: '5px' }}>
+                <Button onClick={()=>{writeFileHandler(playersContext.players)}} icon={<ExportOutlined />} type='primary' style={{ borderRadius: '5px', marginRight: '5px' }}>
                         Export
                 </Button>
 
@@ -210,15 +170,9 @@ function PlayersTable(props) {
             
             <Divider/>
 
-            <Table  rowSelection={rowSelection} dataSource={playersContext.players} columns={columns} />
+                <Table  rowSelection={rowSelection} dataSource={playersContext.players} columns={columns} />
 
             <Divider/>
-     
-
-
-
-
-
 
         </Card>
     );

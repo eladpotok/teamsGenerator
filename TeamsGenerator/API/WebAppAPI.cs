@@ -25,14 +25,14 @@ namespace TeamsGenerator.API
         public static void Init()
         {
             _algoTypeToInformationMapper = new Dictionary<AlgoType, WebAppAlgoInfo>() {
-                { AlgoType.BackAndForth, new WebAppAlgoInfo(AlgoType.BackAndForth, "Back And Forth", "Do it in cycle") },
                 { AlgoType.SkillWise, new WebAppAlgoInfo(AlgoType.SkillWise, "Skillwise", "Divide the players according to their skills") },
+                { AlgoType.BackAndForth, new WebAppAlgoInfo(AlgoType.BackAndForth, "Back And Forth", "Do it in cycle") },
             };
 
             _algoTypeToPlayerSerializerMapper = new Dictionary<AlgoType, Func<dynamic, IPlayer[]>>()
             {
-                { AlgoType.BackAndForth, (json) => JsonConvert.DeserializeObject<BackAndForthPlayer[]>(json) },
                 { AlgoType.SkillWise, (json) => JsonConvert.DeserializeObject<SkillWisePlayer[]>(json) },
+                { AlgoType.BackAndForth, (json) => JsonConvert.DeserializeObject<BackAndForthPlayer[]>(json) },
             };
 
             foreach (var item in _algoTypeToInformationMapper)
@@ -66,8 +66,7 @@ namespace TeamsGenerator.API
             var teams = AlgoRunner.Run(algoKeyEnum, playersCollection.ToList(), algoConfig);
             var teamsResponse = GetDisplayTeams(config.ShirtsColors, teams);
 
-            var textAsResult = Helper.GetResultsAsText(teamsResponse.Cast<IDisplayTeam>().ToList(), false);
-            return new GetTeamsResponse() { Teams = teamsResponse, TeamsResultAsCopyText = textAsResult };
+            return new GetTeamsResponse() { Teams = teamsResponse };
         }
 
         public static InitialAppConfig GetInitialAlgoConfig()

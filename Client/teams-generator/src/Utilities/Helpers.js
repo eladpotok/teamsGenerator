@@ -28,3 +28,15 @@ export function getTextResult(teams, dateTime) {
     return textToCopy
 
 }
+
+export function writeFileHandler(players)  {
+    const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
+        JSON.stringify(players)
+      )}`;
+      const link = document.createElement("a");
+      link.href = jsonString;
+      link.download = "players.json";
+  
+      link.click();
+  
+}
