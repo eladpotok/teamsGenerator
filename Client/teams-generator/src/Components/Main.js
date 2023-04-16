@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { ConfigurationContext } from "../Store/ConfigurationContext";
 import { ConfigurationStoreContext } from "../Store/ConfigurationStoreContext";
 import { getInitialConfig, getTeams } from "../Adapters/FakeWebApiAdapter";
@@ -41,6 +41,24 @@ function Main(props) {
 
     function resetHandler() {
         playersContext.setPlayers([])
+        teamsContext.setTeams(null)
+    }
+
+    function removeAllPlayersHandler(){
+        playersContext.setPlayers([])
+    }
+
+    function removePlayerHandler(playerToRemove){
+        const updatedPlayers = playersContext.players.filter(player => player.key != playerToRemove.key)
+        playersContext.setPlayers(updatedPlayers)
+    }
+
+    function removePlayerFromTeamHandler(fromTeam, player) {
+        teamsContext.removePlayer(fromTeam, player)
+    }
+    
+    function movePlayerHandler(fromTeam, toTeam, player) {
+        teamsContext.movePlayer(fromTeam, toTeam, player)
     }
 
     async function generateTeamsHandler() {
@@ -76,7 +94,7 @@ function Main(props) {
                 </Card>
             </BrowserView>
             <MobileView>
-                {storeConfigContext.storeConfig && configContext.userConfig && <MobileMainScreen  onGenerateTeams={generateTeamsHandler} onResetClicked={resetHandler} onAlgoChanged={algoSelectChangedHandler} storeConfig={storeConfigContext.storeConfig} teams={teamsContext.teams}/>}
+                {storeConfigContext.storeConfig && configContext.userConfig && <MobileMainScreen onClearPlayers={removeAllPlayersHandler} onMovePlayer={movePlayerHandler} onRemovePlayerFromTeam={removePlayerFromTeamHandler} onRemovePlayer={removePlayerHandler} onGenerateTeams={generateTeamsHandler} onResetClicked={resetHandler} onAlgoChanged={algoSelectChangedHandler} storeConfig={storeConfigContext.storeConfig} teams={teamsContext.teams}/>}
             </MobileView>
         </>
     )

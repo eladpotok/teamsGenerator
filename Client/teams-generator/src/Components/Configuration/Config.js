@@ -46,8 +46,8 @@ function Config(props) {
 
     return (
 
-        <Card title='Configuration' style={{backgroundColor: props.backgroundColor}}>
-            <QuestionCircleOutlined />  <label style={{ color: "gray", marginLeft: '4px' }}>Setup your settings of your teams</label>
+        <Card title='Configuration' style={{backgroundColor: "white"}}>
+            <QuestionCircleOutlined />  <label style={{marginLeft: '4px' }}>Setup your settings of your teams</label>
                 {configContext.userConfig && <Form  {...layout} style={{ marginTop: '15px' }} size="small">
 
                     <Form.Item name="teamsCount" label="Number of Teams" >

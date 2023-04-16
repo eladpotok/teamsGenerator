@@ -6,20 +6,18 @@ import './Team.css'
 import { TeamsContext } from '../../Store/TeamsContext';
 
 function Team(props) {
-    const teamsContext = useContext(TeamsContext);
-
 
     function getTeamsExcludingThis(teamId) {
-        return teamsContext.teams.filter(t => t.teamId != teamId)
+        return props.teams.filter(t => t.teamId != teamId)
     }
 
 
     function moveToOtherTeam(fromTeam, toTeam, player) {
-        teamsContext.movePlayer(fromTeam, toTeam, player)
+        props.onMovePlayer(fromTeam, toTeam, player)
     }
 
     function removePlayer(fromTeam, player) {
-        teamsContext.removePlayer(fromTeam, player)
+        props.onRemovePlayer(fromTeam, player)
     }
 
     return (

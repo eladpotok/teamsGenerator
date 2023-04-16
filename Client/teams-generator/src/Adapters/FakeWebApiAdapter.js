@@ -8,28 +8,10 @@ export async function getInitialConfig() {
         },
         algos: [
             {
-                algoName: "BackToForth",
-                description: "this is back to forth algo",
-                displayName: "Back To Forth",
-                algoKey: 0,
-                playerProperties: [
-                    {
-                        name: "Name",
-                        type: "text",
-                        showInClient: true
-                    },
-                    {
-                        name: "Rank",
-                        type: "number",
-                        showInClient: true
-                    }
-                ]
-            },
-            {
                 algoName: "skillwise",
                 description: "this is skillwise algo",
                 displayName: "SkillWise",
-                algoKey: 1,
+                algoKey: 0,
                 playerProperties: [
                     {
                         name: "Name",
@@ -62,6 +44,24 @@ export async function getInitialConfig() {
                         showInClient: true
                     }
                 ]
+            },
+            {
+                algoName: "BackToForth",
+                description: "this is back to forth algo",
+                displayName: "Back To Forth",
+                algoKey: 1,
+                playerProperties: [
+                    {
+                        name: "Name",
+                        type: "text",
+                        showInClient: true
+                    },
+                    {
+                        name: "Rank",
+                        type: "number",
+                        showInClient: true
+                    }
+                ]
             }
         ]
     }
@@ -75,6 +75,7 @@ export async function getTeams(algoType, players, config){
                 teamSymbol: '🟥',
                 color: 'Red',
                 teamId: 1,
+                teamName: '1',
                 players: [
                     {
                         name: 'Dor Kronzilber'
@@ -97,6 +98,7 @@ export async function getTeams(algoType, players, config){
                 teamSymbol: '🟩',
                 color: 'Green',
                 teamId: 2,
+                teamName: '2',
                 players: [
                     {
                         name: 'Or Raif'
@@ -119,6 +121,7 @@ export async function getTeams(algoType, players, config){
                 teamSymbol: '🟨',
                 color: 'Yellow',
                 teamId: 3,
+                teamName: '3',
                 players: [
                     {
                         name: 'Elad Peleg'

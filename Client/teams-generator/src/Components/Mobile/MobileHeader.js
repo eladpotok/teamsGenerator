@@ -23,9 +23,9 @@ function MobileHeader(props) {
         props.onAlgoChanged(selectedAlgo)
     };
 
-    return (<Row style={{ margin: '4px' }}>
+    return (<Row style={{ marginTop: '4px' }}>
         <Col flex='none'>
-            <Button style={{ margin: '4px' }} size="large" onClick={() => { openCloseConfigDrawerHandler(true) }} icon={<SettingOutlined />} />
+            <Button style={{ margin: '4px'   }} size="large" onClick={() => { openCloseConfigDrawerHandler(true) }} icon={<SettingOutlined />} />
         </Col>
         <Col flex="auto">
             {algosItems && <div>
@@ -36,11 +36,12 @@ function MobileHeader(props) {
             </div>}
         </Col>
 
-        <Drawer title="Configuration" style={{ backgroundColor: '#4b525e' }}
+        <Drawer style={{ backgroundColor: 'white' }}
+                title='User Configuration'
                 width='85%'
                 onClose={() => { openCloseConfigDrawerHandler(false) }}
                 open={configDrawerOpen}>
-                {props.storeConfig && <Config backgroundColor='#4b525e' currentAlgo={props.storeConfig.algos.filter(t => t.algoKey == 0)[0]} shirtsColors={props.storeConfig.config.shirtsColors} numberOfTeams={props.storeConfig.config.numberOfTeams} />}
+                {props.storeConfig && <Config backgroundColor='white' currentAlgo={props.storeConfig.algos.filter(t => t.algoKey == 0)[0]} shirtsColors={props.storeConfig.config.shirtsColors} numberOfTeams={props.storeConfig.config.numberOfTeams} />}
         </Drawer>
 
     </Row>)

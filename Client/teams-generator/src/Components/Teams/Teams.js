@@ -38,17 +38,17 @@ function Teams(props) {
             <Row gutter={1}>
                 <Col span={columnSpan}>
                     <Card title={team1} bordered={false} size='small'>
-                        <Team team={teamsContext.teams[0]} />
+                        <Team onMovePlayer={props.onMovePlayer} onRemovePlayer={props.onRemovePlayer} teams={teamsContext.teams} team={teamsContext.teams[0]} />
                     </Card>
                 </Col>
                 <Col span={columnSpan}>
                     <Card title={team2} bordered={false} size='small'>
-                        <Team team={teamsContext.teams[1]} />
+                        <Team onMovePlayer={props.onMovePlayer} onRemovePlayer={props.onRemovePlayer} teams={teamsContext.teams} team={teamsContext.teams[1]} />
                     </Card>
                 </Col>
                 <Col span={columnSpan}>
                     <Card title={team3} bordered={false} size='small'>
-                        <Team team={teamsContext.teams[2]} />
+                        <Team onMovePlayer={props.onMovePlayer} onRemovePlayer={props.onRemovePlayer} teams={teamsContext.teams} team={teamsContext.teams[2]} />
                     </Card>
                 </Col>
             </Row>

@@ -22,7 +22,7 @@ function App() {
       <ConfigurationContextProvider>
         <TeamsContextProvider>
           <PlayersContextProvider>
-              <Main/>
+              <Main />
           </PlayersContextProvider>
         </TeamsContextProvider>
       </ConfigurationContextProvider>

@@ -2,6 +2,7 @@ import { Button, Form, Input } from "antd";
 import { useContext } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { PlayersContext } from "../../Store/PlayersContext";
+import AppButton from "./AppButton";
 
 function AddPlayerForm(props) {
 
@@ -39,13 +40,13 @@ function AddPlayerForm(props) {
             )}
 
             <div style={{ display: 'flex', 'flex-direction': 'row', 'align-items': 'flex-end', 'justifyContent': 'flex-end' }}>
-                <Button type="primary" htmlType="submit" style={{ marginRight: 16 }}>
-                    Add
-                </Button>
+                <AppButton  style={{ marginRight: 16 }}>
+                    ADD
+                </AppButton>
 
-                <Button htmlType="button" onClick={resetFromHandler}>
-                    Reset
-                </Button>
+                <AppButton htmlType="button" onClick={resetFromHandler}>
+                    RESET
+                </AppButton>
             </div>
 
         </Form>
