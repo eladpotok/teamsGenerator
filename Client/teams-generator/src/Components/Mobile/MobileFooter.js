@@ -72,7 +72,7 @@ function MobileFooter(props) {
 
                 </Col>
 
-                <Modal centered onCancel={() => { setTeamsModalOpened(false) }} open={teamsModalOpened} footer={[]}>
+                <Modal style={{margin: '10px'}} centered onCancel={() => { setTeamsModalOpened(false) }} open={teamsModalOpened} footer={[]}>
                     {props.teams && <Teams onMovePlayer={props.onMovePlayer} onRemovePlayerFromTeam={props.onRemovePlayer} teams={props.teams} onShuffleClicked={async () => {
                             const succeeded = await props.onGenerateTeams()
                         }}/>}

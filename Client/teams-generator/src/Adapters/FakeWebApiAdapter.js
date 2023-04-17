@@ -19,27 +19,27 @@ export async function getInitialConfig() {
                         showInClient: true
                     },
                     {
-                        name: "attack",
+                        name: "Attack",
                         type: "number",
                         showInClient: true
                     },
                     {
-                        name: "defence",
+                        name: "Defence",
                         type: "number",
                         showInClient: true
                     },
                     {
-                        name: "stamina",
+                        name: "Stamina",
                         type: "number",
                         showInClient: true
                     },
                     {
-                        name: "passing",
+                        name: "Passing",
                         type: "number",
                         showInClient: true
                     },
                     {
-                        name: "leadership",
+                        name: "Leadership",
                         type: "number",
                         showInClient: true
                     }
@@ -68,7 +68,8 @@ export async function getInitialConfig() {
 }
 
 
-export async function getTeams(algoType, players, config){
+export async function getTeams(players, config){
+    console.log('players', players)
     return {
         teams: [
             {
@@ -77,21 +78,7 @@ export async function getTeams(algoType, players, config){
                 teamId: 1,
                 teamName: '1',
                 players: [
-                    {
-                        name: 'Dor Kronzilber'
-                    },
-                    {
-                        name: 'Idan Nicolet'
-                    },
-                    {
-                        name: 'Tal Zelnik'
-                    },
-                    {
-                        name: 'Aviv Koren'
-                    },
-                    {
-                        name: 'Ben Elkayam'
-                    },
+                    ...players.slice(0, 5).map(p => {return { name: p.Name  }})
                 ]
             },
             {
@@ -100,21 +87,7 @@ export async function getTeams(algoType, players, config){
                 teamId: 2,
                 teamName: '2',
                 players: [
-                    {
-                        name: 'Or Raif'
-                    },
-                    {
-                        name: 'Lior Amar'
-                    },
-                    {
-                        name: 'Yossi Tamir'
-                    },
-                    {
-                        name: 'Benny Assa'
-                    },
-                    {
-                        name: 'Guy Barel'
-                    },
+                    ...players.slice(5, 10).map(p => {return { name: p.Name  }})
                 ]
             },
             {
@@ -123,21 +96,7 @@ export async function getTeams(algoType, players, config){
                 teamId: 3,
                 teamName: '3',
                 players: [
-                    {
-                        name: 'Elad Peleg'
-                    },
-                    {
-                        name: 'Avi Goldberg'
-                    },
-                    {
-                        name: 'Gal Gan'
-                    },
-                    {
-                        name: 'Daniel Krasny'
-                    },
-                    {
-                        name: 'Omer Shuali'
-                    },
+                    ...players.slice(10, 15).map(p => {return { name: p.Name  }})
                 ]
             }
             

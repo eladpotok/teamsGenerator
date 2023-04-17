@@ -24,7 +24,7 @@ function Team(props) {
         <>
 
             {props.team.players.map(player =>
-                <div>
+                <div style={{marginTop: '-4px'}}>
                     <Row >
                         <Col  style={{ width: '100px', 'text-overflow': 'ellipsis', 'white-space': 'nowrap', 'overflow': 'hidden' , margin: '4px' }} flex='auto'>
                             {player.name}

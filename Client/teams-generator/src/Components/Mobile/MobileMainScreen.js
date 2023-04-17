@@ -32,9 +32,9 @@ function MobileMainScreen(props) {
                 <MobilePlayersListPanel onClearPlayers={props.onClearPlayers} onRemovePlayer={props.onRemovePlayer} currentAlgo={configContext.userConfig.algo} players={playersContext.players}/>
             </header>
             <main className="row">
-                {configContext.userConfig.algo && <MobilePlayersMenu onRemovePlayer={props.onRemovePlayer} players={playersContext.players} currentAlgo={configContext.userConfig.algo} />}
+                {configContext.userConfig.algo && <MobilePlayersMenu  onRemovePlayer={props.onRemovePlayer} players={playersContext.players} currentAlgo={configContext.userConfig.algo} />}
             </main>
-            <footer className="row">
+            <footer>
                 <MobileFooter onResetClicked={props.onResetClicked} onGenerateTeams={props.onGenerateTeams} onMovePlayer={props.onMovePlayer} onRemovePlayerFromTeam={props.onRemovePlayerFromTeam} teams={props.teams} />
             </footer>
         </body>

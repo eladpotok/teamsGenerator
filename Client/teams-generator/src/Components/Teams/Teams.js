@@ -36,17 +36,17 @@ function Teams(props) {
             {contextHolder}
 
             <Row gutter={1}>
-                <Col span={columnSpan}>
+                <Col span={columnSpan} style={{marginTop: '-12px'}}>
                     <Card title={team1} bordered={false} size='small'>
                         <Team onMovePlayer={props.onMovePlayer} onRemovePlayer={props.onRemovePlayer} teams={teamsContext.teams} team={teamsContext.teams[0]} />
                     </Card>
                 </Col>
-                <Col span={columnSpan}>
+                <Col span={columnSpan} style={{marginTop: '-12px'}}>
                     <Card title={team2} bordered={false} size='small'>
                         <Team onMovePlayer={props.onMovePlayer} onRemovePlayer={props.onRemovePlayer} teams={teamsContext.teams} team={teamsContext.teams[1]} />
                     </Card>
                 </Col>
-                <Col span={columnSpan}>
+                <Col span={columnSpan} style={{marginTop: '-12px'}}>
                     <Card title={team3} bordered={false} size='small'>
                         <Team onMovePlayer={props.onMovePlayer} onRemovePlayer={props.onRemovePlayer} teams={teamsContext.teams} team={teamsContext.teams[2]} />
                     </Card>

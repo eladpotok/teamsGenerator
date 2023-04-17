@@ -9,6 +9,7 @@ import MainMenu from "./MainMenu";
 import MobileMainScreen from "./Mobile/MobileMainScreen";
 import { PlayersContext } from "../Store/PlayersContext";
 import { TeamsContext } from "../Store/TeamsContext";
+import {Dimensions, StatusBar} from 'react-native'; 
 
 function Main(props) {
 
@@ -84,6 +85,11 @@ function Main(props) {
         return true
     }
     
+    // RN version:0.57.0
+    let deviceH = Dimensions.get('screen').height;
+    // the value returned does not include the bottom navigation bar, I am not sure why yours does.
+    let windowH = Dimensions.get('window').height;
+    let bottomNavBarH = deviceH - windowH;
 
     return (
         <>
@@ -94,7 +100,7 @@ function Main(props) {
                 </Card>
             </BrowserView>
             <MobileView>
-                {storeConfigContext.storeConfig && configContext.userConfig && <MobileMainScreen onClearPlayers={removeAllPlayersHandler} onMovePlayer={movePlayerHandler} onRemovePlayerFromTeam={removePlayerFromTeamHandler} onRemovePlayer={removePlayerHandler} onGenerateTeams={generateTeamsHandler} onResetClicked={resetHandler} onAlgoChanged={algoSelectChangedHandler} storeConfig={storeConfigContext.storeConfig} teams={teamsContext.teams}/>}
+                {storeConfigContext.storeConfig && configContext.userConfig && <MobileMainScreen screenHeight={bottomNavBarH} onClearPlayers={removeAllPlayersHandler} onMovePlayer={movePlayerHandler} onRemovePlayerFromTeam={removePlayerFromTeamHandler} onRemovePlayer={removePlayerHandler} onGenerateTeams={generateTeamsHandler} onResetClicked={resetHandler} onAlgoChanged={algoSelectChangedHandler} storeConfig={storeConfigContext.storeConfig} teams={teamsContext.teams}/>}
             </MobileView>
         </>
     )
