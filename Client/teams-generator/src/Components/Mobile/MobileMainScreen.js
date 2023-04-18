@@ -11,14 +11,19 @@ import { ClearOutlined, ExportOutlined, MoreOutlined, UploadOutlined, UserAddOut
 import ImportPlayer from "../Common/ImportPlayer";
 import { writeFileHandler } from "../../Utilities/Helpers";
 import MobilePlayersListPanel from "./Players/MobilePlayersListPanel";
+import { AnalyticsContext } from "../../Store/AnalyticsContext";
 
 function MobileMainScreen(props) {
 
     const configContext = useContext(ConfigurationContext);
     const playersContext = useContext(PlayersContext)
+    const analyticsContext = useContext(AnalyticsContext)
+
 
     function algoChangedHandler(value) {
         props.onAlgoChanged(value)
+
+        analyticsContext.sendContentEvent('algo_changed')
     };
 
     function playerArrivedHandler(player, value){

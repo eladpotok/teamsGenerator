@@ -10,15 +10,19 @@ import MobileMainScreen from "./Mobile/MobileMainScreen";
 import { PlayersContext } from "../Store/PlayersContext";
 import { TeamsContext } from "../Store/TeamsContext";
 import {Dimensions, StatusBar} from 'react-native'; 
+import { AnalyticsContext } from "../Store/AnalyticsContext";
 
 function Main(props) {
-
+    
+    const analyticsContext = useContext(AnalyticsContext)
     const configContext = useContext(ConfigurationContext);
     const storeConfigContext = useContext(ConfigurationStoreContext);
     const playersContext = useContext(PlayersContext)
     const teamsContext = useContext(TeamsContext)
     const [messageApi, contextHolder] = message.useMessage();
 
+
+    analyticsContext.sendPageViewEvent('main')
 
     useEffect(() => {
         (async () => {
@@ -91,6 +95,9 @@ function Main(props) {
     // the value returned does not include the bottom navigation bar, I am not sure why yours does.
     let windowH = Dimensions.get('window').height;
     let bottomNavBarH = deviceH - windowH;
+
+
+    
 
     return (
         <>

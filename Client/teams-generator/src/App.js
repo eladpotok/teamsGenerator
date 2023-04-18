@@ -11,18 +11,24 @@ import MobileMainScreen from './Components/Mobile/MobileMainScreen';
 import { useContext, useEffect } from 'react';
 import { getInitialConfig } from './Adapters/DB/WebApiAdapter';
 import Main from './Components/Main';
+import {  logEvent } from "firebase/analytics";
+import { AnalyticsEventManager } from './Adapters/AnalyticsEventSender';
+import { AnalyticsContextProvider } from './Store/AnalyticsContext';
+
+
 
 function App() {
+
   const players = getPlayersDEMO()
-
-
-
+  
   return (
     <ConfigurationStoreContextProvider>
       <ConfigurationContextProvider>
         <TeamsContextProvider>
           <PlayersContextProvider>
+            <AnalyticsContextProvider>
               <Main />
+            </AnalyticsContextProvider>
           </PlayersContextProvider>
         </TeamsContextProvider>
       </ConfigurationContextProvider>
