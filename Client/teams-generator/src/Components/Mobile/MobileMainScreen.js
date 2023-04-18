@@ -21,6 +21,14 @@ function MobileMainScreen(props) {
         props.onAlgoChanged(value)
     };
 
+    function playerArrivedHandler(player, value){
+        playersContext.setPlayerArrived(player, value)
+    }
+
+    function markAllPlayersHandler(value) {
+        playersContext.setAllPlayerArrived(value)
+    }
+
 
     return (
 
@@ -29,12 +37,12 @@ function MobileMainScreen(props) {
                 <MobileHeader storeConfig={props.storeConfig} onAlgoChanged={algoChangedHandler} defaultAlgoName={configContext.userConfig.algo.displayName} />
             </header>
             <header>
-                <MobilePlayersListPanel onClearPlayers={props.onClearPlayers} onRemovePlayer={props.onRemovePlayer} currentAlgo={configContext.userConfig.algo} players={playersContext.players}/>
+                <MobilePlayersListPanel onMarkAllPlayers={markAllPlayersHandler} onClearPlayers={props.onClearPlayers} onRemovePlayer={props.onRemovePlayer} arrivedPlayers={playersContext.arrivedPlayers} currentAlgo={configContext.userConfig.algo} players={playersContext.players}/>
             </header>
             <main className="row">
-                {configContext.userConfig.algo && <MobilePlayersMenu  onRemovePlayer={props.onRemovePlayer} players={playersContext.players} currentAlgo={configContext.userConfig.algo} />}
+                {configContext.userConfig.algo && <MobilePlayersMenu onPlayerArrived={playerArrivedHandler}  onRemovePlayer={props.onRemovePlayer} players={playersContext.players} currentAlgo={configContext.userConfig.algo} />}
             </main>
-            <footer>
+            <footer style={{ marginLeft: '4px', marginRight: '4px' }}>
                 <MobileFooter onResetClicked={props.onResetClicked} onGenerateTeams={props.onGenerateTeams} onMovePlayer={props.onMovePlayer} onRemovePlayerFromTeam={props.onRemovePlayerFromTeam} teams={props.teams} />
             </footer>
         </body>

@@ -2,6 +2,7 @@ import { DeleteOutlined, EditOutlined, QuestionCircleOutlined, UserOutlined } fr
 import { Avatar, Button, Card, Drawer, List, Popconfirm } from "antd";
 import { useState } from "react";
 import AddPlayerForm from "../../Common/AddPlayerForm";
+import AppCheckBox from "../../Common/AppCheckBox";
 
 function MobilePlayersList(props) {
     const [editPlayerDrawerOpen, setEditPlayerDrawerOpen] = useState(false)
@@ -11,26 +12,31 @@ function MobilePlayersList(props) {
         props.onPlayerRemoved(clickedPlayer)
     }
 
+    function setPlayerArrivedHandler(player, isArrived) {
+        props.onPlayerArrived(player, isArrived)
+    }
 
     return (
         <Card style={{
             height: '100%',
             overflow: 'auto',
-            
+            margin: '4px',
             border: '1px solid rgba(140, 140, 140, 0.35)',
           }}>
             
             <List itemLayout="horizontal"  
-                  size="small" style={{ marginLeft: '-18px', marginTop: '-20px', height: '1px' /* Now sure why but this 1px causes the list height not be extended  */}}
+                  size="small" style={{ marginLeft: '-18px', height: '1px' /* Now sure why but this 1px causes the list height not be extended  */}}
                   dataSource={props.players} 
                   renderItem={(player, index) => (
-                    <List.Item actions={[ <Button onClick={() => { setEditPlayer(player); setEditPlayerDrawerOpen(true) }} icon={<EditOutlined />}/> , <Popconfirm icon={<QuestionCircleOutlined style={{ color: 'red' }} />} title='Remove Player' description='Are you sure you want to remove this player?' onConfirm={()=>{playerListItemClicked(player) }}>
-                        <Button style={{marginTop: '15px', marginRight: '-18px'}} icon={<DeleteOutlined />} danger></Button></Popconfirm>]}>
-                        <List.Item.Meta avatar={<Avatar style={{ marginTop: '20px' }}><UserOutlined  style={{ fontSize: '30px'}} /></Avatar>}
+                    <List.Item actions={[ <Button onClick={() => { setEditPlayer(player); setEditPlayerDrawerOpen(true) }} icon={<EditOutlined /> } style={{marginRight: '-10px'}}/> , <div style={{marginRight: '-10px'}}><AppCheckBox  value={player.isArrived} onChanged={(e)=>{setPlayerArrivedHandler(player, e)}} /></div>, <Popconfirm icon={<QuestionCircleOutlined style={{ color: 'red' }} />} title='Remove Player' description='Are you sure you want to remove this player?' onConfirm={()=>{playerListItemClicked(player) }}>
+                        <Button style={{marginTop: '15px', marginRight: '-30px'}} icon={<DeleteOutlined />} danger></Button></Popconfirm>]}>
+                            
+                        <List.Item.Meta avatar={ <Avatar style={{ marginTop: '20px' }}><UserOutlined  style={{ fontSize: '30px'}} /></Avatar>}
                                         title={<div style={{width: '100%', 'textOverflow': 'ellipsis', 'whiteSpace': 'nowrap', 'overflow': 'hidden', marginBottom: '-8px' }}>{player.Name.toUpperCase()}</div>}
                                         description={
-                                            <label style={{fontSize: '12px'}}>{`${getDescription(props.playerProperties, player)}`}</label>
+                                            <label style={{fontSize: '12px'}}>{player.isArrived ? 'Joined' : 'Absent'}</label>
                                         }/>
+
                     </List.Item>
                 )}>
 

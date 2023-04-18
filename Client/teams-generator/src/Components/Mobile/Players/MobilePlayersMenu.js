@@ -8,7 +8,7 @@ function MobilePlayersMenu(props) {
             {props.players && <div style={{height: '100%'}}>
                 <Row style={{height: '100%'}}>
                     <Col flex='auto'>
-                        <MobilePlayersList  onPlayerRemoved={props.onRemovePlayer} currentAlgo={props.currentAlgo} playerProperties={props.currentAlgo.playerProperties} players={props.players}/>
+                        <MobilePlayersList onPlayerArrived={props.onPlayerArrived}  onPlayerRemoved={props.onRemovePlayer} currentAlgo={props.currentAlgo} playerProperties={props.currentAlgo.playerProperties} players={props.players}/>
                     </Col>
                 </Row>
             </div>}

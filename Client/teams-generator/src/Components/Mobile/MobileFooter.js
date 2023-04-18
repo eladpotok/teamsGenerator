@@ -8,13 +8,13 @@ function MobileFooter(props) {
 
     return (
         <div style={{width: '100%'}} className={props.className} >
-            <Row style={{ backgroundColor: 'white' , borderTopLeftRadius: '50px', borderTopRightRadius: '50px',  border: 'grey',  borderTopWidth: '0', borderRightWidth: '0', borderLeftWidth: '0', borderBottomWidth: '0', borderStyle: 'solid'}}>
+            <Row style={{ backgroundColor: 'white' , margin: '4px', borderRadius: '10px'}}>
 
                 <Col
                     span={7}>
                     <Popconfirm onConfirm={props.onResetClicked} title='Reset all' description='Are you sure you want to clear all'>
                         <div style={{ verticalAlign: 'middle', textAlign: 'center', width: '100%', height: '65px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <div style={{ display: 'flex', 'flex-direction': 'column', color: '#282c34' , marginLeft: '10px'}}>
+                            <div style={{ display: 'flex', 'flex-direction': 'column', color: '#282c34' }}>
                                 <FileTextOutlined style={{ fontSize: '24px', marginBottom: '4px' }} />
                                 <label style={{ fontSize: '12px' }}>CLEAR</label>
                             </div>
@@ -50,8 +50,8 @@ function MobileFooter(props) {
                         if (succeeded) setTeamsModalOpened(true)
                     }} style={{ textAlign: 'center', width: '100%', height: '100%', marginRight: '10px' }}>
                         <div style={{ verticalAlign: 'middle', textAlign: 'center', width: '100%', height: '65px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '10px' }}>
-                            {!props.teams && <div style={{ display: 'flex', 'flex-direction': 'column', color: '#282c34', marginRight: '10px' }}>
-                                <SendOutlined style={{ fontSize: '24px', marginBottom: '4px' , marginRight: '10px'}} />
+                            {!props.teams && <div style={{ display: 'flex', 'flex-direction': 'column', color: '#282c34' }}>
+                                <SendOutlined style={{ fontSize: '24px', marginBottom: '4px' }} />
                                 <label style={{ fontSize: '12px' , marginRight: '10px'}}>GENERATE</label>
                             </div>}
                         </div>
@@ -63,8 +63,8 @@ function MobileFooter(props) {
                         }}>
                         <div style={{ textAlign: 'center', width: '100%', height: '100%' , marginRight: '10px'}}>
                             <div style={{ verticalAlign: 'middle', textAlign: 'center', width: '100%', height: '65px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '10px' }}>
-                                {<div style={{ display: 'flex', 'flex-direction': 'column', color: '#282c34', marginRight: '10px' }}>
-                                    <SendOutlined style={{ fontSize: '24px', marginBottom: '4px' , marginRight: '10px'}} />
+                                {<div style={{ display: 'flex', 'flex-direction': 'column', color: '#282c34' }}>
+                                    <SendOutlined style={{ fontSize: '24px', marginBottom: '4px'}} />
                                     <label style={{ fontSize: '12px' }}>GENERATE</label>
                                 </div>}
                             </div>

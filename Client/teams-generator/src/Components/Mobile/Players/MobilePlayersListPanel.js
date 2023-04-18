@@ -1,4 +1,4 @@
-import { ClearOutlined, ExportOutlined, MoreOutlined, NumberOutlined, UploadOutlined, UserAddOutlined } from "@ant-design/icons";
+import { CheckSquareOutlined, ClearOutlined, ExportOutlined, FileDoneOutlined, MoreOutlined, NumberOutlined, UploadOutlined, UserAddOutlined } from "@ant-design/icons";
 import { Button, Col, Drawer, Dropdown, Row } from "antd";
 import { useState } from "react";
 import ImportPlayer from "../../Common/ImportPlayer";
@@ -10,20 +10,30 @@ function MobilePlayersListPanel(props) {
 
     const items = [
         {
+            label: <div onClick={()=>{props.onMarkAllPlayers(true)}}>Mark All</div>,
+            key: '1',
+            icon: <FileDoneOutlined />
+        },
+        {
+            label: <div onClick={()=>{props.onMarkAllPlayers(false)}}>Unmark All</div>,
+            key: '2',
+            icon: <FileDoneOutlined />
+        },
+        {
             label: <ImportPlayer>
                 Import
             </ImportPlayer>,
-            key: '1',
+            key: '3',
             icon: <UploadOutlined />,
         },
         {
             label: <div onClick={() => { writeFileHandler(props.players) }}>Export</div>,
-            key: '2',
+            key: '4',
             icon: <ExportOutlined />,
         },
         {
             label: <div onClick={props.onClearPlayers}>Clear Players</div>,
-            key: '3',
+            key: '5',
             icon: <ClearOutlined/>,
         }
     ];
@@ -32,12 +42,12 @@ function MobilePlayersListPanel(props) {
     return (
         <Row style={{ backgroundColor: '#4a4a4a', borderRadius: '10px', marginLeft: '4px', marginRight: '4px' }}>
             <Col flex='auto'>
-                <div style={{ display: 'flex', color: 'white', margin: '10px' }}><NumberOutlined style={{margin: '3px'}} size='small' />Total: {props.players.length}</div>
+                <div style={{ display: 'flex', color: 'white', margin: '10px' }}><NumberOutlined style={{margin: '3px'}} size='small' />Total: {props.players.length} <CheckSquareOutlined size='small' style={{marginLeft: '13px', marginTop:'3px', marginRight: '3px'}} /> Arrive: {props.arrivedPlayers.length}</div>
             </Col>
             <Col flex='none' >
-                <Button  onClick={()=>{setAddPlayerDrawerOpen(true)}} shape="square" icon={<UserAddOutlined  style={{ color: 'white' }} />} style={{ margin: '4px', 'background-color': 'transparent', borderWidth: '1px' }} />
+                <Button  onClick={()=>{setAddPlayerDrawerOpen(true)}} shape="square" icon={<UserAddOutlined  style={{ color: 'white'  }} />} style={{ margin: '4px', 'background-color': 'transparent', borderWidth: '1px' ,colorPrimaryBorder: 'white', colorPrimaryActive:'white',colorPrimaryHover:'white',colorBorder:'white', }} />
                 <Dropdown menu={{ items }} placement="bottomLeft" arrow>
-                    <Button style={{ margin: '4px', 'background-color': 'transparent', borderWidth: '1px'}} icon={<MoreOutlined style={{ color: 'white' }} />}></Button>
+                    <Button colorPrimaryBorder='white' colorBgContainer='white' colorPrimaryHover='white' colorBorder='white' style={{ margin: '4px', 'background-color': 'transparent', borderWidth: '1px',colorPrimaryBorder: 'white', colorBgContainer:'white',colorPrimaryHover:'white',colorBorder:'white'}} icon={<MoreOutlined style={{ color: 'white',colorBorder: 'white' }} />}></Button>
                 </Dropdown>
             </Col>
 

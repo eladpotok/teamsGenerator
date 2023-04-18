@@ -64,6 +64,7 @@ function Main(props) {
 
     async function generateTeamsHandler() {
 
+        const playersToGenerate = playersContext.arrivedPlayers
         if (configContext.userConfig.length < 3) {
             messageApi.open({
                 type: 'error',
@@ -72,7 +73,7 @@ function Main(props) {
             return false;
         }
         
-        if (playersContext.players.length < 5) {
+        if (playersToGenerate.length < 5) {
             messageApi.open({
                 type: 'error',
                 content: 'Must have 5 players at least',
@@ -80,7 +81,7 @@ function Main(props) {
             return false;
         }
 
-        const getTeamsResponse = await getTeams(playersContext.players, configContext.userConfig)
+        const getTeamsResponse = await getTeams(playersToGenerate, configContext.userConfig)
         teamsContext.setTeams(getTeamsResponse.teams)
         return true
     }
