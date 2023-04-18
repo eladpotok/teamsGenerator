@@ -30,8 +30,14 @@ export function getTextResult(teams, dateTime) {
 }
 
 export function writeFileHandler(players)  {
+    const playersToSave = players.map (  (player) => {
+        const {isArrived, ...restFieldsOfPlayer} = player
+        return restFieldsOfPlayer
+
+    }  )
+
     const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
-        JSON.stringify(players)
+        JSON.stringify(playersToSave)
       )}`;
       const link = document.createElement("a");
       link.href = jsonString;

@@ -27,8 +27,8 @@ function AddPlayerForm(props) {
             props.onEditFinished()
         }
         else {
-            console.log('elad', values)
             values['key'] = uuidv4();
+            values['isArrived'] = false
             addPlayerHandler(values)
             resetFromHandler();
         }
@@ -38,7 +38,6 @@ function AddPlayerForm(props) {
         form.resetFields();
     };
 
-    console.log('player', props.player)
     
     form.setFieldsValue(props.player)
 
