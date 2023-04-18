@@ -75,7 +75,7 @@ function MobileHeader(props) {
                 {props.storeConfig && <Config backgroundColor='white' currentAlgo={props.storeConfig.algos.filter(t => t.algoKey == 0)[0]} shirtsColors={props.storeConfig.config.shirtsColors} numberOfTeams={props.storeConfig.config.numberOfTeams} />}
         </Drawer>
 
-        <AreYouSureModal title='Are you sure you want to change the algorithm?' context={areYouSureContext} show={areYouSureOpen} onNoClicked={areYouSureNoClickedHandler} onYesClicked={areYouSureYesClickedHandler} />
+        <AreYouSureModal description='This action will clear your players list since its not suitable with the new algorithm selection. Do you want to proceed?' title='Are you sure you want to change the algorithm?' context={areYouSureContext} show={areYouSureOpen} onNoClicked={areYouSureNoClickedHandler} onYesClicked={areYouSureYesClickedHandler} />
 
     </Row>)
 }

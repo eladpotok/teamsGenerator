@@ -13,7 +13,7 @@ function AreYouSureModal(props) {
     return (
         <Modal footer={[]} title={props.title} open={props.show} onCancel={() => { buttonSelected(props.onNoClicked) }}>
 
-            <label>This action will clear your players list since it's not suitable with the new algorithm selection</label>
+            <label>{props.description}</label>
 
             <div style={{display: 'flex', justifyContent: 'flex-end'}}>
 
