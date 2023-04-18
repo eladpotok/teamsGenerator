@@ -39,10 +39,10 @@ function MobileMainScreen(props) {
 
         <body className="box">
             <header style={{ marginLeft: '4px', marginRight: '4px' }}>
-                <MobileHeader storeConfig={props.storeConfig} onAlgoChanged={algoChangedHandler} defaultAlgoName={configContext.userConfig.algo.displayName} />
+                {configContext.userConfig.algo && <MobileHeader onClearPlayers={props.onClearPlayers} players={playersContext.players} storeConfig={props.storeConfig} userConfig={configContext.userConfig} onAlgoChanged={algoChangedHandler} defaultAlgoName={configContext.userConfig.algo.displayName} />}
             </header>
             <header>
-                <MobilePlayersListPanel onMarkAllPlayers={markAllPlayersHandler} onClearPlayers={props.onClearPlayers} onRemovePlayer={props.onRemovePlayer} arrivedPlayers={playersContext.arrivedPlayers} currentAlgo={configContext.userConfig.algo} players={playersContext.players}/>
+                <MobilePlayersListPanel onMarkAllPlayers={markAllPlayersHandler} onClearPlayers={props.onClearPlayers} onRemovePlayer={props.onRemovePlayer} algos={props.storeConfig.algos} arrivedPlayers={playersContext.arrivedPlayers} currentAlgo={configContext.userConfig.algo} players={playersContext.players}/>
             </header>
             <main className="row">
                 {configContext.userConfig.algo && <MobilePlayersMenu onPlayerArrived={playerArrivedHandler}  onRemovePlayer={props.onRemovePlayer} players={playersContext.players} currentAlgo={configContext.userConfig.algo} />}

@@ -2,13 +2,15 @@ import Files from 'react-files'
 import { PlayersContext } from '../../Store/PlayersContext';
 import { useContext } from 'react';
 import { message } from 'antd';
+import { ConfigurationContext } from '../../Store/ConfigurationContext';
+
 
 
 function ImportPlayer(props) {
     const [messageApi, contextHolder] = message.useMessage();
 
-    const playersContext = useContext(PlayersContext)
-
+    const playersContext = useContext(PlayersContext);
+    const configContext = useContext(ConfigurationContext)
 
     function readFileHandler(files) {
         const key = 'updatable';
@@ -16,7 +18,14 @@ function ImportPlayer(props) {
         const fileReader = new FileReader();
 
         fileReader.onload = e => {
-            playersContext.setPlayers(JSON.parse(e.target.result))
+            const fileData = JSON.parse(e.target.result)
+            const {players, algoKey } = fileData
+
+            playersContext.setPlayers(players)
+
+            const selectedAlgo = props.algos.filter(algo => algo.algoKey == algoKey)[0]
+            configContext.setUserConfig({ ...configContext.userConfig, algo: selectedAlgo })
+
             messageApi.open({
                 key,
                 type: 'success',

@@ -20,14 +20,14 @@ function MobilePlayersListPanel(props) {
             icon: <FileDoneOutlined />
         },
         {
-            label: <ImportPlayer>
+            label: <ImportPlayer algos={props.algos}>
                 Import
             </ImportPlayer>,
             key: '3',
             icon: <UploadOutlined />,
         },
         {
-            label: <div onClick={() => { writeFileHandler(props.players) }}>Export</div>,
+            label: <div onClick={() => { writeFileHandler(props.players, props.currentAlgo) }}>Export</div>,
             key: '4',
             icon: <ExportOutlined />,
         },
