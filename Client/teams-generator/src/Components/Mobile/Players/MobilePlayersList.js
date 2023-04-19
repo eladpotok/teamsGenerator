@@ -54,33 +54,4 @@ function MobilePlayersList(props) {
     )
 }
 
-function getDescription(playerProperties, player) {
-
-    return "Scored: 4"
-
-    var max = {
-        value: 0,
-        name: 'Attack'
-    }
-
-    var min = {
-        value: 10,
-        name: 'Attack'
-    }
-
-    playerProperties.forEach(prop => {
-        const playerPropValue = player[prop.name]
-        if (playerPropValue > max.value) {
-            max.name = prop.name
-            max.value = playerPropValue
-        }
-        if (playerPropValue < min.value) {
-            min.name = prop.name
-            min.value = playerPropValue
-        }
-    });
-
-    return `${max.name}: ${max.value}  ${min.name}: ${min.value}`
-}
-
 export default MobilePlayersList;

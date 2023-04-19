@@ -10,7 +10,7 @@ function MobilePlayersListPanel(props) {
 
     const items = [
         {
-            label: <div onClick={()=>{props.onMarkAllPlayers(true)}}>Mark All</div>,
+            label: <div  onClick={()=>{props.onMarkAllPlayers(true)}}>Mark All</div>,
             key: '1',
             icon: <FileDoneOutlined />
         },

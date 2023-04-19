@@ -69,7 +69,6 @@ export async function getInitialConfig() {
 
 
 export async function getTeams(players, config){
-    console.log('players1', players)
     return {
         teams: [
             {

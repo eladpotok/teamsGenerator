@@ -1,9 +1,8 @@
-import { Button, Card, Col, Row, message } from 'antd';
+import { Button, Card, Col, Row, Select, message } from 'antd';
 import { useContext } from 'react';
 import { WhatsappShareButton, WhatsappIcon } from "react-share";
 import { CopyOutlined } from '@ant-design/icons';
 import Team from './Team';
-import { TeamsContext } from '../../Store/TeamsContext';
 import { getTextResult } from '../../Utilities/Helpers'
 import { ConfigurationContext } from '../../Store/ConfigurationContext';
 import {isMobile} from 'react-device-detect';
@@ -12,17 +11,12 @@ import {isMobile} from 'react-device-detect';
 function Teams(props) {
     const [messageApi, contextHolder] = message.useMessage();
 
-    const teamsContext = props
     const configContext = useContext(ConfigurationContext)
 
     const columnSpan = isMobile ? 24 : 8
 
-    const team1 = `${teamsContext.teams[0].teamSymbol} Team ${teamsContext.teams[0].teamName}`
-    const team2 = `${teamsContext.teams[1].teamSymbol} Team ${teamsContext.teams[1].teamName}`
-    const team3 = `${teamsContext.teams[2].teamSymbol} Team ${teamsContext.teams[2].teamName}`
-
     async function copyToClipboard() {
-        const resultString = getTextResult(teamsContext.teams, configContext.userConfig.eventDate)
+        const resultString = getTextResult(props.teams, configContext.userConfig.eventDate)
         navigator.clipboard.writeText(resultString)
 
         messageApi.open({
@@ -31,24 +25,46 @@ function Teams(props) {
         });
     }
 
+    function getOptionalShirtsColors(currentTeamId){
+        const shirtsOfOtherTeams = props.teams.filter(team => team.teamId !== currentTeamId).map(team => {
+            return {
+                label: team.teamSymbol,
+                value: team.teamId
+            }
+        })
+
+        // const restOfShirts = props.shirtsColors.filter( shirt => !props.teams.map( t => t.color.toUpperCase()).includes(shirt.toUpperCase()))
+        
+        // shirtsOfOtherTeams.push.apply(restOfShirts.map( t=> {return {   label: team.teamSymbol,
+        //     value: team.teamId}}))
+
+        return shirtsOfOtherTeams
+
+    }
+
+    function shirtColorChangedHandler(teamIdFrom, teamIdTo){
+        props.onChangeShirtColor(teamIdFrom, teamIdTo)
+    }
+
+
     return (
         <div>
             {contextHolder}
-
+           
             <Row gutter={1}>
                 <Col span={columnSpan} style={{marginTop: '-12px'}}>
-                    <Card title={team1} bordered={false} size='small'>
-                        <Team onMovePlayer={props.onMovePlayer} onRemovePlayer={props.onRemovePlayer} teams={teamsContext.teams} team={teamsContext.teams[0]} />
+                    <Card title={<div><Select  onChange={(value, label) => {shirtColorChangedHandler(props.teams[0].teamId, label.value )}} value={props.teams[0].teamSymbol} options={getOptionalShirtsColors(props.teams[0].teamId)}></Select> { 'Team ' + props.teams[0].teamName} </div>} bordered={false} size='small'>
+                        <Team onMovePlayer={props.onMovePlayer} onRemovePlayer={props.onRemovePlayer} teams={props.teams} team={props.teams[0]} />
                     </Card>
                 </Col>
                 <Col span={columnSpan} style={{marginTop: '-12px'}}>
-                    <Card title={team2} bordered={false} size='small'>
-                        <Team onMovePlayer={props.onMovePlayer} onRemovePlayer={props.onRemovePlayer} teams={teamsContext.teams} team={teamsContext.teams[1]} />
+                    <Card title={<div><Select onChange={(value, label) => {shirtColorChangedHandler(props.teams[1].teamId, label.value )}} value={props.teams[1].teamSymbol} options={getOptionalShirtsColors(props.teams[1].teamId)}></Select> { 'Team ' + props.teams[1].teamName} </div>} bordered={false} size='small'>
+                        <Team onMovePlayer={props.onMovePlayer} onRemovePlayer={props.onRemovePlayer} teams={props.teams} team={props.teams[1]} />
                     </Card>
                 </Col>
                 <Col span={columnSpan} style={{marginTop: '-12px'}}>
-                    <Card title={team3} bordered={false} size='small'>
-                        <Team onMovePlayer={props.onMovePlayer} onRemovePlayer={props.onRemovePlayer} teams={teamsContext.teams} team={teamsContext.teams[2]} />
+                    <Card title={<div><Select onChange={(value, label) => {shirtColorChangedHandler(props.teams[2].teamId, label.value )}} value={props.teams[2].teamSymbol} options={getOptionalShirtsColors(props.teams[2].teamId)}></Select> { 'Team ' + props.teams[1].teamName} </div>} bordered={false} size='small'>
+                        <Team onMovePlayer={props.onMovePlayer} onRemovePlayer={props.onRemovePlayer} teams={props.teams} team={props.teams[2]} />
                     </Card>
                 </Col>
             </Row>
@@ -59,7 +75,7 @@ function Teams(props) {
                 <div style={{ background: 'white', display: 'flex', 'flex-direction': 'row', 'align-items': 'center', 'justifyContent': 'flex-end' }}>
                     <Button icon={<CopyOutlined />} onClick={copyToClipboard} style={{ borderRadius: '5px', marginTop: '5px', marginRight: '5px' }} />
 
-                    <WhatsappShareButton url={getTextResult(teamsContext.teams, configContext.userConfig.eventDate)}>
+                    <WhatsappShareButton url={getTextResult(props.teams, configContext.userConfig.eventDate)}>
                         <WhatsappIcon style={{ borderRadius: '5px', marginBottom: '-10px', marginRight: '5px' }} size={32} />
                     </WhatsappShareButton >
                 </div>

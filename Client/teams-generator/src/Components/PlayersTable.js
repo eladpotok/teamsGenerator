@@ -1,16 +1,11 @@
 import { useContext, useEffect, useState } from "react";
-import { Button, Form, Input, Popconfirm, Table, Slider, Modal, Upload, Card, Space, Descriptions, Divider, message } from 'antd';
-import { InfoCircleOutlined, UserOutlined, UploadOutlined, UserAddOutlined, QuestionCircleOutlined, ExportOutlined } from '@ant-design/icons';
-import { getPlayersPropertiesByAlgo, getTeams } from '../Adapters/DB/WebApiAdapter'
+import { Button, Form, Input, Popconfirm, Table, Modal, Card,  Descriptions, Divider } from 'antd';
+import { UploadOutlined, UserAddOutlined, QuestionCircleOutlined, ExportOutlined } from '@ant-design/icons';
 import './PlayersTable.css';
 import React from 'react';
-import Files from 'react-files'
-import { TeamsContext } from "../Store/TeamsContext";
-import { ConfigurationContext } from "../Store/ConfigurationContext";
 import { PlayersContext } from "../Store/PlayersContext";
 import { v4 as uuidv4 } from 'uuid';
 import { ConfigurationStoreContext } from "../Store/ConfigurationStoreContext";
-import CompoundedSpace from "antd/es/space";
 import ImportPlayer from "./Common/ImportPlayer";
 import { writeFileHandler } from '../Utilities/Helpers'
 
@@ -21,8 +16,7 @@ function PlayersTable(props) {
     const [openNewPlayerModal, setOpenNewPlayerModal] = useState(false)
     const [selectedPlayersKey, setSelectedPlayersKey] = useState([]);
 
-    const key = 'updatable';
-    const teamsContext = useContext(TeamsContext);
+
     const playersContext = useContext(PlayersContext)
     const storeConfigContext = useContext(ConfigurationStoreContext);
     
@@ -135,18 +129,18 @@ function PlayersTable(props) {
                     <Descriptions.Item  label='Total Players'>{playersContext.players.length}</Descriptions.Item>
                 </Descriptions>
 
-                <Popconfirm disabled={playersContext.players.length == 0} title="Clear all Players" onConfirm={() => { clearPlayersHandler() }}
+                <Popconfirm disabled={playersContext.players.length === 0} title="Clear all Players" onConfirm={() => { clearPlayersHandler() }}
                             description={"Are you sure you want to clear all players?"}
                             icon={<QuestionCircleOutlined style={{ color: 'red' }} />}>
-                    <Button disabled={playersContext.players.length == 0} type='primary' danger  style={{ borderRadius: '5px',  marginRight: '5px' }}>
+                    <Button disabled={playersContext.players.length === 0} type='primary' danger  style={{ borderRadius: '5px',  marginRight: '5px' }}>
                         Clear All
                     </Button>                
                 </Popconfirm>
 
-                <Popconfirm disabled={selectedPlayersKey.length == 0} title="Remove selected Players" onConfirm={() => { removePlayerHandler() }}
+                <Popconfirm disabled={selectedPlayersKey.length === 0} title="Remove selected Players" onConfirm={() => { removePlayerHandler() }}
                             description={"Are you sure you want to remove the selected players?"}
                             icon={<QuestionCircleOutlined style={{ color: 'red' }} />}>
-                    <Button disabled={selectedPlayersKey.length == 0} type='primary' danger  style={{ borderRadius: '5px', marginRight: '5px' }}>
+                    <Button disabled={selectedPlayersKey.length === 0} type='primary' danger  style={{ borderRadius: '5px', marginRight: '5px' }}>
                         Remove Player(s)
                     </Button>             
                 </Popconfirm>

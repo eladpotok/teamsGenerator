@@ -57,9 +57,9 @@ function AddPlayerForm(props) {
                     {props.player ? 'EDIT' : 'ADD'}
                 </AppButton>
 
-                <AppButton htmlType="button" onClick={resetFromHandler}>
+                {!props.player &&<AppButton htmlType="button" onClick={resetFromHandler}>
                     RESET
-                </AppButton>
+                </AppButton>}
             </div>
 
         </Form>

@@ -52,16 +52,13 @@ function MainMenu(props) {
 
             <div>
                 <div style={{ display: 'flex', justifyContent: 'flex-start', flexDirection: 'row' }}>
-                    {storeConfigContext.storeConfig && <Config currentAlgo={storeConfigContext.storeConfig.algos.filter(t=>t.algoKey == 0)[0]} shirtsColors={storeConfigContext.storeConfig.config.shirtsColors} numberOfTeams={storeConfigContext.storeConfig.config.numberOfTeams}/>}
+                    {storeConfigContext.storeConfig && <Config currentAlgo={storeConfigContext.storeConfig.algos.filter(t=>t.algoKey === 0)[0]} shirtsColors={storeConfigContext.storeConfig.config.shirtsColors} numberOfTeams={storeConfigContext.storeConfig.config.numberOfTeams}/>}
                     
                     <Card style={{ height: '100%', flex: 1, marginLeft: '4px' }} title="Algorithms" >
                         <QuestionCircleOutlined />  <label style={{ color: "gray", marginLeft: '4px' }}>Here are the most common algorithms for football teams creation. Choose your algorithm and add the players</label>
                         {storeConfigContext.storeConfig && <Tabs  onChange={tabChangedHandler} style={{ margin: '10px' }} items={getTabsToShow(storeConfigContext.storeConfig.algos, generateTeamsHandler)} defaultActiveKey={0}/>}
                     </Card>
                 </div>
-
-
-
             </div>
 
             <Modal onCancel={() => { setTeamsModalOpened(false) }} width={1000} open={teamsModalOpened} footer={[]}>

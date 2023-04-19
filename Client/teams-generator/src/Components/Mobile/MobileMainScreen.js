@@ -4,12 +4,7 @@ import MobilePlayersMenu from "./Players/MobilePlayersMenu";
 import MobileHeader from "./MobileHeader";
 import MobileFooter from "./MobileFooter";
 import './MobileMainScreen.css'
-import MobilePlayersList from "./Players/MobilePlayersList";
-import { Button, Col, Dropdown, List, Row } from "antd";
 import { PlayersContext } from "../../Store/PlayersContext";
-import { ClearOutlined, ExportOutlined, MoreOutlined, UploadOutlined, UserAddOutlined } from "@ant-design/icons";
-import ImportPlayer from "../Common/ImportPlayer";
-import { writeFileHandler } from "../../Utilities/Helpers";
 import MobilePlayersListPanel from "./Players/MobilePlayersListPanel";
 import { AnalyticsContext } from "../../Store/AnalyticsContext";
 
@@ -48,7 +43,7 @@ function MobileMainScreen(props) {
                 {configContext.userConfig.algo && <MobilePlayersMenu onPlayerArrived={playerArrivedHandler}  onRemovePlayer={props.onRemovePlayer} players={playersContext.players} currentAlgo={configContext.userConfig.algo} />}
             </main>
             <footer style={{ marginLeft: '4px', marginRight: '4px' }}>
-                <MobileFooter onResetClicked={props.onResetClicked} onGenerateTeams={props.onGenerateTeams} onMovePlayer={props.onMovePlayer} onRemovePlayerFromTeam={props.onRemovePlayerFromTeam} teams={props.teams} />
+                <MobileFooter shirtsColors={configContext.userConfig.shirtsColors} onChangeShirtColor={props.onChangeShirtColor} onResetClicked={props.onResetClicked} onGenerateTeams={props.onGenerateTeams} onMovePlayer={props.onMovePlayer} onRemovePlayerFromTeam={props.onRemovePlayerFromTeam} teams={props.teams} />
             </footer>
         </body>
     )

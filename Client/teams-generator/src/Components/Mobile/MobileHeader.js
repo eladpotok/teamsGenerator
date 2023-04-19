@@ -1,5 +1,5 @@
-import { SettingOutlined, WarningOutlined } from "@ant-design/icons";
-import { Button, Col, Drawer, Modal, Row, Select } from "antd";
+import { SettingOutlined } from "@ant-design/icons";
+import { Button, Col, Drawer, Row, Select } from "antd";
 import Config from "../Configuration/Config";
 import { useState } from "react";
 import AreYouSureModal from "../Common/AreYouSureModal";
@@ -9,10 +9,7 @@ function MobileHeader(props) {
 
     const [configDrawerOpen, setConfigDrawerOpen] = useState(false)
     const [areYouSureOpen, setAreYouSureOpen] = useState(false)
-    
     const [areYouSureContext, setAreYouSureContext] = useState({})
-    
-
 
     const algosItems = props.storeConfig.algos.map(algo => {
         return {
@@ -26,7 +23,7 @@ function MobileHeader(props) {
     }
 
     function selectChangedHandler(value) {
-        if(props.userConfig.algo.algoKey != value && props.players && props.players.length > 0) {
+        if(props.userConfig.algo.algoKey !== value && props.players && props.players.length > 0) {
             setAreYouSureContext(value)
             setAreYouSureOpen(true)   
         }
@@ -48,7 +45,7 @@ function MobileHeader(props) {
     }
 
     function changeAlgo(value){
-        var selectedAlgo = props.storeConfig.algos.filter(algo => algo.algoKey == value)[0]
+        var selectedAlgo = props.storeConfig.algos.filter(algo => algo.algoKey === value)[0]
         props.onAlgoChanged(selectedAlgo)
     }
 
@@ -72,7 +69,7 @@ function MobileHeader(props) {
                 width='85%'
                 onClose={() => { openCloseConfigDrawerHandler(false) }}
                 open={configDrawerOpen}>
-                {props.storeConfig && <Config backgroundColor='white' currentAlgo={props.storeConfig.algos.filter(t => t.algoKey == 0)[0]} shirtsColors={props.storeConfig.config.shirtsColors} numberOfTeams={props.storeConfig.config.numberOfTeams} />}
+                {props.storeConfig && <Config backgroundColor='white' currentAlgo={props.storeConfig.algos.filter(t => t.algoKey === 0)[0]} shirtsColors={props.storeConfig.config.shirtsColors} numberOfTeams={props.storeConfig.config.numberOfTeams} />}
         </Drawer>
 
         <AreYouSureModal description='This action will clear your players list since its not suitable with the new algorithm selection. Do you want to proceed?' title='Are you sure you want to change the algorithm?' context={areYouSureContext} show={areYouSureOpen} onNoClicked={areYouSureNoClickedHandler} onYesClicked={areYouSureYesClickedHandler} />

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { AnalyticsEventManager } from "../Adapters/AnalyticsEventSender";
 
 export const AnalyticsContext = React.createContext({

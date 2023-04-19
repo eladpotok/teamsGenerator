@@ -9,7 +9,7 @@ import MainMenu from "./MainMenu";
 import MobileMainScreen from "./Mobile/MobileMainScreen";
 import { PlayersContext } from "../Store/PlayersContext";
 import { TeamsContext } from "../Store/TeamsContext";
-import {Dimensions, StatusBar} from 'react-native'; 
+import {Dimensions} from 'react-native'; 
 import { AnalyticsContext } from "../Store/AnalyticsContext";
 
 function Main(props) {
@@ -20,7 +20,6 @@ function Main(props) {
     const playersContext = useContext(PlayersContext)
     const teamsContext = useContext(TeamsContext)
     const [messageApi, contextHolder] = message.useMessage();
-
 
     analyticsContext.sendPageViewEvent('main')
 
@@ -34,7 +33,7 @@ function Main(props) {
                     eventDate: dayjs(new Date()),
                     shirtsColors: initialConfig.config.shirtsColors.slice(0, 3),
                     numberOfTeams: initialConfig.config.numberOfTeams,
-                    algo: initialConfig.algos.filter(t => t.algoKey == 0)[0]
+                    algo: initialConfig.algos.filter(t => t.algoKey === 0)[0]
                 })
             }
         })()
@@ -54,7 +53,7 @@ function Main(props) {
     }
 
     function removePlayerHandler(playerToRemove){
-        const updatedPlayers = playersContext.players.filter(player => player.key != playerToRemove.key)
+        const updatedPlayers = playersContext.players.filter(player => player.key !== playerToRemove.key)
         playersContext.setPlayers(updatedPlayers)
     }
 
@@ -64,6 +63,11 @@ function Main(props) {
     
     function movePlayerHandler(fromTeam, toTeam, player) {
         teamsContext.movePlayer(fromTeam, toTeam, player)
+    }
+
+    function shirtColorChangedHandler(teamIdFrom, teamIdTo){
+        console.log(teamIdFrom, teamIdTo)
+        teamsContext.changeShirtColor(teamIdFrom, teamIdTo)
     }
 
     async function generateTeamsHandler() {
@@ -108,7 +112,7 @@ function Main(props) {
                 </Card>
             </BrowserView>
             <MobileView>
-                {storeConfigContext.storeConfig && configContext.userConfig && <MobileMainScreen screenHeight={bottomNavBarH} onClearPlayers={removeAllPlayersHandler} onMovePlayer={movePlayerHandler} onRemovePlayerFromTeam={removePlayerFromTeamHandler} onRemovePlayer={removePlayerHandler} onGenerateTeams={generateTeamsHandler} onResetClicked={resetHandler} onAlgoChanged={algoSelectChangedHandler} storeConfig={storeConfigContext.storeConfig} teams={teamsContext.teams}/>}
+                {storeConfigContext.storeConfig && configContext.userConfig && <MobileMainScreen screenHeight={bottomNavBarH} onChangeShirtColor={shirtColorChangedHandler} onClearPlayers={removeAllPlayersHandler} onMovePlayer={movePlayerHandler} onRemovePlayerFromTeam={removePlayerFromTeamHandler} onRemovePlayer={removePlayerHandler} onGenerateTeams={generateTeamsHandler} onResetClicked={resetHandler} onAlgoChanged={algoSelectChangedHandler} storeConfig={storeConfigContext.storeConfig} teams={teamsContext.teams}/>}
             </MobileView>
         </>
     )

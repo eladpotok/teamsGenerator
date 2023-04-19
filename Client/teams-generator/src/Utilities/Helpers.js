@@ -1,6 +1,3 @@
-import dayjs from 'dayjs';
-
-
 export function getTextResult(teams, dateTime) {
 
     const weekdays = [
@@ -36,7 +33,7 @@ export function writeFileHandler(players, algo)  {
 
     }  )
     
-    const objectToSave = { players, algoKey: algo.algoKey  }
+    const objectToSave = { playersToSave, algoKey: algo.algoKey  }
 
     const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
         JSON.stringify(objectToSave)

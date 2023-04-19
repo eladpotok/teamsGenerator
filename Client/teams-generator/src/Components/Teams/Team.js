@@ -1,14 +1,11 @@
-
-import { useContext } from 'react';
 import { Button, Col, Popconfirm, Row, Tooltip } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import './Team.css'
-import { TeamsContext } from '../../Store/TeamsContext';
 
 function Team(props) {
 
     function getTeamsExcludingThis(teamId) {
-        return props.teams.filter(t => t.teamId != teamId)
+        return props.teams.filter(t => t.teamId !== teamId)
     }
 
 
