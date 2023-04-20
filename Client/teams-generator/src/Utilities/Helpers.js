@@ -33,7 +33,7 @@ export function writeFileHandler(players, algo)  {
 
     }  )
     
-    const objectToSave = { playersToSave, algoKey: algo.algoKey  }
+    const objectToSave = { players: playersToSave, algoKey: algo.algoKey  }
 
     const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
         JSON.stringify(objectToSave)
