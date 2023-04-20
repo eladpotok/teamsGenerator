@@ -14,7 +14,7 @@ function Team(props) {
     }
 
     function removePlayer(fromTeam, player) {
-        props.onRemovePlayer(fromTeam, player)
+        props.onRemovePlayerFromTeam(fromTeam, player)
     }
 
     return (
@@ -31,9 +31,9 @@ function Team(props) {
                             <Popconfirm title="Remove player" onConfirm={() => { removePlayer(props.team, player) }}
                                 description={"Are you sure to remove " + player.name + "?"}
                                 icon={<QuestionCircleOutlined style={{ color: 'red' }} />}>
-                                <Tooltip title="Remove Player">
+                                {/* <Tooltip title="Remove Player"> */}
                                     <Button style={{margin: '4px'}} size='small' type="primary" danger>-</Button>
-                                </Tooltip>
+                                {/* </Tooltip> */}
                             </Popconfirm>
                         </Col>
 
@@ -41,9 +41,9 @@ function Team(props) {
                             <Popconfirm title="Move player" onConfirm={() => { moveToOtherTeam(props.team, team, player) }}
                                 description={"Are you sure to move " + player.name + " to team " + team.teamId}
                                 icon={<QuestionCircleOutlined style={{ color: 'red' }} />}>
-                                <Tooltip title={"Move Player to Team " + team.teamId}>
+                                {/* <Tooltip title={"Move Player to Team " + team.teamId}> */}
                                     <Button style={{margin: '4px'}} size='small' disabled={props.team.players.length === 1} className="move-to-group" >{team.teamId}</Button>
-                                </Tooltip>
+                                {/* </Tooltip> */}
                             </Popconfirm>
                         )}
                     </Row>

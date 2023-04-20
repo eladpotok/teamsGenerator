@@ -73,7 +73,7 @@ function MobileFooter(props) {
                 </Col>
 
                 <Modal style={{margin: '10px'}} centered onCancel={() => { setTeamsModalOpened(false) }} open={teamsModalOpened} footer={[]}>
-                    {props.teams && <Teams shirtsColors={props.shirtsColors} onChangeShirtColor={props.onChangeShirtColor} onMovePlayer={props.onMovePlayer} onRemovePlayerFromTeam={props.onRemovePlayer} teams={props.teams} onShuffleClicked={async () => {
+                    {props.teams && <Teams shirtsColors={props.shirtsColors} onChangeShirtColor={props.onChangeShirtColor} onMovePlayer={props.onMovePlayer} onRemovePlayerFromTeam={props.onRemovePlayerFromTeam} teams={props.teams} onShuffleClicked={async () => {
                             await props.onGenerateTeams()
                         }}/>}
                 </Modal>

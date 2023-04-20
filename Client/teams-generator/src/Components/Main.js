@@ -58,6 +58,7 @@ function Main(props) {
     }
 
     function removePlayerFromTeamHandler(fromTeam, player) {
+        console.log('remove')
         teamsContext.removePlayer(fromTeam, player)
     }
     

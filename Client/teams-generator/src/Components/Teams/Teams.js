@@ -54,17 +54,17 @@ function Teams(props) {
             <Row gutter={1}>
                 <Col span={columnSpan} style={{marginTop: '-12px'}}>
                     <Card title={<div><Select  onChange={(value, label) => {shirtColorChangedHandler(props.teams[0].teamId, label.value )}} value={props.teams[0].teamSymbol} options={getOptionalShirtsColors(props.teams[0].teamId)}></Select> { 'Team ' + props.teams[0].teamName} </div>} bordered={false} size='small'>
-                        <Team onMovePlayer={props.onMovePlayer} onRemovePlayer={props.onRemovePlayer} teams={props.teams} team={props.teams[0]} />
+                        <Team onMovePlayer={props.onMovePlayer} onRemovePlayerFromTeam={props.onRemovePlayerFromTeam} teams={props.teams} team={props.teams[0]} />
                     </Card>
                 </Col>
                 <Col span={columnSpan} style={{marginTop: '-12px'}}>
                     <Card title={<div><Select onChange={(value, label) => {shirtColorChangedHandler(props.teams[1].teamId, label.value )}} value={props.teams[1].teamSymbol} options={getOptionalShirtsColors(props.teams[1].teamId)}></Select> { 'Team ' + props.teams[1].teamName} </div>} bordered={false} size='small'>
-                        <Team onMovePlayer={props.onMovePlayer} onRemovePlayer={props.onRemovePlayer} teams={props.teams} team={props.teams[1]} />
+                        <Team onMovePlayer={props.onMovePlayer} onRemovePlayerFromTeam={props.onRemovePlayerFromTeam} teams={props.teams} team={props.teams[1]} />
                     </Card>
                 </Col>
                 <Col span={columnSpan} style={{marginTop: '-12px'}}>
                     <Card title={<div><Select onChange={(value, label) => {shirtColorChangedHandler(props.teams[2].teamId, label.value )}} value={props.teams[2].teamSymbol} options={getOptionalShirtsColors(props.teams[2].teamId)}></Select> { 'Team ' + props.teams[1].teamName} </div>} bordered={false} size='small'>
-                        <Team onMovePlayer={props.onMovePlayer} onRemovePlayer={props.onRemovePlayer} teams={props.teams} team={props.teams[2]} />
+                        <Team onMovePlayer={props.onMovePlayer} onRemovePlayerFromTeam={props.onRemovePlayerFromTeam} teams={props.teams} team={props.teams[2]} />
                     </Card>
                 </Col>
             </Row>
