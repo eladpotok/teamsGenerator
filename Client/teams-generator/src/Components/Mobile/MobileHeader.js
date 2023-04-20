@@ -45,7 +45,7 @@ function MobileHeader(props) {
     }
 
     function changeAlgo(value){
-        var selectedAlgo = props.storeConfig.algos.filter(algo => algo.algoKey === value)[0]
+        var selectedAlgo = props.storeConfig.algos.filter(algo => algo.algoKey == value)[0]
         props.onAlgoChanged(selectedAlgo)
     }
 
@@ -57,7 +57,6 @@ function MobileHeader(props) {
             {algosItems && <div>
                 <Select size="large" style={{ display: 'flex', margin: '4px' }}
                         onChange={selectChangedHandler} 
-                        onMouseDown={()=>{console.log('mouse down')}}
                         value={props.defaultAlgoName}
                         options={algosItems} />
             </div>}
