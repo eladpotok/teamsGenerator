@@ -65,8 +65,11 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
         private void AddSkillPlayerToTeam(ref List<Team> teams, List<SkillWisePlayer> playersLeft, Func<SkillWisePlayer, double> orderBy)
         {
             var orderedPlayers = OrderByAndShuffleSequence(playersLeft, orderBy);
+            if (!playersLeft.Any()) return;
             teams[0].AddPlayer(TakePlayer(orderedPlayers.Count - 1, orderedPlayers, playersLeft));
+            if (!playersLeft.Any()) return;
             teams[1].AddPlayer(TakePlayer(orderedPlayers.Count - 1, orderedPlayers, playersLeft));
+            if (!playersLeft.Any()) return;
             teams[2].AddPlayer(TakePlayer(orderedPlayers.Count - 1, orderedPlayers, playersLeft));
             teams = teams.OrderBy(t => t.TotalRank).ToList();
         }
