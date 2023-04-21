@@ -1,8 +1,9 @@
 import { SettingOutlined } from "@ant-design/icons";
 import { Button, Col, Drawer, Row, Select } from "antd";
 import Config from "../Configuration/Config";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import AreYouSureModal from "../Common/AreYouSureModal";
+import { AnalyticsContext } from "../../Store/AnalyticsContext";
 
 
 function MobileHeader(props) {
@@ -10,6 +11,7 @@ function MobileHeader(props) {
     const [configDrawerOpen, setConfigDrawerOpen] = useState(false)
     const [areYouSureOpen, setAreYouSureOpen] = useState(false)
     const [areYouSureContext, setAreYouSureContext] = useState({})
+    const analyticsContext = useContext(AnalyticsContext)
 
     const algosItems = props.storeConfig.algos.map(algo => {
         return {
@@ -49,9 +51,14 @@ function MobileHeader(props) {
         props.onAlgoChanged(selectedAlgo)
     }
 
+    function openConfigView(){
+        openCloseConfigDrawerHandler(true)
+        analyticsContext.sendPageViewEvent('config')
+    }
+
     return (<Row style={{ marginTop: '4px' }}>
         <Col flex='none'>
-            <Button style={{ margin: '4px'   }} size="large" onClick={() => { openCloseConfigDrawerHandler(true) }} icon={<SettingOutlined />} />
+            <Button style={{ margin: '4px'   }} size="large" onClick={openConfigView} icon={<SettingOutlined />} />
         </Col>
         <Col flex='auto' >
             {algosItems && <div>

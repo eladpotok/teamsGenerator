@@ -6,14 +6,15 @@ import Team from './Team';
 import { getTextResult } from '../../Utilities/Helpers'
 import { ConfigurationContext } from '../../Store/ConfigurationContext';
 import {isMobile} from 'react-device-detect';
+import { AnalyticsContext } from '../../Store/AnalyticsContext';
 
 
 function Teams(props) {
     const [messageApi, contextHolder] = message.useMessage();
-
     const configContext = useContext(ConfigurationContext)
 
     const columnSpan = isMobile ? 24 : 8
+
 
     async function copyToClipboard() {
         const resultString = getTextResult(props.teams, configContext.userConfig.eventDate)

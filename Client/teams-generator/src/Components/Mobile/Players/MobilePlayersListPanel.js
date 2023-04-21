@@ -1,12 +1,14 @@
 import { CheckSquareOutlined, ClearOutlined, ExportOutlined, FileDoneOutlined, MoreOutlined, NumberOutlined, UploadOutlined, UserAddOutlined } from "@ant-design/icons";
 import { Button, Col, Drawer, Dropdown, Row } from "antd";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import ImportPlayer from "../../Common/ImportPlayer";
 import { writeFileHandler } from "../../../Utilities/Helpers";
 import AddPlayerForm from "../../Common/AddPlayerForm";
+import { AnalyticsContext } from "../../../Store/AnalyticsContext";
 
 function MobilePlayersListPanel(props) {
     const [addPlayerDrawerOpen, setAddPlayerDrawerOpen] = useState(false)
+    const analyticsContext = useContext(AnalyticsContext)
 
     const items = [
         {
@@ -27,7 +29,7 @@ function MobilePlayersListPanel(props) {
             icon: <UploadOutlined />,
         },
         {
-            label: <div onClick={() => { writeFileHandler(props.players, props.currentAlgo) }}>Export</div>,
+            label: <div onClick={() => { writeFileHandler(props.players, props.currentAlgo); analyticsContext.sendContentEvent('playersExported', '3') }}>Export</div>,
             key: '4',
             icon: <ExportOutlined />,
         },
@@ -38,6 +40,11 @@ function MobilePlayersListPanel(props) {
         }
     ];
 
+    function openAddPlayerViewHandler() {
+        setAddPlayerDrawerOpen(true)
+        analyticsContext.sendPageViewEvent('addPlayer')
+    }
+
 
     return (
         <Row style={{ backgroundColor: '#4a4a4a', borderRadius: '10px', marginLeft: '4px', marginRight: '4px' }}>
@@ -45,7 +52,7 @@ function MobilePlayersListPanel(props) {
                 <div style={{ display: 'flex', color: 'white', margin: '10px' }}><NumberOutlined style={{margin: '3px'}} size='small' />Total: {props.players.length} <CheckSquareOutlined size='small' style={{marginLeft: '13px', marginTop:'3px', marginRight: '3px'}} /> Arrive: {props.arrivedPlayers.length}</div>
             </Col>
             <Col flex='none' >
-                <Button  onClick={()=>{setAddPlayerDrawerOpen(true)}} shape="square" icon={<UserAddOutlined  style={{ color: 'white'  }} />} style={{ margin: '4px', 'background-color': 'transparent', borderWidth: '1px' ,colorPrimaryBorder: 'white', colorPrimaryActive:'white',colorPrimaryHover:'white',colorBorder:'white', }} />
+                <Button  onClick={openAddPlayerViewHandler} shape="square" icon={<UserAddOutlined  style={{ color: 'white'  }} />} style={{ margin: '4px', 'background-color': 'transparent', borderWidth: '1px' ,colorPrimaryBorder: 'white', colorPrimaryActive:'white',colorPrimaryHover:'white',colorBorder:'white', }} />
                 <Dropdown menu={{ items }} placement="bottomLeft" arrow>
                     <Button colorPrimaryBorder='white' colorBgContainer='white' colorPrimaryHover='white' colorBorder='white' style={{ margin: '4px', 'background-color': 'transparent', borderWidth: '1px',colorPrimaryBorder: 'white', colorBgContainer:'white',colorPrimaryHover:'white',colorBorder:'white'}} icon={<MoreOutlined style={{ color: 'white',colorBorder: 'white' }} />}></Button>
                 </Dropdown>

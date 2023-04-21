@@ -1,7 +1,7 @@
 import { useContext, useEffect } from "react";
 import { ConfigurationContext } from "../Store/ConfigurationContext";
 import { ConfigurationStoreContext } from "../Store/ConfigurationStoreContext";
-import { getInitialConfig, getTeams } from "../Adapters/FakeWebApiAdapter";
+import { getInitialConfig, getTeams } from "../Adapters/DB/WebApiAdapter";
 import dayjs from 'dayjs';
 import { BrowserView, MobileView } from "react-device-detect";
 import { Card, message } from "antd";
@@ -92,6 +92,8 @@ function Main(props) {
 
         const getTeamsResponse = await getTeams(playersToGenerate, configContext.userConfig)
         teamsContext.setTeams(getTeamsResponse.teams)
+
+        analyticsContext.sendPageViewEvent('generatedTeams');
         return true
     }
     
@@ -107,14 +109,14 @@ function Main(props) {
     return (
         <>
             {contextHolder}
-            <BrowserView>
+            {/* <BrowserView>
                 <Card style={{ marginTop: '4%', marginRight: '10%', marginLeft: '10%' }}>
                     <MainMenu />
                 </Card>
             </BrowserView>
-            <MobileView>
+            <MobileView> */}
                 {storeConfigContext.storeConfig && configContext.userConfig && <MobileMainScreen screenHeight={bottomNavBarH} onChangeShirtColor={shirtColorChangedHandler} onClearPlayers={removeAllPlayersHandler} onMovePlayer={movePlayerHandler} onRemovePlayerFromTeam={removePlayerFromTeamHandler} onRemovePlayer={removePlayerHandler} onGenerateTeams={generateTeamsHandler} onResetClicked={resetHandler} onAlgoChanged={algoSelectChangedHandler} storeConfig={storeConfigContext.storeConfig} teams={teamsContext.teams}/>}
-            </MobileView>
+            {/* </MobileView> */}
         </>
     )
 

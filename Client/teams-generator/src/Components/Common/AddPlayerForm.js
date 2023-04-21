@@ -3,8 +3,10 @@ import { useContext } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { PlayersContext } from "../../Store/PlayersContext";
 import AppButton from "./AppButton";
+import { AnalyticsContext } from "../../Store/AnalyticsContext";
 
 function AddPlayerForm(props) {
+    const analyticsContext = useContext(AnalyticsContext)
 
     const playersContext = useContext(PlayersContext)
     const [form] = Form.useForm();
@@ -15,6 +17,7 @@ function AddPlayerForm(props) {
     };
 
     function addPlayerHandler(player) {
+        analyticsContext.sendContentEvent(`add-player: ${player.Name}`, '1')
         playersContext.setPlayers([...playersContext.players, player])
     }
 

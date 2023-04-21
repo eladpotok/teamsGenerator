@@ -2,7 +2,7 @@ import React from "react";
 import { AnalyticsEventManager } from "../Adapters/AnalyticsEventSender";
 
 export const AnalyticsContext = React.createContext({
-    sendContentEvent: (contentType, page_title) => {},
+    sendContentEvent: (contentType, content_id) => {},
     sendPageViewEvent: (page_title) => {}
 });
 
@@ -10,8 +10,8 @@ export const AnalyticsContextProvider = (props) => {
     
     const analyticsEventManager = new AnalyticsEventManager()
 
-    function sendContentEvent(contentType, page_title) {
-        analyticsEventManager.sendContentEvent(contentType, page_title)
+    function sendContentEvent(contentType, content_id) {
+        analyticsEventManager.sendContentEvent(contentType, content_id)
     }
 
     function sendPageViewEvent(page_title){

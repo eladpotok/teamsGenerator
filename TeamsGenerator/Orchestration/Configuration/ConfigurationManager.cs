@@ -7,7 +7,7 @@ using TeamsGenerator.DataReaders;
 
 namespace TeamsGenerator.Orchestration.Configuration
 {
-    public static  class ConfigurationManager
+    public static class ConfigurationManager
     {
         public static int NumberOfTeams;
         public static Dictionary<string, string> ShirtsColorNameToSymbolMapper;
@@ -22,13 +22,27 @@ namespace TeamsGenerator.Orchestration.Configuration
 
         private static Config ReadConfig()
         {
-            var configFilePath = $@"{Environment.CurrentDirectory}\config.json";
-            var reader = new JsonReader<Config>(configFilePath);
-            var config = reader.Read();
-            return config;
+            //var configFilePath = $@"{Environment.CurrentDirectory}\config.json";
+            //var reader = new JsonReader<Config>(configFilePath);
+            //var config = reader.Read();
+
+
+            return new Config()
+            {
+                ColorNameToSymbol = new Dictionary<string, string>()
+                {
+                    { "Red", "🟥" },
+                    { "Green", "🟩" },
+                    { "Yellow", "🟨" },
+                    { "White", "⬜" },
+                    { "Black", "⬛" },
+                    { "Blue", "🟦" },
+                    { "Orange", "🟧" },
+                    { "Purple", "🟪" }
+
+                },
+                TeamsCount = 3,
+            };
         }
     }
-
-
-
 }

@@ -3,11 +3,13 @@ import { PlayersContext } from '../../Store/PlayersContext';
 import { useContext } from 'react';
 import { message } from 'antd';
 import { ConfigurationContext } from '../../Store/ConfigurationContext';
+import { AnalyticsContext } from '../../Store/AnalyticsContext';
 
 
 
 function ImportPlayer(props) {
     const [messageApi, contextHolder] = message.useMessage();
+    const analyticsContext = useContext(AnalyticsContext)
 
     const playersContext = useContext(PlayersContext);
     const configContext = useContext(ConfigurationContext)
@@ -32,6 +34,9 @@ function ImportPlayer(props) {
                 content: 'Loaded!',
                 duration: 2,
             })
+
+            analyticsContext.sendContentEvent('playersImported', '2')
+
         };
         messageApi.open({
             key,

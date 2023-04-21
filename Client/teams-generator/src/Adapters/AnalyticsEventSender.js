@@ -20,14 +20,14 @@ export class AnalyticsEventManager {
           // Initialize Firebase
           const app = initializeApp(firebaseConfig);
           this.analytics = getAnalytics(app);
-          setUserProperties(this.analytics, { favorite_food: 'apples' });
+        //   setUserProperties(this.analytics, { : 'apples' });
         
     }
 
-    sendContentEvent(contentType, page_title) {
+    sendContentEvent(contentType, content_id) {
         logEvent(this.analytics, 'select_content', {
             content_type: contentType,
-            page_title: page_title
+            content_id: content_id
           });
     }
 
