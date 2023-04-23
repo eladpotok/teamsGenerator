@@ -4,11 +4,14 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { ConfigurationContext } from "../../Store/ConfigurationContext";
 import dayjs from 'dayjs';
 import { BrowserView, MobileView } from "react-device-detect";
+import { AnalyticsContext } from "../../Store/AnalyticsContext";
+import { UserContext } from "../../Store/UserContext";
 
 const { Option } = Select;
 
 function Config(props) {
-
+    const analyticsContext = useContext(AnalyticsContext)
+    const userContext = useContext(UserContext)
     const configContext = useContext(ConfigurationContext);
     useEffect(() => {
         (async () => {
@@ -43,6 +46,9 @@ function Config(props) {
         configContext.userConfig.eventDate = e
         configContext.setUserConfig({ ...configContext.userConfig, userConfig: { ...configContext.userConfig } })
     }
+
+    analyticsContext.sendAnalyticsImpression(userContext.user.uid, 'config')
+
 
     return (
 

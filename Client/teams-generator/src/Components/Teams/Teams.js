@@ -7,11 +7,14 @@ import { getTextResult } from '../../Utilities/Helpers'
 import { ConfigurationContext } from '../../Store/ConfigurationContext';
 import {isMobile} from 'react-device-detect';
 import { AnalyticsContext } from '../../Store/AnalyticsContext';
+import { UserContext } from '../../Store/UserContext';
 
 
 function Teams(props) {
     const [messageApi, contextHolder] = message.useMessage();
     const configContext = useContext(ConfigurationContext)
+    const analyticsContext = useContext(AnalyticsContext)
+    const userContext = useContext(UserContext)
 
     const columnSpan = isMobile ? 24 : 8
 
@@ -24,6 +27,8 @@ function Teams(props) {
             type: 'success',
             content: 'Copied!',
         });
+
+        analyticsContext.sendAnalyticsEngagement(userContext.user.uid, 'teamsResultsCopied')
     }
 
     function getOptionalShirtsColors(currentTeamId){

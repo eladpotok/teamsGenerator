@@ -5,10 +5,12 @@ import ImportPlayer from "../../Common/ImportPlayer";
 import { writeFileHandler } from "../../../Utilities/Helpers";
 import AddPlayerForm from "../../Common/AddPlayerForm";
 import { AnalyticsContext } from "../../../Store/AnalyticsContext";
+import { UserContext } from "../../../Store/UserContext";
 
 function MobilePlayersListPanel(props) {
     const [addPlayerDrawerOpen, setAddPlayerDrawerOpen] = useState(false)
     const analyticsContext = useContext(AnalyticsContext)
+    const userContext = useContext(UserContext)
 
     const items = [
         {
@@ -29,7 +31,8 @@ function MobilePlayersListPanel(props) {
             icon: <UploadOutlined />,
         },
         {
-            label: <div onClick={() => { writeFileHandler(props.players, props.currentAlgo); analyticsContext.sendContentEvent('playersExported', '3') }}>Export</div>,
+            label: <div onClick={() => { writeFileHandler(props.players, props.currentAlgo); analyticsContext.sendAnalyticsEngagement(userContext.user.uid, 'exportPlayers', null)
+        }}>Export</div>,
             key: '4',
             icon: <ExportOutlined />,
         },
@@ -42,7 +45,6 @@ function MobilePlayersListPanel(props) {
 
     function openAddPlayerViewHandler() {
         setAddPlayerDrawerOpen(true)
-        analyticsContext.sendPageViewEvent('addPlayer')
     }
 
 

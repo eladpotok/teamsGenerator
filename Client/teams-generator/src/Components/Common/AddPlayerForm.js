@@ -4,12 +4,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { PlayersContext } from "../../Store/PlayersContext";
 import AppButton from "./AppButton";
 import { AnalyticsContext } from "../../Store/AnalyticsContext";
+import { UserContext } from "../../Store/UserContext";
 
 function AddPlayerForm(props) {
+    const userContext = useContext(UserContext)
     const analyticsContext = useContext(AnalyticsContext)
-
     const playersContext = useContext(PlayersContext)
     const [form] = Form.useForm();
+
 
     const layout = {
         labelCol: { span: 4 },
@@ -17,7 +19,7 @@ function AddPlayerForm(props) {
     };
 
     function addPlayerHandler(player) {
-        analyticsContext.sendContentEvent(`add-player: ${player.Name}`, '1')
+        analyticsContext.sendAnalyticsEngagement(userContext.user.uid, 'addPlayer', player)
         playersContext.setPlayers([...playersContext.players, player])
     }
 
@@ -27,6 +29,7 @@ function AddPlayerForm(props) {
             const edittedPlayer = {...values, key: props.player.key}
             playersContext.editPlayer(edittedPlayer)
             form.setFieldsValue(edittedPlayer)
+            analyticsContext.sendAnalyticsEngagement(userContext.user.uid, 'editPlayer', edittedPlayer)
             props.onEditFinished()
         }
         else {

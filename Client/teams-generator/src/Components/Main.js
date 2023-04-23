@@ -11,18 +11,20 @@ import { PlayersContext } from "../Store/PlayersContext";
 import { TeamsContext } from "../Store/TeamsContext";
 import {Dimensions} from 'react-native'; 
 import { AnalyticsContext } from "../Store/AnalyticsContext";
+import { UserContext } from "../Store/UserContext";
 
 function Main(props) {
     
     const analyticsContext = useContext(AnalyticsContext)
+    const userContext = useContext(UserContext)
     const configContext = useContext(ConfigurationContext);
     const storeConfigContext = useContext(ConfigurationStoreContext);
     const playersContext = useContext(PlayersContext)
     const teamsContext = useContext(TeamsContext)
+
     const [messageApi, contextHolder] = message.useMessage();
 
-    analyticsContext.sendPageViewEvent('main')
-
+    
     useEffect(() => {
         (async () => {
             if (!storeConfigContext.storeConfig) {
@@ -35,11 +37,15 @@ function Main(props) {
                     numberOfTeams: initialConfig.config.numberOfTeams,
                     algo: initialConfig.algos.filter(t => t.algoKey === 0)[0]
                 })
+
+                
+
             }
         })()
     }, [storeConfigContext.storeConfig])
 
     function algoSelectChangedHandler(value) {
+        analyticsContext.sendAnalyticsEngagement(userContext.user.uid, 'algoChanged', value.algoName)
         configContext.setUserConfig({ ...configContext.userConfig, algo: value })
     };
 
@@ -93,7 +99,13 @@ function Main(props) {
         const getTeamsResponse = await getTeams(playersToGenerate, configContext.userConfig)
         teamsContext.setTeams(getTeamsResponse.teams)
 
-        analyticsContext.sendPageViewEvent('generatedTeams');
+        analyticsContext.sendAnalyticsImpression(userContext.user.uid, 'generated-teams-view')
+        analyticsContext.sendAnalyticsEngagement(userContext.user.uid, 'generatedTeams', {
+            playersCount: playersContext.arrivedPlayers.length,
+            shirtsCount: configContext.userConfig.shirtsColors.length
+        })
+
+
         return true
     }
     
@@ -102,6 +114,7 @@ function Main(props) {
     // the value returned does not include the bottom navigation bar, I am not sure why yours does.
     let windowH = Dimensions.get('window').height;
     let bottomNavBarH = deviceH - windowH;
+
 
 
     

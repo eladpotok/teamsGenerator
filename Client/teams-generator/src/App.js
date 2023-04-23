@@ -14,6 +14,7 @@ import Main from './Components/Main';
 import {  logEvent } from "firebase/analytics";
 import { AnalyticsEventManager } from './Adapters/AnalyticsEventSender';
 import { AnalyticsContextProvider } from './Store/AnalyticsContext';
+import { UserContext, UserContextProvider } from './Store/UserContext';
 
 
 
@@ -22,17 +23,19 @@ function App() {
   const players = getPlayersDEMO()
   
   return (
-    <ConfigurationStoreContextProvider>
-      <ConfigurationContextProvider>
-        <TeamsContextProvider>
-          <PlayersContextProvider>
-            <AnalyticsContextProvider>
-              <Main />
-            </AnalyticsContextProvider>
-          </PlayersContextProvider>
-        </TeamsContextProvider>
-      </ConfigurationContextProvider>
-    </ConfigurationStoreContextProvider>
+    <UserContextProvider>
+      <ConfigurationStoreContextProvider>
+        <ConfigurationContextProvider>
+          <TeamsContextProvider>
+            <PlayersContextProvider>
+              <AnalyticsContextProvider>
+                <Main />
+              </AnalyticsContextProvider>
+            </PlayersContextProvider>
+          </TeamsContextProvider>
+        </ConfigurationContextProvider>
+      </ConfigurationStoreContextProvider>
+    </UserContextProvider>
   )
 }
 

@@ -53,7 +53,6 @@ function MobileHeader(props) {
 
     function openConfigView(){
         openCloseConfigDrawerHandler(true)
-        analyticsContext.sendPageViewEvent('config')
     }
 
     return (<Row style={{ marginTop: '4px' }}>
