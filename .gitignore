@@ -2,3 +2,10 @@
 /TeamsGenerator/bin
 /TeamsGenerator/obj
 /Designs
+*/node_modules/*
+*/obj/release/*
+*/bin/release/*
+*/obj/debug/*
+*/bin/debug/*
+/TeamsGeneratorWebAPI/obj
+/TeamsGeneratorWebAPI/properties
