@@ -1,5 +1,5 @@
 export async function sendEvent(eventType, user, actionType, data) {
-    console.log('asaa')
+    console.log(eventType, user, actionType, data)
     if(data) {
         const response = await fetch(`${'https://teamsgeneratorapp-default-rtdb.firebaseio.com'}/${eventType}/${actionType}/${user}.json`, {
             method: 'post',

@@ -3,9 +3,7 @@ import { ConfigurationContext } from "../Store/ConfigurationContext";
 import { ConfigurationStoreContext } from "../Store/ConfigurationStoreContext";
 import { getInitialConfig, getTeams } from "../Adapters/DB/WebApiAdapter";
 import dayjs from 'dayjs';
-import { BrowserView, MobileView } from "react-device-detect";
-import { Card, message } from "antd";
-import MainMenu from "./MainMenu";
+import { message } from "antd";
 import MobileMainScreen from "./Mobile/MobileMainScreen";
 import { PlayersContext } from "../Store/PlayersContext";
 import { TeamsContext } from "../Store/TeamsContext";
@@ -37,12 +35,17 @@ function Main(props) {
                     numberOfTeams: initialConfig.config.numberOfTeams,
                     algo: initialConfig.algos.filter(t => t.algoKey === 0)[0]
                 })
-
-                
-
             }
         })()
     }, [storeConfigContext.storeConfig])
+
+    useEffect(() => {
+        ( () => {
+            if (userContext.user) {
+                analyticsContext.sendAnalyticsImpression(userContext.user.uid, 'mainApp')        
+            }
+        })()
+    }, userContext.user)
 
     function algoSelectChangedHandler(value) {
         analyticsContext.sendAnalyticsEngagement(userContext.user.uid, 'algoChanged', value.algoName)

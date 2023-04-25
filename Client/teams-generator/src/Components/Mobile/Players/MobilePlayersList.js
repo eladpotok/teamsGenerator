@@ -4,15 +4,18 @@ import { useContext, useState } from "react";
 import AddPlayerForm from "../../Common/AddPlayerForm";
 import AppCheckBox from "../../Common/AppCheckBox";
 import { AnalyticsContext } from "../../../Store/AnalyticsContext";
+import { UserContext } from "../../../Store/UserContext";
 
 function MobilePlayersList(props) {
     const analyticsContext = useContext(AnalyticsContext)
+    const userContext = useContext(UserContext)
 
     const [editPlayerDrawerOpen, setEditPlayerDrawerOpen] = useState(false)
     const [editPlayer, setEditPlayer] = useState(null)
 
     function playerListItemClicked(clickedPlayer) {
         props.onPlayerRemoved(clickedPlayer)
+        analyticsContext.sendAnalyticsEngagement(userContext.user.uid, 'playerRemovedFromList', clickedPlayer)
     }
 
     function setPlayerArrivedHandler(player, isArrived) {
@@ -22,7 +25,6 @@ function MobilePlayersList(props) {
     function openEditPlayerViewHandler(player) {
         setEditPlayer(player); 
         setEditPlayerDrawerOpen(true)
-        analyticsContext.sendPageViewEvent('editPlayer')
     }
 
     return (
