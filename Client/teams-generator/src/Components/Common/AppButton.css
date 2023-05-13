@@ -1,5 +1,5 @@
 .button {
-    background-color: #4CAF50; /* Green */
+    background-color: rgb(44, 185, 84); /* Green */
     border: none;
     color: white;
     padding: 8px 16px;
@@ -13,12 +13,8 @@
   }
 
   
-  .button4 {
-    background-color: white;
-    color: black;
-    border: 2px solid #e7e7e7;
-  }
-  
-  .button4:active {background-color: #e7e7e7;}
+  .button:hover {background-color: #95edad;}
+
+  .button:active {background-color: rgb(44, 185, 84);}
 
   

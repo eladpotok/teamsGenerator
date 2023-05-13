@@ -17,8 +17,6 @@ function MobileMainScreen(props) {
 
     function algoChangedHandler(value) {
         props.onAlgoChanged(value)
-
-        analyticsContext.sendContentEvent('algo_changed')
     };
 
     function playerArrivedHandler(player, value){

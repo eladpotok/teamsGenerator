@@ -32,24 +32,26 @@ function Teams(props) {
     }
 
     function getOptionalShirtsColors(currentTeamId){
-        const shirtsOfOtherTeams = props.teams.filter(team => team.teamId !== currentTeamId).map(team => {
-            return {
-                label: team.teamSymbol,
-                value: team.teamId
+        const currentTeamColor = props.teams.filter(team => team.teamId == currentTeamId)[0].color
+        const results = []
+        for (const [key, value] of Object.entries(props.shirtsColors)) {
+            if( key != currentTeamColor ) {
+                results.push({
+                    label: value,
+                    value: key
+                })
             }
-        })
+          }
 
-        // const restOfShirts = props.shirtsColors.filter( shirt => !props.teams.map( t => t.color.toUpperCase()).includes(shirt.toUpperCase()))
-        
-        // shirtsOfOtherTeams.push.apply(restOfShirts.map( t=> {return {   label: team.teamSymbol,
-        //     value: team.teamId}}))
-
-        return shirtsOfOtherTeams
+        return results
 
     }
 
-    function shirtColorChangedHandler(teamIdFrom, teamIdTo){
-        props.onChangeShirtColor(teamIdFrom, teamIdTo)
+    function shirtColorChangedHandler(teamIdFrom, newColor){
+        props.onChangeShirtColor(teamIdFrom, {
+            color: newColor.value,
+            teamSymbol: newColor.label
+        })
     }
 
 
@@ -59,17 +61,17 @@ function Teams(props) {
            
             <Row gutter={1}>
                 <Col span={columnSpan} style={{marginTop: '-12px'}}>
-                    <Card title={<div><Select  onChange={(value, label) => {shirtColorChangedHandler(props.teams[0].teamId, label.value )}} value={props.teams[0].teamSymbol} options={getOptionalShirtsColors(props.teams[0].teamId)}></Select> { 'Team ' + props.teams[0].teamName} </div>} bordered={false} size='small'>
+                    <Card title={<div><Select  onChange={(value, label) => {shirtColorChangedHandler(props.teams[0].teamId, label )}} value={props.teams[0].teamSymbol} options={getOptionalShirtsColors(props.teams[0].teamId)}></Select> { 'Team ' + props.teams[0].teamName} </div>} bordered={false} size='small'>
                         <Team onMovePlayer={props.onMovePlayer} onRemovePlayerFromTeam={props.onRemovePlayerFromTeam} teams={props.teams} team={props.teams[0]} />
                     </Card>
                 </Col>
                 <Col span={columnSpan} style={{marginTop: '-12px'}}>
-                    <Card title={<div><Select onChange={(value, label) => {shirtColorChangedHandler(props.teams[1].teamId, label.value )}} value={props.teams[1].teamSymbol} options={getOptionalShirtsColors(props.teams[1].teamId)}></Select> { 'Team ' + props.teams[1].teamName} </div>} bordered={false} size='small'>
+                    <Card title={<div><Select onChange={(value, label) => {shirtColorChangedHandler(props.teams[1].teamId, label )}} value={props.teams[1].teamSymbol} options={getOptionalShirtsColors(props.teams[1].teamId)}></Select> { 'Team ' + props.teams[1].teamName} </div>} bordered={false} size='small'>
                         <Team onMovePlayer={props.onMovePlayer} onRemovePlayerFromTeam={props.onRemovePlayerFromTeam} teams={props.teams} team={props.teams[1]} />
                     </Card>
                 </Col>
                 <Col span={columnSpan} style={{marginTop: '-12px'}}>
-                    <Card title={<div><Select onChange={(value, label) => {shirtColorChangedHandler(props.teams[2].teamId, label.value )}} value={props.teams[2].teamSymbol} options={getOptionalShirtsColors(props.teams[2].teamId)}></Select> { 'Team ' + props.teams[1].teamName} </div>} bordered={false} size='small'>
+                    <Card title={<div><Select onChange={(value, label) => {shirtColorChangedHandler(props.teams[2].teamId, label )}} value={props.teams[2].teamSymbol} options={getOptionalShirtsColors(props.teams[2].teamId)}></Select> { 'Team ' + props.teams[1].teamName} </div>} bordered={false} size='small'>
                         <Team onMovePlayer={props.onMovePlayer} onRemovePlayerFromTeam={props.onRemovePlayerFromTeam} teams={props.teams} team={props.teams[2]} />
                     </Card>
                 </Col>

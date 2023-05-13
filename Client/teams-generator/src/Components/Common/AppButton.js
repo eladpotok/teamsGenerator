@@ -5,7 +5,7 @@ function AppButton(props) {
 
 
         return (
-            <button  class="button button4" onClick={props.onClick}>
+            <button  class="button" onClick={props.onClick}>
                 {props.children}
             </button>
         )

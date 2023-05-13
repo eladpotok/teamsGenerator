@@ -32,9 +32,11 @@ function Config(props) {
     };
 
     function shirtsColorsChangedHandler(e) {
-        configContext.userConfig.shirtsColors = e
-        configContext.setUserConfig({ ...configContext.userConfig, userConfig: { ...configContext.userConfig } })
-
+        configContext.userConfig.shirtsColors = {}
+        e.forEach(element => {
+            configContext.userConfig.shirtsColors[element] = props.shirtsColors[element]
+            configContext.setUserConfig({ ...configContext.userConfig, userConfig: { ...configContext.userConfig } })    
+        });
     }
 
     function setNumberOfTeams(teamsCount) {
@@ -61,8 +63,8 @@ function Config(props) {
                     </Form.Item>
 
                    <Form.Item name="shirtsColors" label="Shirts Colors" >
-                        <Select mode="multiple" placeholder="Select Shirts Colors" defaultValue={configContext.userConfig.shirtsColors} onChange={shirtsColorsChangedHandler} >
-                            {props.shirtsColors.map(shirt => {
+                        <Select mode="multiple" placeholder="Select Shirts Colors" defaultValue={Object.keys(configContext.userConfig.shirtsColors)} onChange={shirtsColorsChangedHandler} >
+                            {Object.keys(props.shirtsColors).map(shirt => {
                                 return <Option value={shirt} label={shirt} />
                             })}
                         </Select>

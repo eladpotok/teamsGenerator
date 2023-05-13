@@ -45,3 +45,13 @@ export function writeFileHandler(players, algo)  {
       link.click();
   
 }
+
+
+export function takeNElementsFromDic(dic, n){
+    let results = {}
+    for (const [key, value] of Object.entries(dic)) {
+        results[key] = value
+        n--;
+        if(n==0) return results
+      }
+}

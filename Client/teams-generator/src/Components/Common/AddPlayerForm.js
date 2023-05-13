@@ -1,81 +1,128 @@
-import { Button, Form, Input } from "antd";
-import { useContext } from "react";
+import { Button, Form, Input, InputNumber, Slider } from "antd";
+import { useContext, useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { PlayersContext } from "../../Store/PlayersContext";
 import AppButton from "./AppButton";
 import { AnalyticsContext } from "../../Store/AnalyticsContext";
 import { UserContext } from "../../Store/UserContext";
+import { FrownOutlined, SmileOutlined, UserAddOutlined, UserOutlined } from "@ant-design/icons";
+import { RxSlider } from 'react-icons/rx';
+import { Radar } from 'react-chartjs-2';
+import {
+    Chart as ChartJS,
+    RadialLinearScale,
+    PointElement,
+    LineElement,
+    Filler,
+    Tooltip,
+    Legend,
+} from 'chart.js';
+import AppSlider from "./AppSlider";
+import { useEffect } from "react";
+
+ChartJS.register(
+    RadialLinearScale,
+    PointElement,
+    LineElement,
+    Filler,
+    Tooltip,
+    Legend
+);
+
 
 function AddPlayerForm(props) {
-    const userContext = useContext(UserContext)
-    const analyticsContext = useContext(AnalyticsContext)
-    const playersContext = useContext(PlayersContext)
-    const [form] = Form.useForm();
 
+    const propertiesOfNumbers = props.playersProperties.filter(f => f.showInClient && f.type == "number")
+    const propertiesForInput = props.playersProperties.filter(f => f.showInClient)
 
-    const layout = {
-        labelCol: { span: 4 },
-        wrapperCol: { span: 16 },
-    };
+    const [propertiesChartData, setPropertiesChartData] = useState({ labels: [], datasets: [] })
+    const [chartUpdated, setChartUpdated] = useState(false)
+    
+    useEffect(() => {
+        (() => {
+            if (props.player && props.playersProperties) {
+                let data = {
+                    labels: propertiesOfNumbers.map((pl) => { return pl.name }),
+                    datasets: [
+                        {
+                            label: 'Rank',
+                            data: getPlayerValuesForChart(),
+                            backgroundColor: '#95edad',
+                            borderColor: 'green',
+                            borderWidth: 1,
+                        },
+                    ],
+                };
+                setPropertiesChartData(data)
+            }
+        })()
+    }, [chartUpdated])
 
-    function addPlayerHandler(player) {
-        analyticsContext.sendAnalyticsEngagement(userContext.user.uid, 'addPlayer', player)
-        playersContext.setPlayers([...playersContext.players, player])
+    function addPlayerHandler() {
+        let isValid = true
+        propertiesForInput.forEach(element => {
+            if (props.player[element.name] == null || props.player[element.name] == undefined || props.player[element.name] == '') {
+                isValid = false
+                return
+            }
+        });
+
+        if(isValid) {
+            props.player['key'] = uuidv4();
+            props.player['isArrived'] = false
+            props.onPlayerSubmitted()
+        }
     }
 
-    const formFinishedHandler = (values) => {
+    function onResetClickedHandler() {
+        setChartUpdated(!chartUpdated)
+        props.onResetClicked()
+    }
 
-        if(props.player) {
-            const edittedPlayer = {...values, key: props.player.key}
-            playersContext.editPlayer(edittedPlayer)
-            form.setFieldsValue(edittedPlayer)
-            analyticsContext.sendAnalyticsEngagement(userContext.user.uid, 'editPlayer', edittedPlayer)
-            props.onEditFinished()
-        }
-        else {
-            values['key'] = uuidv4();
-            values['isArrived'] = false
-            addPlayerHandler(values)
-            resetFromHandler();
-        }
-    };
+    function onValueChanged(value, key) {
+        props.player[key] = value
+        setChartUpdated(!chartUpdated)
+    }
 
-    const resetFromHandler = () => {
-        form.resetFields();
-    };
-
-    
-    form.setFieldsValue(props.player)
+    function getPlayerValuesForChart() {
+        return propertiesOfNumbers.map((pl) => {
+            return props.player[pl.name]
+        })
+    }
 
     return (
-        <Form {...layout} form={form} initialValues={props.player ? props.player : {}} onFinish={formFinishedHandler} style={{ marginTop: '15px' }} size="small">
+        <div style={{ backgroundColor: 'white', borderRadius: '14px', padding: '5px' }}>
+            {props.playersProperties && props.playersProperties.filter(f => f.showInClient).map((pl) => {
+                return (<>
+                    {props.player && <div style={{ color: 'white', fontWeight: 'bold', marginTop: '4px' }}>
 
-            {props.playersProperties && props.playersProperties.filter(f => f.showInClient).map((property) =>
+                        {pl.type == 'number' && <div>
 
-                <Form.Item valuePropName='value' name={property.name} label={property.name} rules={[{ required: true }]}>
-                    <Input type={property.type} tep={0.1} max={10} min={1} />
-                </Form.Item>
+                            <label>{pl.name}</label>
+                            {props.player && <AppSlider onChanged={(value) => { onValueChanged(value, pl.name) }} value={props.player} displayPath={pl.name} />}
 
+                        </div>}
+                        {pl.type == 'text' && <Input prefix={<UserOutlined />}
+                            placeholder={pl.name} value={props.player[pl.name]} onChange={(e) => { onValueChanged(e.target.value, pl.name) }} />}
+                    </div>}
+                    </>)
+            }
             )}
+            {propertiesOfNumbers.length > 1 && <div style={{ height: '200px', marginTop: '40px', display: 'flex', justifyContent: 'center' }}>
+                <Radar data={propertiesChartData} />
+            </div>}
 
             <div style={{ display: 'flex', 'flex-direction': 'row', 'align-items': 'flex-end', 'justifyContent': 'flex-end' }}>
-                <AppButton  style={{ marginRight: 16 }}>
-                    {props.player ? 'EDIT' : 'ADD'}
-                </AppButton>
-
-                {!props.player &&<AppButton htmlType="button" onClick={resetFromHandler}>
+                {props.onResetClicked && <AppButton htmlType="button" onClick={onResetClickedHandler}>
                     RESET
                 </AppButton>}
+                
+                <AppButton onClick={addPlayerHandler} style={{ marginRight: 16 }}>
+                    SUBMIT
+                </AppButton>
             </div>
-
-        </Form>
+        </div>
     )
-}
-
-function getValue(propertyName, player){
-    if (player) return player[propertyName]
-    return ''
-    
 }
 
 export default AddPlayerForm;

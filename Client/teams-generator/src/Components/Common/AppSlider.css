@@ -1,0 +1,27 @@
+
+:where(.css-dev-only-do-not-override-1vtf12y).ant-slider .ant-slider-handle::after {    content: "";
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    width: 10px;
+    height: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 2px green;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: inset-inline-start 0.2s,inset-block-start 0.2s,width 0.2s,height 0.2s,box-shadow 0.2s;
+}
+
+
+:where(.css-dev-only-do-not-override-1vtf12y).ant-slider .ant-slider-handle:hover::after, :where(.css-dev-only-do-not-override-1vtf12y).ant-slider .ant-slider-handle:active::after, :where(.css-dev-only-do-not-override-1vtf12y).ant-slider .ant-slider-handle:focus::after {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    width: 10px;
+    height: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px green;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: inset-inline-start 0.2s,inset-block-start 0.2s,width 0.2s,height 0.2s,box-shadow 0.2s;
+}

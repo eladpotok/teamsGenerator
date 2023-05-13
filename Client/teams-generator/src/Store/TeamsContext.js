@@ -7,7 +7,7 @@ export const TeamsContext = React.createContext({
     resultAsText: {},
     movePlayer: (fromTeam, toTeam, player) => {},
     removePlayer: (fromTeam, player) => {},
-    changeShirtColor: (teamIdFrom, teamIdTo) => {}
+    changeShirtColor: (teamIdFrom, newColor) => {}
 
 });
 
@@ -47,20 +47,24 @@ export const TeamsContextProvider = (props) => {
         updateTeams(updatedTeams);
     }
 
-    function changeShirtColor(teamIdFrom, teamIdTo){
-        const teamTo = teams.filter(t=> t.teamId === teamIdTo)[0]
+    function changeShirtColor(teamIdFrom, newColor){
+        const teamsWithSelectedColor = teams.filter(t=> t.color === newColor.color)
+        let teamTo = null
+        if (teamsWithSelectedColor != null && teamsWithSelectedColor.length > 0) {
+            teamTo = teamsWithSelectedColor[0]
+        }
         const teamFrom = teams.filter(t=> t.teamId === teamIdFrom)[0]
-
+        
+        const shirtsColorTo = teamTo ? {teamSymbol: teamTo.teamSymbol, color: teamTo.color } : {teamSymbol: newColor.teamSymbol, color: newColor.color }
         const shirtsColorFrom = {teamSymbol: teamFrom.teamSymbol, color: teamFrom.color }
-        const shirtsColorTo = {teamSymbol: teamTo.teamSymbol, color: teamTo.color }
-        const updatedTeams = []
 
+        const updatedTeams = []
         teams.forEach(team => {
             if(team.teamId === teamIdFrom) {
                 team.teamSymbol = shirtsColorTo.teamSymbol
                 team.color = shirtsColorTo.color
             }
-            if(team.teamId === teamIdTo) {
+            if(teamTo && team.teamId === teamTo.teamId) {
                 team.teamSymbol = shirtsColorFrom.teamSymbol
                 team.color = shirtsColorFrom.color
             }

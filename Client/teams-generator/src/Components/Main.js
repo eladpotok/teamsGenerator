@@ -10,6 +10,7 @@ import { TeamsContext } from "../Store/TeamsContext";
 import {Dimensions} from 'react-native'; 
 import { AnalyticsContext } from "../Store/AnalyticsContext";
 import { UserContext } from "../Store/UserContext";
+import { takeNElementsFromDic } from "../Utilities/Helpers";
 
 function Main(props) {
     
@@ -31,7 +32,7 @@ function Main(props) {
 
                 configContext.setUserConfig({
                     eventDate: dayjs(new Date()),
-                    shirtsColors: initialConfig.config.shirtsColors.slice(0, 3),
+                    shirtsColors:  takeNElementsFromDic(initialConfig.config.shirtsColors,3),
                     numberOfTeams: initialConfig.config.numberOfTeams,
                     algo: initialConfig.algos.filter(t => t.algoKey === 0)[0]
                 })
@@ -41,7 +42,9 @@ function Main(props) {
 
     useEffect(() => {
         ( () => {
+            console.log('1')
             if (userContext.user) {
+                console.log('2', userContext.user.uid)
                 analyticsContext.sendAnalyticsImpression(userContext.user.uid, 'mainApp')        
             }
         })()
@@ -67,7 +70,6 @@ function Main(props) {
     }
 
     function removePlayerFromTeamHandler(fromTeam, player) {
-        console.log('remove')
         teamsContext.removePlayer(fromTeam, player)
     }
     
@@ -75,9 +77,9 @@ function Main(props) {
         teamsContext.movePlayer(fromTeam, toTeam, player)
     }
 
-    function shirtColorChangedHandler(teamIdFrom, teamIdTo){
-        console.log(teamIdFrom, teamIdTo)
-        teamsContext.changeShirtColor(teamIdFrom, teamIdTo)
+    function shirtColorChangedHandler(teamIdFrom, newColor){
+        const newColorShirt =
+        teamsContext.changeShirtColor(teamIdFrom, newColor)
     }
 
     async function generateTeamsHandler() {

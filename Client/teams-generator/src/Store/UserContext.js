@@ -10,7 +10,7 @@ export const UserContextProvider = (props) => {
     const [user, setUser] = useState(null)
 
     useEffect(() => { 
-        (async () => { 
+        ( () => { 
             const userInStorage = localStorage.getItem('user')
             if (userInStorage) {
                 setUser(JSON.parse(userInStorage))

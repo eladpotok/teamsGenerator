@@ -1,13 +1,15 @@
 import { DeleteOutlined, EditOutlined, QuestionCircleOutlined, UserOutlined } from "@ant-design/icons";
-import { Avatar, Button, Card, Drawer, List, Popconfirm } from "antd";
+import { Avatar, Button, Card, Drawer, List, Modal, Popconfirm } from "antd";
 import { useContext, useState } from "react";
 import AddPlayerForm from "../../Common/AddPlayerForm";
 import AppCheckBox from "../../Common/AppCheckBox";
 import { AnalyticsContext } from "../../../Store/AnalyticsContext";
 import { UserContext } from "../../../Store/UserContext";
+import { PlayersContext } from "../../../Store/PlayersContext";
 
 function MobilePlayersList(props) {
     const analyticsContext = useContext(AnalyticsContext)
+    const playersContext = useContext(PlayersContext)
     const userContext = useContext(UserContext)
 
     const [editPlayerDrawerOpen, setEditPlayerDrawerOpen] = useState(false)
@@ -26,6 +28,14 @@ function MobilePlayersList(props) {
         setEditPlayer(player); 
         setEditPlayerDrawerOpen(true)
     }
+
+    function playerSubmittedHandler() {
+        const edittedPlayer = { ...editPlayer, key: editPlayer.key }
+        playersContext.editPlayer(edittedPlayer)
+        analyticsContext.sendAnalyticsEngagement(userContext.user.uid, 'editPlayer', edittedPlayer)
+        setEditPlayerDrawerOpen(false)
+    }
+
 
     return (
         <Card style={{
@@ -54,12 +64,12 @@ function MobilePlayersList(props) {
             </List>
 
 
-            {props.currentAlgo && <Drawer title="Edit Player" 
-                        width='75%'
-                        onClose={() => { setEditPlayerDrawerOpen(false) }}
+            {props.currentAlgo && <Modal  title="Edit Player" 
+                        width='75%' footer={[]}
+                        onCancel={() => { setEditPlayerDrawerOpen(false) }}
                         open={editPlayerDrawerOpen}>
-                    <AddPlayerForm onEditFinished={() => { setEditPlayerDrawerOpen(false)}} player={editPlayer} playersProperties={props.currentAlgo.playerProperties}/>
-                </Drawer>}
+                    <AddPlayerForm player={editPlayer} playersProperties={props.currentAlgo.playerProperties}  onPlayerSubmitted={playerSubmittedHandler}/>
+                </Modal>}
 
         </Card>
     )
