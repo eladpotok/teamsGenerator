@@ -8,6 +8,8 @@ import { UserContext } from "../../Store/UserContext";
 import { FrownOutlined, SmileOutlined, UserAddOutlined, UserOutlined } from "@ant-design/icons";
 import { RxSlider } from 'react-icons/rx';
 import { Radar } from 'react-chartjs-2';
+import "./AddPlayerForm.css";
+
 import {
     Chart as ChartJS,
     RadialLinearScale,
@@ -112,7 +114,7 @@ function AddPlayerForm(props) {
 
                         </div>}
                         {pl.type == 'text' && <Input  prefix={<UserOutlined />}
-                            placeholder={pl.name} value={props.player[pl.name]} onChange={(e) => { onValueChanged(e.target.value, pl.name) }} />}
+                            placeholder={pl.name.toUpperCase()} value={props.player[pl.name]} onChange={(e) => { onValueChanged(e.target.value, pl.name) }} />}
                     </div>}
                     </>)
             }

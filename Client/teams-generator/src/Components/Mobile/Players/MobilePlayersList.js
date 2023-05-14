@@ -6,6 +6,7 @@ import AppCheckBox from "../../Common/AppCheckBox";
 import { AnalyticsContext } from "../../../Store/AnalyticsContext";
 import { UserContext } from "../../../Store/UserContext";
 import { PlayersContext } from "../../../Store/PlayersContext";
+import { GiSoccerKick } from 'react-icons/gi';
 
 function MobilePlayersList(props) {
     const analyticsContext = useContext(AnalyticsContext)
@@ -67,8 +68,8 @@ function MobilePlayersList(props) {
             </List>
 
 
-            {props.currentAlgo && <Modal  title="Edit Player" 
-                        width='75%' footer={[]}
+            {props.currentAlgo && <Modal  title={<><GiSoccerKick style={{marginBottom: '-2px', marginRight: '4px',  color: '#095c1f', marginLeft: '4px'}} /><label style={{marginLeft: '4px', color: '#095c1f'}}>EDIT PLAYER</label></>} 
+                        width='75%' footer={[]} style={{ top: 20 }}
                         onCancel={() => { setEditPlayerDrawerOpen(false) }}
                         open={editPlayerDrawerOpen}>
                     <AddPlayerForm player={editPlayer} playersProperties={props.currentAlgo.playerProperties}  onPlayerSubmitted={playerSubmittedHandler}/>

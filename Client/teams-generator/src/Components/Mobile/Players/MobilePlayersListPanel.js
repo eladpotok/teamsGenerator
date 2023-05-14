@@ -84,8 +84,7 @@ function MobilePlayersListPanel(props) {
                 </Dropdown>
             </Col>
 
-            {props.currentAlgo && <Modal title={<><GiSoccerKick style={{marginBottom: '-2px', marginRight: '4px',  color: '#095c1f', marginLeft: '4px'}} /><label style={{marginLeft: '4px', color: '#095c1f'}}>NEW PLAYER</label></>}  style={{background: "rgb(46, 46, 46)"}} footer={[]}
-                        width='75%'
+            {props.currentAlgo && <Modal title={<><GiSoccerKick style={{marginBottom: '-2px', marginRight: '4px',  color: '#095c1f', marginLeft: '4px'}} /><label style={{marginLeft: '4px', color: '#095c1f'}}>NEW PLAYER</label></>}  style={{top: 20}} footer={[]}
                         onCancel={() => { setAddPlayerDrawerOpen(false) }}
                         open={addPlayerDrawerOpen}>
                     <AddPlayerForm player={playerToAdd} playersProperties={props.currentAlgo.playerProperties} onResetClicked={resetClickedHandler} onPlayerSubmitted={playerSubmittedHandler}/>
