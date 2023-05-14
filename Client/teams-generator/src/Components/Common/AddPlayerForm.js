@@ -68,7 +68,7 @@ function AddPlayerForm(props) {
         });
 
         if(isValid) {
-            props.player['key'] = uuidv4();
+            props.player['key'] =  props.player.key ? props.player.key : uuidv4();
             props.player['isArrived'] = false
             props.onPlayerSubmitted()
         }

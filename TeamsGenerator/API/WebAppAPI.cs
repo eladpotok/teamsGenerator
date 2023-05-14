@@ -71,7 +71,7 @@ namespace TeamsGenerator.API
 
         public static InitialAppConfig GetInitialAlgoConfig()
         {
-            var shirtsColors = ConfigurationManager.ShirtsColorNameToSymbolMapper.Keys.ToList();
+            var shirtsColors = ConfigurationManager.ShirtsColorNameToSymbolMapper;
             var numberOfTeams = ConfigurationManager.NumberOfTeams;
 
             var algos = _algoTypeToInformationMapper.Values.ToList();
@@ -86,10 +86,10 @@ namespace TeamsGenerator.API
             return _algoTypeToInformationMapper[(AlgoType)algoType].PlayerProperties;
         }
 
-        private static List<WebAppTeam> GetDisplayTeams(List<string> shirtsColorNames, List<Algos.Team> teams)
+        private static List<WebAppTeam> GetDisplayTeams(Dictionary<string, string> shirtsColorNames, List<Algos.Team> teams)
         {
             var results = new List<WebAppTeam>();
-            var shirtsColors = Helper.Shuffle(shirtsColorNames);
+            var shirtsColors = Helper.Shuffle(shirtsColorNames.Keys.ToList());
 
             var index = 1;
             foreach (var team in teams)

@@ -6,6 +6,6 @@ namespace TeamsGenerator.API
     public class WebAppConfigResponse
     {
         public int NumberOfTeams { get; set; }
-        public List<string> ShirtsColors { get; set; }
+        public Dictionary<string, string> ShirtsColors { get; set; }
     }
 }

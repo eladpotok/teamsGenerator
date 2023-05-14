@@ -25,12 +25,15 @@ function MobilePlayersList(props) {
     }
 
     function openEditPlayerViewHandler(player) {
-        setEditPlayer(player); 
+        const edittedPlayer = { ...player, key: player.key }
+        setEditPlayer({...edittedPlayer}); 
+        console.log('open edit screen with player', edittedPlayer)
         setEditPlayerDrawerOpen(true)
     }
 
     function playerSubmittedHandler() {
         const edittedPlayer = { ...editPlayer, key: editPlayer.key }
+        console.log('edit player', edittedPlayer)
         playersContext.editPlayer(edittedPlayer)
         analyticsContext.sendAnalyticsEngagement(userContext.user.uid, 'editPlayer', edittedPlayer)
         setEditPlayerDrawerOpen(false)
