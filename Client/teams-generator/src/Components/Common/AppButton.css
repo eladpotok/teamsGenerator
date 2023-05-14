@@ -18,3 +18,36 @@
   .button:active {background-color: rgb(44, 185, 84);}
 
   
+  .secondary {
+    border-color: rgb(44, 185, 84);
+    border-width: 1px;
+    border-style: solid;
+    color: rgb(44, 185, 84);
+    background-color: white;
+    padding: 7px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    margin-right: 4px;
+    margin-bottom: 14px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+  }
+
+  .secondary:active {
+    border-color: rgb(44, 185, 84);
+    border-width: 1px;
+    border-style: solid;
+    color: white;
+    background-color: rgb(44, 185, 84);
+    padding: 7px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    margin-right: 4px;
+    margin-bottom: 14px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+  }

@@ -7,6 +7,7 @@ import AddPlayerForm from "../../Common/AddPlayerForm";
 import { AnalyticsContext } from "../../../Store/AnalyticsContext";
 import { UserContext } from "../../../Store/UserContext";
 import { PlayersContext } from "../../../Store/PlayersContext";
+import { GiSoccerKick } from 'react-icons/gi';
 
 function MobilePlayersListPanel(props) {
     const [addPlayerDrawerOpen, setAddPlayerDrawerOpen] = useState(false)
@@ -83,7 +84,7 @@ function MobilePlayersListPanel(props) {
                 </Dropdown>
             </Col>
 
-            {props.currentAlgo && <Modal title={<label style={{marginLeft: '4px', color: '#095c1f'}}>NEW PLAYER</label>}  style={{background: "rgb(46, 46, 46)"}} footer={[]}
+            {props.currentAlgo && <Modal title={<><GiSoccerKick style={{marginBottom: '-2px', marginRight: '4px',  color: '#095c1f', marginLeft: '4px'}} /><label style={{marginLeft: '4px', color: '#095c1f'}}>NEW PLAYER</label></>}  style={{background: "rgb(46, 46, 46)"}} footer={[]}
                         width='75%'
                         onCancel={() => { setAddPlayerDrawerOpen(false) }}
                         open={addPlayerDrawerOpen}>

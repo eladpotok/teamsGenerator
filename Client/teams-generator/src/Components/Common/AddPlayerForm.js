@@ -1,4 +1,4 @@
-import { Button, Form, Input, InputNumber, Slider } from "antd";
+import { Button, Form, Input, InputNumber, Slider, message } from "antd";
 import { useContext, useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { PlayersContext } from "../../Store/PlayersContext";
@@ -31,6 +31,7 @@ ChartJS.register(
 
 
 function AddPlayerForm(props) {
+    const [messageApi, contextHolder] = message.useMessage();
 
     const propertiesOfNumbers = props.playersProperties.filter(f => f.showInClient && f.type == "number")
     const propertiesForInput = props.playersProperties.filter(f => f.showInClient)
@@ -72,6 +73,12 @@ function AddPlayerForm(props) {
             props.player['isArrived'] = false
             props.onPlayerSubmitted()
         }
+        else{
+            messageApi.open({
+                type: 'error',
+                content: 'One of the following input is wrong or missing',
+              });
+        }
     }
 
     function onResetClickedHandler() {
@@ -90,19 +97,21 @@ function AddPlayerForm(props) {
         })
     }
 
+
     return (
         <div style={{ backgroundColor: 'white', borderRadius: '14px', padding: '5px' }}>
+            {contextHolder}
             {props.playersProperties && props.playersProperties.filter(f => f.showInClient).map((pl) => {
                 return (<>
-                    {props.player && <div style={{ color: 'white', fontWeight: 'bold', marginTop: '4px' }}>
+                    {props.player && <div style={{ color: '#095c1f', fontWeight: 'bold', marginTop: '14px' }}>
 
                         {pl.type == 'number' && <div>
 
-                            <label>{pl.name}</label>
+                            <label>{pl.name.toUpperCase()}</label>
                             {props.player && <AppSlider onChanged={(value) => { onValueChanged(value, pl.name) }} value={props.player} displayPath={pl.name} />}
 
                         </div>}
-                        {pl.type == 'text' && <Input prefix={<UserOutlined />}
+                        {pl.type == 'text' && <Input  prefix={<UserOutlined />}
                             placeholder={pl.name} value={props.player[pl.name]} onChange={(e) => { onValueChanged(e.target.value, pl.name) }} />}
                     </div>}
                     </>)
@@ -113,7 +122,7 @@ function AddPlayerForm(props) {
             </div>}
 
             <div style={{ display: 'flex', 'flex-direction': 'row', 'align-items': 'flex-end', 'justifyContent': 'flex-end' }}>
-                {props.onResetClicked && <AppButton htmlType="button" onClick={onResetClickedHandler}>
+                {props.onResetClicked && <AppButton secondary htmlType="button" onClick={onResetClickedHandler}>
                     RESET
                 </AppButton>}
                 

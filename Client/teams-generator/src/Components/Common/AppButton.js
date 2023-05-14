@@ -3,9 +3,10 @@ import './AppButton.css'
 
 function AppButton(props) {
 
+        const myClass = props.secondary ? 'secondary' : 'button'
 
         return (
-            <button  class="button" onClick={props.onClick}>
+            <button  class={myClass} onClick={props.onClick}>
                 {props.children}
             </button>
         )
