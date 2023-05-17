@@ -1,0 +1,25 @@
+:where(.css-dev-only-do-not-override-1vtf12y).ant-select-multiple .ant-select-selection-item {
+
+
+    background: #95edad;
+
+}
+
+
+.ant-select-show-search:where(.css-dev-only-do-not-override-1vtf12y).ant-select:not(.ant-select-customize-input) .ant-select-selector{
+    border-color: #095c1f;
+    /* background: #cde1d2; */
+}
+
+:where(.css-dev-only-do-not-override-1vtf12y).ant-select:not(.ant-select-disabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer):hover .ant-select-selector {
+
+    border-color: #95edad;
+}
+
+:where(.css-dev-only-do-not-override-1vtf12y).ant-picker {
+    border-color: #095c1f;
+}
+
+:where(.css-dev-only-do-not-override-1vtf12y).ant-picker:hover, :where(.css-dev-only-do-not-override-1vtf12y).ant-picker-focused {
+    border-color: #95edad;
+}

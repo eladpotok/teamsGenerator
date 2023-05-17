@@ -30,21 +30,21 @@ function Main(props) {
                 let initialConfig = await getInitialConfig();
                 storeConfigContext.setStoreConfig(initialConfig)
 
-                configContext.setUserConfig({
+                const defaultConfig = {
                     eventDate: dayjs(new Date()),
-                    shirtsColors:  takeNElementsFromDic(initialConfig.config.shirtsColors,3),
+                    shirtsColors: takeNElementsFromDic(initialConfig.config.shirtsColors, 3),
                     numberOfTeams: initialConfig.config.numberOfTeams,
                     algo: initialConfig.algos.filter(t => t.algoKey === 0)[0]
-                })
+                }
+                configContext.prepareConfig(defaultConfig)
             }
+
         })()
     }, [storeConfigContext.storeConfig])
 
     useEffect(() => {
         ( () => {
-            console.log('1')
             if (userContext.user) {
-                console.log('2', userContext.user.uid)
                 analyticsContext.sendAnalyticsImpression(userContext.user.uid, 'mainApp')        
             }
         })()

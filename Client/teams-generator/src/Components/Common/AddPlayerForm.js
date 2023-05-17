@@ -109,7 +109,7 @@ function AddPlayerForm(props) {
 
                         {pl.type == 'number' && <div>
 
-                            <label>{pl.name.toUpperCase()}</label>
+                            <RxSlider size={14} style={{color: '#095c1f', marginBottom: '-2px', marginRight: '4px'}} /><label>{pl.name.toUpperCase()}</label>
                             {props.player && <AppSlider onChanged={(value) => { onValueChanged(value, pl.name) }} value={props.player} displayPath={pl.name} />}
 
                         </div>}

@@ -6,6 +6,14 @@ import dayjs from 'dayjs';
 import { BrowserView, MobileView } from "react-device-detect";
 import { AnalyticsContext } from "../../Store/AnalyticsContext";
 import { UserContext } from "../../Store/UserContext";
+import AppSlider from "../Common/AppSlider";
+import { takeNElementsFromDic } from "../../Utilities/Helpers";
+import './Config.css'
+import { FaTshirt } from 'react-icons/fa';
+import { RxSlider } from "react-icons/rx";
+import { BsFillCalendar2DateFill, BsFillCalendarDateFill } from "react-icons/bs";
+import AppButton from "../Common/AppButton";
+import AppSelect from "../Common/AppSelect";
 
 const { Option } = Select;
 
@@ -13,71 +21,82 @@ function Config(props) {
     const analyticsContext = useContext(AnalyticsContext)
     const userContext = useContext(UserContext)
     const configContext = useContext(ConfigurationContext);
-    useEffect(() => {
-        (async () => {
-            if (!configContext.userConfig) {
-                configContext.setUserConfig({
-                    eventDate: dayjs(new Date()),
-                    shirtsColors: props.shirtsColors.slice(0, 3),
-                    numberOfTeams: props.numberOfTeams,
-                    algo: props.currentAlgo.algoKey
-                })
-            }
-        })()
-    }, [configContext.userConfig])
-
-    const layout = {
-        labelCol: { span: 10 },
-        wrapperCol: { span: 16 },
-    };
-
-    function shirtsColorsChangedHandler(e) {
-        configContext.userConfig.shirtsColors = {}
-        e.forEach(element => {
-            configContext.userConfig.shirtsColors[element] = props.shirtsColors[element]
-            configContext.setUserConfig({ ...configContext.userConfig, userConfig: { ...configContext.userConfig } })    
-        });
-    }
-
-    function setNumberOfTeams(teamsCount) {
-        configContext.userConfig.numberOfTeams = teamsCount
-        configContext.setUserConfig({ ...configContext.userConfig, userConfig: { ...configContext.userConfig } })
-    }
-
-    function setEventDate(e, dateValue) {
-        configContext.userConfig.eventDate = e
-        configContext.setUserConfig({ ...configContext.userConfig, userConfig: { ...configContext.userConfig } })
-    }
 
     analyticsContext.sendAnalyticsImpression(userContext.user.uid, 'config')
 
+    const [selectedEventDate, setSelectedEventDate] = useState(null)
+
+
+    useEffect(() => {
+        (  () => {
+            setSelectedEventDate(props.initiatedConfig.eventDate)
+        })()
+    })
+
+
+    function teamsNumberChangedHandler(value) {
+        props.initiatedConfig['numberOfTeams'] = value
+    }
+
+    function shirtsColorsChangedHandler(values) {
+        props.initiatedConfig['shirtsColors'] = values
+    }
+
+    function eventDateChangedHandler(e, dateValue) {
+        setSelectedEventDate(e)
+        props.initiatedConfig['eventDate'] = e
+    }
+
+
+    function submitClickedHandler() {
+        configContext.setUserConfig({
+            eventDate: props.initiatedConfig['eventDate'],
+            shirtsColors: props.initiatedConfig['shirtsColors'],
+            numberOfTeams: props.initiatedConfig.numberOfTeams,
+            algo: props.currentAlgo
+        })
+
+        props.onSubmitClicked()
+    }
 
     return (
 
-        <Card title='Configuration' style={{backgroundColor: "white"}}>
-            <QuestionCircleOutlined />  <label style={{marginLeft: '4px' }}>Setup your settings of your teams</label>
-                {configContext.userConfig && <Form  {...layout} style={{ marginTop: '15px' }} size="small">
+        <div style={{borderRadius: '14px', color: '#095c1f', fontWeight: 'bold'}}>
+                <div style={{ marginTop: '24px' }}>
+                    <RxSlider  style={{marginRight: '4px', marginBottom: '-1px'}} /><label >TEAMS NUMBER</label>
+                    <AppSlider onChanged={teamsNumberChangedHandler} value={props.initiatedConfig} displayPath='numberOfTeams' minValue={3} maxValue={5} />
+                </div>
+                
+ 
+                <div style={{ marginTop: '24px' }}>
+                    <FaTshirt  style={{marginRight: '4px', marginBottom: '-1px'}}/><label>SHIRTS</label>
 
-                    <Form.Item name="teamsCount" label="Number of Teams" >
-                        <Input placeholder="Number of Teams" type="number" min={1} max={4} defaultValue={configContext.userConfig.numberOfTeams}  onChange={(e) => { setNumberOfTeams(e.target.value) }} />
-                    </Form.Item>
+                    <div style={{marginTop: '4px'}}>
+                        <AppSelect onChanged={shirtsColorsChangedHandler} options={props.optionalShirts} value={props.initiatedConfig} displayPath='shirtsColors'/>
+                    </div>
+                    
+                </div>
 
-                   <Form.Item name="shirtsColors" label="Shirts Colors" >
-                        <Select mode="multiple" placeholder="Select Shirts Colors" defaultValue={Object.keys(configContext.userConfig.shirtsColors)} onChange={shirtsColorsChangedHandler} >
-                            {Object.keys(props.shirtsColors).map(shirt => {
-                                return <Option value={shirt} label={shirt} />
-                            })}
-                        </Select>
-                    </Form.Item>
+                <div style={{ marginTop: '24px' }}>
+                    <BsFillCalendar2DateFill  style={{marginRight: '4px', marginBottom: '-1px'}}/><label>EVENT TIME</label>
 
-                    <Form.Item name="eventDate" label="Event Date">
-                        <DatePicker onChange={setEventDate} format="YYYY-MM-DD HH:mm:ss" showTime={{ defaultValue: dayjs(new Date())}}  defaultValue={configContext.userConfig.eventDate}/>
-                    </Form.Item>
-                </Form>}
-        </Card>
+                     {props.initiatedConfig.eventDate && <div style={{marginTop: '4px'}}>
+                        <DatePicker style={{width: '100%'}} onChange={eventDateChangedHandler} format="YYYY-MM-DD HH:mm:ss" showTime={{ defaultValue: dayjs(new Date())}}  value={dayjs(selectedEventDate)} />
+                    </div>}
+                    
+                </div>
+
+
+                <div style={{ marginTop: '14px', display: 'flex', 'flex-direction': 'row', 'align-items': 'flex-end', 'justifyContent': 'flex-end' }}>
+                    <AppButton onClick={submitClickedHandler}>
+                        SUBMIT
+                    </AppButton>
+                </div>
+        </div>
     )
 
 }
 
 
 export default Config;
+
