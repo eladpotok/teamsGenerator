@@ -123,11 +123,15 @@ function AddPlayerForm(props) {
                 <Radar data={propertiesChartData} />
             </div>}
 
-            <div style={{ display: 'flex', 'flex-direction': 'row', 'align-items': 'flex-end', 'justifyContent': 'flex-end' }}>
-                {props.onResetClicked && <AppButton secondary htmlType="button" onClick={onResetClickedHandler}>
+            <div style={{ display: 'flex', 'flex-direction': 'row', 'align-items': 'flex-end', 'justifyContent': 'center' }}>
+                {props.onResetClicked && <AppButton secondary  onClick={onResetClickedHandler}>
                     RESET
                 </AppButton>}
                 
+                <AppButton onClick={props.onCancelClicked} style={{ marginRight: 16 }}>
+                    CANCEL
+                </AppButton>
+
                 <AppButton onClick={addPlayerHandler} style={{ marginRight: 16 }}>
                     SUBMIT
                 </AppButton>

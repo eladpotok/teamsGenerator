@@ -7,6 +7,7 @@ import { AnalyticsContext } from "../../../Store/AnalyticsContext";
 import { UserContext } from "../../../Store/UserContext";
 import { PlayersContext } from "../../../Store/PlayersContext";
 import { GiSoccerKick } from 'react-icons/gi';
+import { MdOutlineCancelPresentation } from 'react-icons/md';
 
 function MobilePlayersList(props) {
     const analyticsContext = useContext(AnalyticsContext)
@@ -69,10 +70,9 @@ function MobilePlayersList(props) {
 
 
             {props.currentAlgo && <Modal  title={<><GiSoccerKick  style={{  fontSize:'18px', marginBottom: '-4px', marginRight: '4px',  color: '#095c1f', marginLeft: '4px'}} /><label style={{marginLeft: '4px', color: '#095c1f'}}>EDIT PLAYER</label></>} 
-                        width='75%' footer={[]} style={{ top: 20 }}
-                        onCancel={() => { setEditPlayerDrawerOpen(false) }}
+                        width='75%' footer={[]} style={{ top: 20 }} closable={false}
                         open={editPlayerDrawerOpen}>
-                    <AddPlayerForm player={editPlayer} playersProperties={props.currentAlgo.playerProperties}  onPlayerSubmitted={playerSubmittedHandler}/>
+                    <AddPlayerForm player={editPlayer} playersProperties={props.currentAlgo.playerProperties}  onPlayerSubmitted={playerSubmittedHandler} onCancelClicked={() => { setEditPlayerDrawerOpen(false) }}/>
                 </Modal>}
 
         </Card>

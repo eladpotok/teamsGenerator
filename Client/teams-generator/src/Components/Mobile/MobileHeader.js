@@ -8,6 +8,7 @@ import { CiSettings } from 'react-icons/ci';
 import dayjs from 'dayjs';
 import { takeNElementsFromDic } from "../../Utilities/Helpers";
 import { ConfigurationContext } from "../../Store/ConfigurationContext";
+import { MdOutlineCancelPresentation } from 'react-icons/md';
 
 
 function MobileHeader(props) {
@@ -78,10 +79,10 @@ function MobileHeader(props) {
         {/* <label style={{overflow: 'hidden', color: 'red', fontStyle: 'italic', margin: '4px'}}><WarningOutlined style={{marginRight: '4px'}} />Algorithms selection Cann't be modified since there are at least one player.</label> */}
 
         <Modal title={<><CiSettings style={{fontSize:'22px', marginBottom: '-5px', marginRight: '4px',  color: '#095c1f', marginLeft: '4px'}} /><label style={{marginLeft: '4px', color: '#095c1f'}}>CONFIGURATION</label></>} 
-               footer={[]}
-               onCancel={() => { openCloseConfigDrawerHandler(false) }}
+               footer={[]} 
+               closable={false}
                open={configDrawerOpen}>
-               {props.storeConfig && <Config onSubmitClicked={()=>{openCloseConfigDrawerHandler(false)}} currentAlgo={props.storeConfig.algos.filter(t => t.algoKey === 0)[0]} initiatedConfig={curConfig} optionalShirts={props.storeConfig.config.shirtsColors}/>}
+               {props.storeConfig && <Config onCancelClicked={()=>{openCloseConfigDrawerHandler(false)}} onSubmitClicked={()=>{openCloseConfigDrawerHandler(false)}} currentAlgo={props.storeConfig.algos.filter(t => t.algoKey === 0)[0]} initiatedConfig={curConfig} optionalShirts={props.storeConfig.config.shirtsColors}/>}
         </Modal>
 
         <AreYouSureModal description='This action will clear your players list since its not suitable with the new algorithm selection. Do you want to proceed?' title='Are you sure you want to change the algorithm?' context={areYouSureContext} show={areYouSureOpen} onNoClicked={areYouSureNoClickedHandler} onYesClicked={areYouSureYesClickedHandler} />

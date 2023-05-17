@@ -8,6 +8,7 @@ import { AnalyticsContext } from "../../../Store/AnalyticsContext";
 import { UserContext } from "../../../Store/UserContext";
 import { PlayersContext } from "../../../Store/PlayersContext";
 import { GiSoccerKick } from 'react-icons/gi';
+import { MdOutlineCancelPresentation } from "react-icons/md";
 
 function MobilePlayersListPanel(props) {
     const [addPlayerDrawerOpen, setAddPlayerDrawerOpen] = useState(false)
@@ -84,10 +85,11 @@ function MobilePlayersListPanel(props) {
                 </Dropdown>
             </Col>
 
-            {props.currentAlgo && <Modal title={<><GiSoccerKick style={{marginBottom: '-2px', marginRight: '4px',  color: '#095c1f', marginLeft: '4px'}} /><label style={{marginLeft: '4px', color: '#095c1f'}}>NEW PLAYER</label></>}  style={{top: 20}} footer={[]}
-                        onCancel={() => { setAddPlayerDrawerOpen(false) }}
+            {props.currentAlgo && <Modal title={<><GiSoccerKick style={{marginBottom: '-2px', marginRight: '4px',  color: '#095c1f', marginLeft: '4px'}} /><label style={{marginLeft: '4px', color: '#095c1f'}}>NEW PLAYER</label></>}  style={{top: 20}} 
+                        footer={[]} 
+                        closable={false}
                         open={addPlayerDrawerOpen}>
-                    <AddPlayerForm player={playerToAdd} playersProperties={props.currentAlgo.playerProperties} onResetClicked={resetClickedHandler} onPlayerSubmitted={playerSubmittedHandler}/>
+                    <AddPlayerForm player={playerToAdd} playersProperties={props.currentAlgo.playerProperties} onCancelClicked={()=>{setAddPlayerDrawerOpen(false)}} onResetClicked={resetClickedHandler} onPlayerSubmitted={playerSubmittedHandler}/>
                 </Modal>}
         </Row>
     )
