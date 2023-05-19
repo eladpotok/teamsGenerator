@@ -6,8 +6,10 @@ import AppCheckBox from "../../Common/AppCheckBox";
 import { AnalyticsContext } from "../../../Store/AnalyticsContext";
 import { UserContext } from "../../../Store/UserContext";
 import { PlayersContext } from "../../../Store/PlayersContext";
-import { GiSoccerKick } from 'react-icons/gi';
+import { GiSoccerKick, GiSoccerField } from 'react-icons/gi';
 import { MdOutlineCancelPresentation } from 'react-icons/md';
+import { IoPersonCircle } from 'react-icons/io';
+import MyIconButton from "../../Common/MyIconButton";
 
 function MobilePlayersList(props) {
     const analyticsContext = useContext(AnalyticsContext)
@@ -44,20 +46,30 @@ function MobilePlayersList(props) {
 
     return (
         <Card style={{
-            height: '100%',
+            height: '100%',  background: 'rgba(255, 247, 251, 0.12)',
             overflow: 'auto',
             margin: '4px',
-            border: '1px solid rgba(140, 140, 140, 0.35)',
+            // border: '1px solid rgba(140, 140, 140, 0.35)',
           }}>
             
-            <List itemLayout="horizontal"  
-                  size="small" style={{ marginLeft: '-18px', height: '1px' /* Now sure why but this 1px causes the list height not be extended  */}}
-                  dataSource={props.players} 
+            <List itemLayout="horizontal"   
+                  size="small" style={{ marginLeft: '-18px', marginRight: '-18px', marginTop: '-18px', height: '1px' /* Now sure why but this 1px causes the list height not be extended  */}}
+                  dataSource={props.players} locale={{emptyText: 
+                    <div style={{marginTop: '140px'}}>
+                        <GiSoccerField style={{fontSize: '78px', color: 'white'}}/> <br></br>
+                        <label style={{color: 'white'}}> No Players Added</label>
+                    </div>
+                }}
                   renderItem={(player, index) => (
-                    <List.Item actions={[ <Button onClick={()=>{openEditPlayerViewHandler(player)}} icon={<EditOutlined /> } style={{marginRight: '-10px'}}/> , <div style={{marginRight: '-10px'}}><AppCheckBox  value={player.isArrived} onChanged={(e)=>{setPlayerArrivedHandler(player, e)}} /></div>, <Popconfirm icon={<QuestionCircleOutlined style={{ color: 'red' }} />} title='Remove Player' description='Are you sure you want to remove this player?' onConfirm={()=>{playerListItemClicked(player) }}>
-                        <Button style={{marginTop: '15px', marginRight: '-30px'}} icon={<DeleteOutlined />} danger></Button></Popconfirm>]}>
+                    <List.Item style={{ backgroundColor: 'rgba(255, 247, 251, 0.12)'}} 
+                    actions={[ 
+                    <div style={{marginRight: '-10px'}}><MyIconButton onClick={()=>{openEditPlayerViewHandler(player)}} icon={<EditOutlined /> }/></div> , 
+                    <div style={{marginRight: '-10px'}}><AppCheckBox  value={player.isArrived} onChanged={(e)=>{setPlayerArrivedHandler(player, e)}} /></div>, 
+                    <Popconfirm  icon={<QuestionCircleOutlined style={{ color: 'red' }} />} title='Remove Player' description='Are you sure you want to remove this player?' onConfirm={()=>{playerListItemClicked(player) }}>
+                        <div style={{marginRight: '-10px'}}><MyIconButton buttonType='deleteButton'  icon={<DeleteOutlined />}/></div>
+                    </Popconfirm>]}>
                             
-                        <List.Item.Meta avatar={ <Avatar style={{ marginTop: '20px' }}><UserOutlined  style={{ fontSize: '30px'}} /></Avatar>}
+                        <List.Item.Meta  avatar={ <Avatar style={{ marginTop: '20px', background: 'rgba(255, 247, 251, 0.12)' }}><GiSoccerKick  style={{ fontSize: '30px'}} /></Avatar>}
                                         title={<div style={{ fontSize: '12px', width: '100%', 'textOverflow': 'ellipsis', 'whiteSpace': 'nowrap', 'overflow': 'hidden', marginBottom: '-8px' }}>{player.Name.toUpperCase()}</div>}
                                         description={
                                             <label style={{fontSize: '12px'}}>{player.isArrived ? 'Joined' : 'Absent'}</label>

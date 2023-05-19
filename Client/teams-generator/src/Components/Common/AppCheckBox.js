@@ -1,5 +1,6 @@
 import {  BorderOutlined, CheckOutlined, MinusOutlined } from "@ant-design/icons"
 import { Button } from "antd"
+import MyIconButton from "./MyIconButton"
 
 function AppCheckBox(props) {
     function checkboxClickedHandler(value) {
@@ -8,8 +9,8 @@ function AppCheckBox(props) {
 
     return (
         <>
-            {props.value &&  <Button onClick={()=>{checkboxClickedHandler(false)}} icon={<CheckOutlined />}/> }
-            {!props.value &&   <Button icon={<MinusOutlined />}  onClick={()=>{checkboxClickedHandler(true)}}  />}
+            {props.value &&  <MyIconButton onClick={()=>{checkboxClickedHandler(false)}} icon={<CheckOutlined />}/> }
+            {!props.value &&   <MyIconButton icon={<MinusOutlined />}  onClick={()=>{checkboxClickedHandler(true)}}  />}
         </>
     )
 

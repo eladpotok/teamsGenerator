@@ -31,16 +31,16 @@ function MobileMainScreen(props) {
     return (
 
         <body className="box">
-            <header style={{ marginLeft: '4px', marginRight: '4px' }}>
+            <header style={{background: 'rgba(255, 255, 255, 0.5)'}}>
                 {configContext.userConfig.algo && <MobileHeader onClearPlayers={props.onClearPlayers} players={playersContext.players} storeConfig={props.storeConfig} userConfig={configContext.userConfig} onAlgoChanged={algoChangedHandler} defaultAlgoName={configContext.userConfig.algo.displayName} />}
             </header>
             <header>
-                <MobilePlayersListPanel onMarkAllPlayers={markAllPlayersHandler} onClearPlayers={props.onClearPlayers} onRemovePlayer={props.onRemovePlayer} algos={props.storeConfig.algos} arrivedPlayers={playersContext.arrivedPlayers} currentAlgo={configContext.userConfig.algo} players={playersContext.players}/>
+                <MobilePlayersListPanel onMarkAllPlayers={markAllPlayersHandler} onClearPlayers={props.onClearPlayers} onRemovePlayer={props.onRemovePlayer} storeConfig={props.storeConfig} algos={props.storeConfig.algos} arrivedPlayers={playersContext.arrivedPlayers} currentAlgo={configContext.userConfig.algo} players={playersContext.players}/>
             </header>
             <main className="row">
                 {configContext.userConfig.algo && <MobilePlayersMenu onPlayerArrived={playerArrivedHandler}  onRemovePlayer={props.onRemovePlayer} players={playersContext.players} currentAlgo={configContext.userConfig.algo} />}
             </main>
-            <footer style={{ marginLeft: '4px', marginRight: '4px' }}>
+            <footer style={{background: 'rgba(255, 255, 255, 0.3)', marginTop: '4px'}}>
                 <MobileFooter shirtsColors={configContext.userConfig.shirtsColors} onChangeShirtColor={props.onChangeShirtColor} onResetClicked={props.onResetClicked} onGenerateTeams={props.onGenerateTeams} onMovePlayer={props.onMovePlayer} onRemovePlayerFromTeam={props.onRemovePlayerFromTeam} teams={props.teams} />
             </footer>
         </body>

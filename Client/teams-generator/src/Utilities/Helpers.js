@@ -1,11 +1,13 @@
+import dayjs from 'dayjs';
+
 export function getTextResult(teams, dateTime) {
 
     const weekdays = [
                "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
              ]
 
-    
-    let textToCopy =  `*${weekdays[dateTime.day()]} ${dateTime.format('DD/MM/YYYY')}*\n`
+    const dateTimeJs = dayjs(dateTime)
+    let textToCopy =  `*${weekdays[dateTimeJs.day()]} ${dateTimeJs.format('DD/MM/YYYY')}*\n`
     let count = 1
 
     teams.forEach(team => {

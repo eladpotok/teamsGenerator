@@ -87,7 +87,7 @@ function Config(props) {
                 </div>
 
 
-                <div style={{ marginTop: '14px', display: 'flex', 'flex-direction': 'row', 'align-items': 'flex-end', 'justifyContent': 'center' }}>
+                <div style={{ marginTop: '14px', display: 'flex', 'flex-direction': 'row', 'align-items': 'flex-end', 'justifyContent': 'center ' }}>
                     <AppButton onClick={props.onCancelClicked}>
                         CANCEL
                     </AppButton>

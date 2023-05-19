@@ -1,0 +1,28 @@
+:where(.css-dev-only-do-not-override-1vtf12y).ant-select-single.ant-select-lg:not(.ant-select-customize-input) .ant-select-selector {
+    background-color: rgba(255, 255, 255, 0.695);
+    border-radius: 10;
+    border-width: 0;
+    text-align: center;
+    text-transform: uppercase;
+    color: rgb(0, 0, 0);
+    font-size: 20px;
+}
+
+:where(.css-dev-only-do-not-override-1vtf12y).ant-select:not(.ant-select-disabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer):hover .ant-select-selector {
+    border-width: 0px;
+}
+
+:where(.css-dev-only-do-not-override-1vtf12y).ant-select:not(.ant-select-disabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer):hover .ant-select-selector {
+    border-width: 0px;
+
+}
+
+:where(.css-dev-only-do-not-override-1vtf12y)[class^="ant-select"], :where(.css-dev-only-do-not-override-1vtf12y)[class*=" ant-select"] {
+    background-color: rgba(255, 255, 255);
+    border-radius: 10;
+    border-width: 0;
+    text-align: center;
+    text-transform: uppercase;
+    color: rgb(0, 0, 0);
+    font-size: 20px;
+}

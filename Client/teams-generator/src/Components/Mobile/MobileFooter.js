@@ -1,83 +1,50 @@
-import { FileTextOutlined, OneToOneOutlined, SendOutlined } from "@ant-design/icons";
-import { Col, Divider, Modal, Popconfirm, Row } from "antd";
+import { FileTextOutlined, OneToOneOutlined, SendOutlined, SettingOutlined } from "@ant-design/icons";
+import { Col, Divider, Dropdown, Modal, Popconfirm, Row } from "antd";
 import { useState } from "react";
 import Teams from "../Teams/Teams";
+import MyIconButton from "../Common/MyIconButton";
+import { RiTeamFill, RiUserAddFill } from "react-icons/ri";
+import { RxHamburgerMenu } from "react-icons/rx";
+import { AiOutlineClear } from "react-icons/ai";
+import { HiEye } from "react-icons/hi";
 
 function MobileFooter(props) {
     const [teamsModalOpened, setTeamsModalOpened] = useState(false)
 
+    async function generateTeams() {
+        const succeeded = await props.onGenerateTeams()
+        if (succeeded) setTeamsModalOpened(true)
+    }
+
+
     return (
-        <div style={{width: '100%'}} className={props.className} >
-            <Row style={{ backgroundColor: 'white' , margin: '4px', borderRadius: '10px'}}>
-
-                <Col
-                    span={7}>
+        <div style={{ display: 'flex', 'flex-direction': 'row', 'align-items': 'flex-end', 'justifyContent': 'center', margin: '4px' }}>
+      
+            <div style={{marginRight: '8px', }}>
+                <div>
                     <Popconfirm onConfirm={props.onResetClicked} title='Reset all' description='Are you sure you want to clear all'>
-                        <div style={{ verticalAlign: 'middle', textAlign: 'center', width: '100%', height: '65px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <div style={{ display: 'flex', 'flex-direction': 'column', color: '#282c34' }}>
-                                <FileTextOutlined style={{ fontSize: '24px', marginBottom: '4px' }} />
-                                <label style={{ fontSize: '12px' }}>CLEAR</label>
-                            </div>
-                        </div>
+                        <MyIconButton text='CLEAR' buttonType='empty' icon={<AiOutlineClear style={{fontSize: '18px'}}/>}    />
                     </Popconfirm>
-                </Col>
+                </div>
+            </div>
+            <div style={{marginRight: '8px'}}>
+                {!props.teams && <MyIconButton onClick={generateTeams} text='RUN' circle icon={<RiTeamFill style={{ fontSize: '34px'}} />}/>}
+                {props.teams && 
+                <Popconfirm title='Are you Sure?' description='Do you want to overwrite your last result?' onConfirm={generateTeams}>
+                    <MyIconButton text='RUN' circle icon={<RiTeamFill style={{ fontSize: '34px'}} />}/>
+                </Popconfirm>}
+            </div>
+            <div >
+                {props.teams && <MyIconButton onClick={() => {setTeamsModalOpened(true)}}  text='SHOW' buttonType='empty' icon={<HiEye style={{fontSize: '18px'}}/>}    />}
+                {!props.teams && <MyIconButton buttonType='empty' disabled   text='SHOW' icon={<HiEye style={{fontSize: '18px'}}/>}    />}
+            </div>
 
-                <Col span={1}>
-                    <Divider style={{ backgroundColor: "grey", height: '100%' }} type="vertical" />
-                </Col>
-
-                <Col span={7} >
-                     <div style={{ verticalAlign: 'middle', textAlign: 'center', width: '100%', height: '65px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        { props.teams && <div onClick={() => {setTeamsModalOpened(true)}} style={{ display: 'flex', 'flex-direction': 'column', color: '#282c34' }}>
-                            <OneToOneOutlined style={{ fontSize: '24px', marginBottom: '4px' }} />
-                            <label style={{ fontSize: '12px' }}>SHOW RESULT</label>
-                        </div>}
-                        {!props.teams && <div  style={{ display: 'flex', 'flex-direction': 'column', color: '#bfbfbf' }}>
-                            <OneToOneOutlined style={{ fontSize: '24px', marginBottom: '4px' }} />
-                            <label style={{ fontSize: '12px' }}>SHOW RESULT</label>
-                        </div>}
-                    </div>
-                </Col>
-
-                <Col span={1}>
-                    <Divider style={{ backgroundColor: "grey", height: '100%' }} type="vertical" />
-                </Col>
-
-
-                <Col span={8} >
-                    {!props.teams && <div onClick={async () => {
-                        const succeeded = await props.onGenerateTeams()
-                        if (succeeded) setTeamsModalOpened(true)
-                    }} style={{ textAlign: 'center', width: '100%', height: '100%', marginRight: '10px' }}>
-                        <div style={{ verticalAlign: 'middle', textAlign: 'center', width: '100%', height: '65px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '10px' }}>
-                            {!props.teams && <div style={{ display: 'flex', 'flex-direction': 'column', color: '#282c34' }}>
-                                <SendOutlined style={{ fontSize: '24px', marginBottom: '4px' }} />
-                                <label style={{ fontSize: '12px' , marginRight: '10px'}}>GENERATE</label>
-                            </div>}
-                        </div>
-                    </div>}
-
-                    {props.teams &&  <Popconfirm title='Are you Sure?' description='Do you want to overwrite your last result?' onConfirm={async () => {
-                            const succeeded = await props.onGenerateTeams()
-                            if (succeeded) setTeamsModalOpened(true)
-                        }}>
-                        <div style={{ textAlign: 'center', width: '100%', height: '100%' , marginRight: '10px'}}>
-                            <div style={{ verticalAlign: 'middle', textAlign: 'center', width: '100%', height: '65px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '10px' }}>
-                                {<div style={{ display: 'flex', 'flex-direction': 'column', color: '#282c34' }}>
-                                    <SendOutlined style={{ fontSize: '24px', marginBottom: '4px'}} />
-                                    <label style={{ fontSize: '12px' }}>GENERATE</label>
-                                </div>}
-                            </div>
-                    </div></Popconfirm> }
-
-                </Col>
-
-                <Modal  width='100%' style={{margin: '10px'}} centered onCancel={() => { setTeamsModalOpened(false) }} open={teamsModalOpened} footer={[]}>
-                    {props.teams && <Teams shirtsColors={props.shirtsColors} onChangeShirtColor={props.onChangeShirtColor} onMovePlayer={props.onMovePlayer} onRemovePlayerFromTeam={props.onRemovePlayerFromTeam} teams={props.teams} onShuffleClicked={async () => {
-                            await props.onGenerateTeams()
-                        }}/>}
-                </Modal>
-            </Row>
+            <Modal width='100%' style={{margin: '10px'}} centered onCancel={() => { setTeamsModalOpened(false) }} open={teamsModalOpened} footer={[]}>
+                {props.teams && <Teams shirtsColors={props.shirtsColors} onChangeShirtColor={props.onChangeShirtColor} onMovePlayer={props.onMovePlayer} onRemovePlayerFromTeam={props.onRemovePlayerFromTeam} teams={props.teams} onShuffleClicked={async () => {
+                        await props.onGenerateTeams()
+                    }}/>}
+            </Modal>
+        
         </div>
 
     )

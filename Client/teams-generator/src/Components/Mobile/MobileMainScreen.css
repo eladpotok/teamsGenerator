@@ -10,10 +10,10 @@
   html, body {
     min-height: 100vh;
     margin: 0;
+    
   }
 
   header {
-    margin: 4px;
     position: sticky;
     z-index: 999;
   }
@@ -26,6 +26,7 @@
     display: flex;
     flex-flow: column;
     height: 100%;
+    
   }
 
 

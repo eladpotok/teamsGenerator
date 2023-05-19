@@ -1,5 +1,5 @@
-import { CheckSquareOutlined, ClearOutlined, ExportOutlined, FileDoneOutlined, MoreOutlined, NumberOutlined, UploadOutlined, UserAddOutlined } from "@ant-design/icons";
-import { Button, Col, Drawer, Dropdown, Modal, Row, message } from "antd";
+import { CheckSquareOutlined, ClearOutlined, DownOutlined, ExportOutlined, FileDoneOutlined, MoreOutlined, NumberOutlined, SettingOutlined, UploadOutlined, UserAddOutlined } from "@ant-design/icons";
+import { Button, Col, Drawer, Dropdown, Image, Modal, Row, Space, message } from "antd";
 import { useContext, useState } from "react";
 import ImportPlayer from "../../Common/ImportPlayer";
 import { writeFileHandler } from "../../../Utilities/Helpers";
@@ -9,15 +9,26 @@ import { UserContext } from "../../../Store/UserContext";
 import { PlayersContext } from "../../../Store/PlayersContext";
 import { GiSoccerKick } from 'react-icons/gi';
 import { MdOutlineCancelPresentation } from "react-icons/md";
+import { VscPersonAdd } from "react-icons/vsc";
+import AppButton from "../../Common/AppButton";
+import MyIconButton from "../../Common/MyIconButton";
+import { RxHamburgerMenu } from "react-icons/rx";
+import { RiUserAddFill } from "react-icons/ri";
+import { CiSettings } from "react-icons/ci";
+import Config from "../../Configuration/Config";
+import { ConfigurationContext } from "../../../Store/ConfigurationContext";
 
 function MobilePlayersListPanel(props) {
     const [addPlayerDrawerOpen, setAddPlayerDrawerOpen] = useState(false)
     const analyticsContext = useContext(AnalyticsContext)
     const userContext = useContext(UserContext)
     const playersContext = useContext(PlayersContext)
+    const configContext = useContext(ConfigurationContext);
 
     const [playerToAdd, setPlayerToAdd] = useState({})
     const [messageApi, contextHolder] = message.useMessage();
+    const [curConfig, setinitiatedConfig] = useState(null)
+    const [configDrawerOpen, setConfigDrawerOpen] = useState(false)
 
 
     const items = [
@@ -71,18 +82,34 @@ function MobilePlayersListPanel(props) {
           });
     }
 
+    function openConfigView(){
+        const userConfigContext = {...configContext.userConfig}
+        setinitiatedConfig(userConfigContext)
+        openCloseConfigDrawerHandler(true)
+    }
+
+    function openCloseConfigDrawerHandler(isOpen) {
+        setConfigDrawerOpen(isOpen)
+    }
 
     return (
-        <Row style={{ backgroundColor: '#4a4a4a', borderRadius: '10px', marginLeft: '4px', marginRight: '4px' }}>
+        <Row style={{ background: 'rgba(255, 255, 255, 0.5)' , borderBottomRightRadius: '15px', borderBottomLeftRadius: '15px' }}>
             {contextHolder}
             <Col flex='auto'>
-                <div style={{ display: 'flex', color: 'white', margin: '10px' }}><NumberOutlined style={{margin: '3px'}} size='small' />Total: {props.players.length} <CheckSquareOutlined size='small' style={{marginLeft: '13px', marginTop:'3px', marginRight: '3px'}} /> Arrive: {props.arrivedPlayers.length}</div>
+                <div style={{ display: 'flex', color: 'black', margin: '10px' }}>
+                    <NumberOutlined style={{margin: '3px'}} size='small' />Total: {props.players.length} 
+                    <CheckSquareOutlined size='small' style={{marginLeft: '13px', marginTop:'3px', marginRight: '3px'}} /> Arrive: {props.arrivedPlayers.length}</div>
             </Col>
-            <Col flex='none' >
-                <Button  onClick={openAddPlayerViewHandler} shape="square" icon={<UserAddOutlined  style={{ color: 'white'  }} />} style={{ margin: '4px', 'background-color': 'transparent', borderWidth: '1px' ,colorPrimaryBorder: 'white', colorPrimaryActive:'white',colorPrimaryHover:'white',colorBorder:'white', }} />
-                <Dropdown menu={{ items }} placement="bottomLeft" arrow>
-                    <Button colorPrimaryBorder='white' colorBgContainer='white' colorPrimaryHover='white' colorBorder='white' style={{ margin: '4px', 'background-color': 'transparent', borderWidth: '1px',colorPrimaryBorder: 'white', colorBgContainer:'white',colorPrimaryHover:'white',colorBorder:'white'}} icon={<MoreOutlined style={{ color: 'white',colorBorder: 'white' }} />}></Button>
-                </Dropdown>
+            <Col style={{display: 'flex'}} >
+                <div style={{marginRight: '4px'}}><MyIconButton buttonType='empty' icon={<RiUserAddFill style={{fontSize: '18px'}}/>}  onClick={openAddPlayerViewHandler}  /></div>
+                <div style={{marginRight: '4px'}}>
+                    <MyIconButton onClick={openConfigView} buttonType='empty' icon={<SettingOutlined style={{ fontSize: '18px'}} />}/>
+                </div>
+                <div style={{marginRight: '4px'}}>
+                    <Dropdown menu={{ items }} placement="bottomLeft" arrow trigger={['click']}>
+                        <MyIconButton buttonType='empty' icon={<RxHamburgerMenu style={{ fontSize: '18px'}} />}/>
+                    </Dropdown>
+                </div>
             </Col>
 
             {props.currentAlgo && <Modal title={<><GiSoccerKick style={{marginBottom: '-2px', marginRight: '4px',  color: '#095c1f', marginLeft: '4px'}} /><label style={{marginLeft: '4px', color: '#095c1f'}}>NEW PLAYER</label></>}  style={{top: 20}} 
@@ -91,7 +118,16 @@ function MobilePlayersListPanel(props) {
                         open={addPlayerDrawerOpen}>
                     <AddPlayerForm player={playerToAdd} playersProperties={props.currentAlgo.playerProperties} onCancelClicked={()=>{setAddPlayerDrawerOpen(false)}} onResetClicked={resetClickedHandler} onPlayerSubmitted={playerSubmittedHandler}/>
                 </Modal>}
+
+            <Modal title={<><CiSettings style={{fontSize:'22px', marginBottom: '-5px', color: '#095c1f'}} /><label style={{marginLeft: '4px', color: '#095c1f'}}>CONFIGURATION</label></>} 
+               footer={[]} 
+               closable={false}
+               open={configDrawerOpen}>
+               {props.storeConfig && <Config onCancelClicked={()=>{openCloseConfigDrawerHandler(false)}} onSubmitClicked={()=>{openCloseConfigDrawerHandler(false)}} currentAlgo={props.storeConfig.algos.filter(t => t.algoKey === 0)[0]} initiatedConfig={curConfig} optionalShirts={props.storeConfig.config.shirtsColors}/>}
+            </Modal>
         </Row>
+
+        
     )
 }
 
