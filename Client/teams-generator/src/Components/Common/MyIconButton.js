@@ -20,7 +20,12 @@ function MyIconButton(props) {
     }
 
 
+
     const currStyle = Object.keys(styles).includes(props.buttonType) ? styles[props.buttonType] : buttonStyle
+
+    if( props.shadow) {
+        currStyle['box-shadow']= '3px 1px 20px 2px rgba(0,0,0,.3)'
+    }
 
     return (
         <button style={currStyle} onClick={props.onClick}>

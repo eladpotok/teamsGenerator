@@ -15,14 +15,17 @@ import {  logEvent } from "firebase/analytics";
 import { AnalyticsEventManager } from './Adapters/AnalyticsEventSender';
 import { AnalyticsContextProvider } from './Store/AnalyticsContext';
 import { UserContext, UserContextProvider } from './Store/UserContext';
+import { isMobile } from "react-device-detect";
 
 
 
 function App() {
 
   const players = getPlayersDEMO()
-  
+
+  const className = isMobile ? 'app-mobile' : 'app-web'
   return (
+    <div className={className}  >
     <UserContextProvider>
       <ConfigurationStoreContextProvider>
         <ConfigurationContextProvider>
@@ -36,6 +39,7 @@ function App() {
         </ConfigurationContextProvider>
       </ConfigurationStoreContextProvider>
     </UserContextProvider>
+    </div>
   )
 }
 

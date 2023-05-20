@@ -11,6 +11,7 @@ import {Dimensions} from 'react-native';
 import { AnalyticsContext } from "../Store/AnalyticsContext";
 import { UserContext } from "../Store/UserContext";
 import { takeNElementsFromDic } from "../Utilities/Helpers";
+import { isMobile } from "react-device-detect";
 
 function Main(props) {
     
@@ -121,11 +122,11 @@ function Main(props) {
     let bottomNavBarH = deviceH - windowH;
 
 
-
+    const divStyle = isMobile ? {} : {width: '75%'}
     
-
+//style={{ display: 'flex', 'flex-direction': 'row', 'align-items': 'flex-end', 'justifyContent': 'center'  }}
     return (
-        <>
+        <div style={divStyle}>
             {contextHolder}
             {/* <BrowserView>
                 <Card style={{ marginTop: '4%', marginRight: '10%', marginLeft: '10%' }}>
@@ -135,7 +136,7 @@ function Main(props) {
             <MobileView> */}
                 {storeConfigContext.storeConfig && configContext.userConfig && <MobileMainScreen screenHeight={bottomNavBarH} onChangeShirtColor={shirtColorChangedHandler} onClearPlayers={removeAllPlayersHandler} onMovePlayer={movePlayerHandler} onRemovePlayerFromTeam={removePlayerFromTeamHandler} onRemovePlayer={removePlayerHandler} onGenerateTeams={generateTeamsHandler} onResetClicked={resetHandler} onAlgoChanged={algoSelectChangedHandler} storeConfig={storeConfigContext.storeConfig} teams={teamsContext.teams}/>}
             {/* </MobileView> */}
-        </>
+        </div>
     )
 
 }

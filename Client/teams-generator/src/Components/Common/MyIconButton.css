@@ -1,0 +1,17 @@
+buttonStyle {
+    padding: '10px';
+    border-width: '12px';
+    border-style: 'solid'; 
+    border-color: 'white';
+    border-radius: '8px';
+    background: 'rgba(255, 247, 251, 0.32)'
+}
+
+.deleteButtonStyle {
+    padding: '10px';
+    border-width: '1px';
+    border-style: 'solid'; 
+    border-color: 'red';
+    border-radius: '8px';
+    background: 'rgba(255, 247, 251, 0.32)'
+}

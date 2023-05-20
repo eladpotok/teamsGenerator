@@ -1,6 +1,23 @@
-.App {
-  text-align: center;
-  height: '10px';
+.app-mobile {
+  /* text-align: center;
+  height: '10px'; */
+
+  background-image: url("assets/teamsGeneratorBackground.png");
+  background-size: cover;
+  background-position: center center;
+
+/*  style={{ display: 'flex', 'flex-direction': 'row', 'align-items': 'flex-end', 'justifyContent': 'center'  }}*/
+  /* width: 75%; */
+}
+
+
+.app-web {
+  background-color: '#95edad';
+  background-image: url("assets/teamsGeneratorBackground.png");
+  background-size: auto;
+  background-position: center center;
+  display: flex;
+  justify-content: center;
 }
 
 .App-logo {

@@ -20,18 +20,18 @@ function MobileFooter(props) {
     return (
         <div style={{ display: 'flex', 'flex-direction': 'row', 'align-items': 'flex-end', 'justifyContent': 'center', margin: '4px' }}>
       
-            <div style={{marginRight: '8px', }}>
+            <div style={{marginRight: '18px', }}>
                 <div>
                     <Popconfirm onConfirm={props.onResetClicked} title='Reset all' description='Are you sure you want to clear all'>
                         <MyIconButton text='CLEAR' buttonType='empty' icon={<AiOutlineClear style={{fontSize: '18px'}}/>}    />
                     </Popconfirm>
                 </div>
             </div>
-            <div style={{marginRight: '8px'}}>
-                {!props.teams && <MyIconButton onClick={generateTeams} text='RUN' circle icon={<RiTeamFill style={{ fontSize: '34px'}} />}/>}
+            <div style={{marginRight: '18px'}}>
+                {!props.teams && <MyIconButton shadow onClick={generateTeams} text='RUN' circle icon={<RiTeamFill style={{ fontSize: '34px'}} />}/>}
                 {props.teams && 
                 <Popconfirm title='Are you Sure?' description='Do you want to overwrite your last result?' onConfirm={generateTeams}>
-                    <MyIconButton text='RUN' circle icon={<RiTeamFill style={{ fontSize: '34px'}} />}/>
+                    <MyIconButton shadow text='RUN' circle icon={<RiTeamFill style={{ fontSize: '34px'}} />}/>
                 </Popconfirm>}
             </div>
             <div >
