@@ -15,7 +15,7 @@ namespace TeamsGenerator.CLI
         public string TeamSymbol { get; set; }
         public string Color { get; set; }
         public string TeamName { get; set; }
-
+        public bool IsStarting { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public double GetAvarage()
         {

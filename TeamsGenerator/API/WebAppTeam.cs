@@ -16,6 +16,7 @@ namespace TeamsGenerator.API
         public string Color { get; set; }
         public string TeamName { get; set; }
         public int TeamId { get; set; }
+        public bool IsStarting { get; set; }
 
 
         public double GetAvarage()

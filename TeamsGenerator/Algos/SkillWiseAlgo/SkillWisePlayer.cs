@@ -13,5 +13,17 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
         public float Stamina { get; set; }
         public float Leadership { get; set; }
         public float Passing { get; set; }
+
+        [EditableInClientAttribute(Show = false)]
+        public string Key { get; set; }
+
+        [EditableInClientAttribute(Show = false)]
+        public string ModifyTime { get; set; }
+
+        [EditableInClientAttribute(Show = false)]
+        public string Id { get; set; }
+        [EditableInClientAttribute(Show = false)]
+        public bool IsArrived { get; set; }
+        
     }
 }

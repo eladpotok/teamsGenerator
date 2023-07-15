@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TeamsGenerator;
 using TeamsGenerator.API;
+using TeamsGeneratorWebAPI.ConfigBlob;
+using TeamsGeneratorWebAPI.PlayersBlob;
 
 namespace TeamsGeneratorWebAPI.Controllers
 {
@@ -10,17 +12,28 @@ namespace TeamsGeneratorWebAPI.Controllers
     public class HomeController : ControllerBase
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IUserConfigAzureStorage _azureStorage;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IUserConfigAzureStorage azureStorage)
         {
             _logger = logger;
+            _azureStorage = azureStorage;
         }
         
         [HttpGet(Name = "AlgosController")]
 
-        public InitialAppConfig Get()
+        public async Task<GetAppSetupResponse> Get(string uid)
         {
-            return WebAppAPI.GetInitialAlgoConfig();
+            var config = new UserConfigBlobConfig() { UId = uid };
+            var response = await _azureStorage.ListAsync(config) as GetConfigResponse;
+            var appSetup = WebAppAPI.GetAppSetup();
+
+            if (response.Config != null)
+            {
+                appSetup.Config = response.Config;
+            }
+
+            return appSetup;
         }
     }
  

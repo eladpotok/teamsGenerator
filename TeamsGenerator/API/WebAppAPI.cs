@@ -20,7 +20,7 @@ namespace TeamsGenerator.API
     public static class WebAppAPI
     {
         private static Dictionary<AlgoType, WebAppAlgoInfo> _algoTypeToInformationMapper;
-        private static Dictionary<AlgoType, Func<dynamic, IPlayer[]>> _algoTypeToPlayerSerializerMapper;
+        public static Dictionary<AlgoType, Func<dynamic, IPlayer[]>> AlgoTypeToPlayerSerializerMapper;
 
         public static void Init()
         {
@@ -29,7 +29,7 @@ namespace TeamsGenerator.API
                 { AlgoType.BackAndForth, new WebAppAlgoInfo(AlgoType.BackAndForth, "Back And Forth", "Do it in cycle") },
             };
 
-            _algoTypeToPlayerSerializerMapper = new Dictionary<AlgoType, Func<dynamic, IPlayer[]>>()
+            AlgoTypeToPlayerSerializerMapper = new Dictionary<AlgoType, Func<dynamic, IPlayer[]>>()
             {
                 { AlgoType.SkillWise, (json) => JsonConvert.DeserializeObject<SkillWisePlayer[]>(json) },
                 { AlgoType.BackAndForth, (json) => JsonConvert.DeserializeObject<BackAndForthPlayer[]>(json) },
@@ -55,29 +55,31 @@ namespace TeamsGenerator.API
         public static GetTeamsResponse GetTeams(dynamic json, int algoKey)
         {
             var configSerializedObject = JsonConvert.SerializeObject(json.config);
-            WebAppConfigResponse config = JsonConvert.DeserializeObject<WebAppConfigResponse>(configSerializedObject);
+            UserConfigResponse config = JsonConvert.DeserializeObject<UserConfigResponse>(configSerializedObject);
 
 
             var algoKeyEnum = (AlgoType)algoKey;
             var playersSerializedObject = JsonConvert.SerializeObject(json.players, Newtonsoft.Json.Formatting.Indented);
-            IEnumerable<IPlayer> playersCollection = _algoTypeToPlayerSerializerMapper[algoKeyEnum].Invoke(playersSerializedObject);
+            IEnumerable<IPlayer> playersCollection = AlgoTypeToPlayerSerializerMapper[algoKeyEnum].Invoke(playersSerializedObject);
+
 
             var algoConfig = new AlgoConfig() { TeamsCount = config.NumberOfTeams };
             var teams = AlgoRunner.Run(algoKeyEnum, playersCollection.ToList(), algoConfig);
-            var teamsResponse = GetDisplayTeams(config.ShirtsColors, teams);
+            var teamsResponse = GetDisplayTeams(config.ShirtsColors, teams, config.ShowWhoBegins);
 
             return new GetTeamsResponse() { Teams = teamsResponse };
         }
 
-        public static InitialAppConfig GetInitialAlgoConfig()
+        public static GetAppSetupResponse GetAppSetup()
         {
             var shirtsColors = ConfigurationManager.ShirtsColorNameToSymbolMapper;
             var numberOfTeams = ConfigurationManager.NumberOfTeams;
+            var version = ConfigurationManager.Version;
 
             var algos = _algoTypeToInformationMapper.Values.ToList();
-            var config = new WebAppConfigResponse() { ShirtsColors = shirtsColors, NumberOfTeams = numberOfTeams };
+            var config = new UserConfigResponse() { ShirtsColors = shirtsColors, NumberOfTeams = numberOfTeams };
 
-            return new InitialAppConfig() { Algos = algos, Config = config };
+            return new GetAppSetupResponse() { Algos = algos, Config = config, Version = version };
         }
 
         public static IEnumerable<PlayerProperties> GetPlayersProperties(int algoType)
@@ -86,23 +88,51 @@ namespace TeamsGenerator.API
             return _algoTypeToInformationMapper[(AlgoType)algoType].PlayerProperties;
         }
 
-        private static List<WebAppTeam> GetDisplayTeams(Dictionary<string, string> shirtsColorNames, List<Algos.Team> teams)
+        private static List<WebAppTeam> GetDisplayTeams(List<PlayerShirt> shirtsColorNames, List<Algos.Team> teams, bool showWhoBegins)
         {
             var results = new List<WebAppTeam>();
-            var shirtsColors = Helper.Shuffle(shirtsColorNames.Keys.ToList());
+            var selectedShirts = Helper.Shuffle(shirtsColorNames.Where(s=>s.IsMarked).ToList());
 
             var index = 1;
             foreach (var team in teams)
             {
-                var shirtColor = shirtsColors[0];
-                results.Add(new WebAppTeam() { Players = team.Players, Rank = team.TotalRank, Color = shirtColor, TeamSymbol = ConfigurationManager.ShirtsColorNameToSymbolMapper[shirtColor], TeamName = index.ToString(), TeamId = index });
+                var shirtColor = selectedShirts[0];
+                results.Add(new WebAppTeam() { Players = team.Players, Rank = team.TotalRank, Color = shirtColor.ColorName, TeamSymbol = shirtColor.Symbol, TeamName = index.ToString(), TeamId = index });
                 index++;
-                shirtsColors.RemoveAt(0);
+                selectedShirts.RemoveAt(0);
+            }
+
+            if(showWhoBegins)
+            {
+                SetStartingTeamIds(results);
             }
 
             return results;
         }
 
 
+        private static void SetStartingTeamIds(List<WebAppTeam> teams)
+        {
+            var random = new Random();
+
+            var teamIds = teams.Select(t => t.TeamId).ToList();
+            var teamIndexToTake = random.Next(0, teamIds.Count);
+            var team1 = teamIds[teamIndexToTake];
+            teamIds.RemoveAt(teamIndexToTake);
+            teamIndexToTake = random.Next(0, teamIds.Count);
+            var team2 = teamIds[teamIndexToTake];
+
+            foreach (var team in teams)
+            {
+                if(team.TeamId == team1)
+                {
+                    team.IsStarting = true;
+                }
+                if (team.TeamId == team2)
+                {
+                    team.IsStarting = true;
+                }
+            }
+        }
     }
 }

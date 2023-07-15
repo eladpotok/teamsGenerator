@@ -12,6 +12,6 @@ namespace TeamsGenerator.Orchestration.Contracts
         string Color { get; set; }
         double GetAvarage();
         List<IPlayer> Players { get; set; }
-
+        bool IsStarting { get; set; }
     }
 }

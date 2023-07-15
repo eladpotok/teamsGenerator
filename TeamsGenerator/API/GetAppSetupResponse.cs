@@ -4,9 +4,10 @@ using TeamsGenerator.Orchestration.Contracts;
 
 namespace TeamsGenerator.API
 {
-    public class InitialAppConfig
+    public class GetAppSetupResponse
     {
-        public WebAppConfigResponse Config { get; set; }
+        public UserConfigResponse Config { get; set; }
         public List<WebAppAlgoInfo> Algos { get; set; }
+        public string Version { get; set; }
     }
 }

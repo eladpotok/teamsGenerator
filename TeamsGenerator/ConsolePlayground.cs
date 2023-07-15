@@ -115,11 +115,11 @@ namespace TeamsGenerator
 
             var config = new AlgoConfig() { TeamsCount = ConfigurationManager.NumberOfTeams };
             var teams = AlgoRunner.Run((AlgoType)algoToUse, players, config);
-            var teamsToDisplay = GetCliDisplayTeam(ConfigurationManager.ShirtsColorNameToSymbolMapper.Keys.ToList(), teams);
+            var teamsToDisplay = GetCliDisplayTeam(ConfigurationManager.ShirtsColorNameToSymbolMapper, teams);
             return teamsToDisplay;
         }
 
-        private static List<CliDisplayTeam> GetCliDisplayTeam(List<string> shirtsColorNames, List<Algos.Team> teams)
+        private static List<CliDisplayTeam> GetCliDisplayTeam(List<PlayerShirt> shirtsColorNames, List<Algos.Team> teams)
         {
             var results = new List<CliDisplayTeam>();
             var shirtsColors = Helper.Shuffle(shirtsColorNames);
@@ -128,7 +128,7 @@ namespace TeamsGenerator
             foreach (var team in teams)
             {
                 var shirtColor = shirtsColors[0];
-                results.Add(new CliDisplayTeam() { Players = team.Players, Rank = team.TotalRank, Color = shirtColor, TeamSymbol = ConfigurationManager.ShirtsColorNameToSymbolMapper[shirtColor], TeamName = index.ToString() });
+                results.Add(new CliDisplayTeam() { Players = team.Players, Rank = team.TotalRank, Color = shirtColor.ColorName, TeamSymbol = shirtColor.Symbol, TeamName = index.ToString() });
                 index++;
                 shirtsColors.RemoveAt(0);
             }

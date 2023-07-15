@@ -1,4 +1,6 @@
 using TeamsGenerator.API;
+using TeamsGeneratorWebAPI.PlayersBlob;
+using TeamsGeneratorWebAPI.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers().AddNewtonsoftJson();
+builder.Services.AddTransient<IUserConfigAzureStorage, UserConfigAzureStorage>();
+builder.Services.AddTransient<IPlayersStorageBlobConnector, PlayersStorageBlobConnector>();
 
 
 var app = builder.Build();

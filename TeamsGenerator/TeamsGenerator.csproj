@@ -52,11 +52,12 @@
     <Compile Include="Algos\SkillWiseAlgo\OrderBy.cs" />
     <Compile Include="API\EditableInClientAttribute.cs" />
     <Compile Include="API\GetTeamsResponse.cs" />
-    <Compile Include="API\InitialAppConfig.cs" />
+    <Compile Include="API\GetAppSetupResponse.cs" />
     <Compile Include="API\PlayerProperties.cs" />
+    <Compile Include="API\PlayerShirt.cs" />
     <Compile Include="API\WebAppAPI.cs" />
     <Compile Include="API\WebAppAlgoInfo.cs" />
-    <Compile Include="API\WebAppConfigResponse.cs" />
+    <Compile Include="API\UserConfigResponse.cs" />
     <Compile Include="CLI\CliDisplayTeam.cs" />
     <Compile Include="Orchestration\AlgoRunner.cs" />
     <Compile Include="Orchestration\AlgoType.cs" />
@@ -71,8 +72,6 @@
     <Compile Include="CLI\CopyAndExit.cs" />
     <Compile Include="CLI\Exit.cs" />
     <Compile Include="CLI\Reshuffle.cs" />
-    <Compile Include="Demo\BestToWorsePlayer.cs" />
-    <Compile Include="Demo\Generator.cs" />
     <Compile Include="Algos\SkillWiseAlgo\SkillWiseManager.cs" />
     <Compile Include="Algos\SkillWiseAlgo\SkillWisePlayersReader.cs" />
     <Compile Include="Orchestration\Contracts\IPlayer.cs" />
@@ -103,6 +102,8 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Demo\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
