@@ -22,7 +22,7 @@ namespace TeamsGeneratorWebAPI.Controllers
         }
 
         [HttpPost("Upload")]
-        public async Task<SaveConfigResponse> Post([FromBody] dynamic players, string uid)
+        public async Task<SaveConfigResponse> Post([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic players, string uid)
         {
             var config = new UserConfigBlobConfig() { UId = uid };
             return await _azureStorage.UploadAsync(players, config);
@@ -31,7 +31,7 @@ namespace TeamsGeneratorWebAPI.Controllers
 
         [HttpGet(Name = "ConfigController")]
 
-        public async Task<IResponse> Get(string uid)
+        public async Task<IResponse> Get([FromHeader(Name = "client_version")] string ver, string uid)
         {
             var config = new UserConfigBlobConfig() { UId = uid };
             return await _azureStorage.ListAsync(config);

@@ -19,14 +19,14 @@ namespace TeamsGeneratorWebAPI.Controllers
         [HttpPost()]
 
 
-        public GetTeamsResponse Post([FromBody] dynamic dicJson, int algoKey)
+        public GetTeamsResponse Post([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic dicJson, int algoKey)
         {
             return WebAppAPI.GetTeams(dicJson, algoKey);
         }
 
         [HttpPost("[action]")]
 
-        public GetTeamsResponse PostResultString([FromBody] dynamic dicJson)
+        public GetTeamsResponse PostResultString([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic dicJson)
         {
             return WebAppAPI.GetResultString(dicJson);
         }

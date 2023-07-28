@@ -22,7 +22,7 @@ namespace TeamsGeneratorWebAPI.Controllers
         
         [HttpGet(Name = "AlgosController")]
 
-        public async Task<GetAppSetupResponse> Get(string uid)
+        public async Task<GetAppSetupResponse> Get([FromHeader(Name = "client_version")] string ver, string uid)
         {
             var config = new UserConfigBlobConfig() { UId = uid };
             var response = await _azureStorage.ListAsync(config) as GetConfigResponse;

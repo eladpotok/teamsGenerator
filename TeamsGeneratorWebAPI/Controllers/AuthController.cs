@@ -23,7 +23,7 @@ namespace TeamsGeneratorWebAPI.Controllers
         }
 
         [HttpPost("Sign")]
-        public async Task<IResponse> Sign([FromBody] dynamic user)
+        public async Task<IResponse> Sign([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic user)
         {
             var config = new UserBlobConfig() { User = user };
             return await _azureStorage.UploadAsync(user, config);
@@ -32,7 +32,7 @@ namespace TeamsGeneratorWebAPI.Controllers
 
         [HttpPost("Login")]
 
-        public async Task<IResponse> Login([FromBody] dynamic user)
+        public async Task<IResponse> Login([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic user)
         {
             var config = new UserBlobConfig() { User = user };
             return await _azureStorage.ListAsync(config);

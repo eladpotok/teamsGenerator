@@ -22,7 +22,7 @@ namespace TeamsGeneratorWebAPI.Controllers
         }
 
         [HttpPost("Upload")]
-        public async Task<SavePlayersResponse> Post([FromBody] dynamic players, string uid, int algoType)
+        public async Task<SavePlayersResponse> Post([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic players, string uid, int algoType)
         {
             var config = new PlayersBlobConfig() { UId = uid, AlgoType = algoType };
             return await  _azureStorage.UploadAsync(players, config);
@@ -31,7 +31,7 @@ namespace TeamsGeneratorWebAPI.Controllers
 
         [HttpGet(Name = "UserPlayersController")]
 
-        public async Task<IResponse> Get(string uid, int algoType)
+        public async Task<IResponse> Get([FromHeader(Name = "client_version")] string ver, string uid, int algoType)
         {
             var config = new PlayersBlobConfig() { UId = uid, AlgoType = algoType };
             return await _azureStorage.ListAsync(config);
