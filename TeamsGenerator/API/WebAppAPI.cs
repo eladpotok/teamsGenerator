@@ -79,7 +79,7 @@ namespace TeamsGenerator.API
             var algos = _algoTypeToInformationMapper.Values.ToList();
             var config = new UserConfigResponse() { ShirtsColors = shirtsColors, NumberOfTeams = numberOfTeams };
 
-            return new GetAppSetupResponse() { Algos = algos, Config = config, Version = version };
+            return new GetAppSetupResponse() { Algos = algos, Config = config };
         }
 
         public static IEnumerable<PlayerProperties> GetPlayersProperties(int algoType)
