@@ -26,7 +26,7 @@ namespace TeamsGeneratorWebAPI.Controllers
         {
             var config = new UserConfigBlobConfig() { UId = uid };
             var response = await _azureStorage.ListAsync(config) as GetConfigResponse;
-            var appSetup = WebAppAPI.GetAppSetup();
+            var appSetup = WebAppAPI.GetAppSetup(ver);
 
             if (response.Config != null)
             {

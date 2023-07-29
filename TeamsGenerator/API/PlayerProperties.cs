@@ -6,5 +6,6 @@
         public string Type { get; set; }
         public string DisplayText { get; set; }
         public bool ShowInClient { get; set; }
+        public string MinVersion { get; set; }
     }
 }

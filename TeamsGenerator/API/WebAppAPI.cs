@@ -70,22 +70,47 @@ namespace TeamsGenerator.API
             return new GetTeamsResponse() { Teams = teamsResponse };
         }
 
-        public static GetAppSetupResponse GetAppSetup()
+        public static GetAppSetupResponse GetAppSetup(string version)
         {
             var shirtsColors = ConfigurationManager.ShirtsColorNameToSymbolMapper;
             var numberOfTeams = ConfigurationManager.NumberOfTeams;
-            var version = ConfigurationManager.Version;
 
             var algos = _algoTypeToInformationMapper.Values.ToList();
+            foreach (var algo in algos)
+            {
+                algo.PlayerProperties = algo.PlayerProperties.Where(p => CompareVersion(p.MinVersion, version)).ToList();
+            }
+
             var config = new UserConfigResponse() { ShirtsColors = shirtsColors, NumberOfTeams = numberOfTeams };
 
             return new GetAppSetupResponse() { Algos = algos, Config = config };
         }
 
-        public static IEnumerable<PlayerProperties> GetPlayersProperties(int algoType)
+        public static IEnumerable<PlayerProperties> GetPlayersProperties(int algoType, string version)
         {
             if (!_algoTypeToInformationMapper.ContainsKey((AlgoType)algoType)) return new List<PlayerProperties>();
-            return _algoTypeToInformationMapper[(AlgoType)algoType].PlayerProperties;
+            var playerProperties = _algoTypeToInformationMapper[(AlgoType)algoType].PlayerProperties;
+
+            var propertiesFilteredByVersion = playerProperties.Where(p => CompareVersion(p.MinVersion, version));
+            return propertiesFilteredByVersion;
+        }
+
+        private static bool CompareVersion(string minVersion, string requriedVersion)
+        {
+            if (minVersion == null) return true;
+
+            var minVersionParts = minVersion.Split('.');
+            var requiredVersionParts = requriedVersion.Split('.');
+
+            for (int i = 0; i < 3; i++)
+            {
+                if (int.Parse(minVersionParts[i]) > int.Parse(requiredVersionParts[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private static List<WebAppTeam> GetDisplayTeams(List<PlayerShirt> shirtsColorNames, List<Algos.Team> teams, bool showWhoBegins)

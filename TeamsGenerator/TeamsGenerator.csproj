@@ -56,6 +56,7 @@
     <Compile Include="API\GetAppSetupResponse.cs" />
     <Compile Include="API\PlayerProperties.cs" />
     <Compile Include="API\PlayerShirt.cs" />
+    <Compile Include="API\VersionAttribute.cs" />
     <Compile Include="API\WebAppAPI.cs" />
     <Compile Include="API\WebAppAlgoInfo.cs" />
     <Compile Include="API\UserConfigResponse.cs" />

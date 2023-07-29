@@ -42,6 +42,7 @@ namespace TeamsGenerator.API
 
                 var showInClient = true;
                 var displayText = prop.Name;
+                string minVersion = null;
                 if (propertyAttributes != null)
                 {
                     foreach (var att in propertyAttributes)
@@ -54,11 +55,14 @@ namespace TeamsGenerator.API
                         {
                             displayText = displayTextAtt.Text;
                         }
-
+                        if (att is VersionAttribute versionAtt)
+                        {
+                            minVersion = versionAtt.MinVersion;
+                        }
                     }
                 }
 
-                PlayerProperties.Add(new PlayerProperties() { Name = prop.Name, Type = inputToTypeMapper[prop.PropertyType] , ShowInClient = showInClient, DisplayText = displayText });
+                PlayerProperties.Add(new PlayerProperties() { Name = prop.Name, Type = inputToTypeMapper[prop.PropertyType] , ShowInClient = showInClient, DisplayText = displayText, MinVersion = minVersion });
             }
 
         }

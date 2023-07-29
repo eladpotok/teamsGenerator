@@ -19,7 +19,7 @@ namespace TeamsGeneratorWebAPI.Controllers
 
         public IEnumerable<PlayerProperties> Get([FromHeader(Name = "client_version")] string ver, int algoKey)
         {
-            return WebAppAPI.GetPlayersProperties(algoKey);
+            return WebAppAPI.GetPlayersProperties(algoKey, ver);
         }
     }
  
