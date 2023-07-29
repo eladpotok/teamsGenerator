@@ -24,6 +24,8 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
         public string Id { get; set; }
         [EditableInClientAttribute(Show = false)]
         public bool IsArrived { get; set; }
-        
+
+        [DisplayTextAttribute(Text = "Goal Keeper")]
+        public bool IsGoalKeeper { get; set; }
     }
 }

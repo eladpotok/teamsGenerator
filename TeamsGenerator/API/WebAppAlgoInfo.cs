@@ -41,6 +41,7 @@ namespace TeamsGenerator.API
                 var propertyAttributes = prop.GetCustomAttributes(true);
 
                 var showInClient = true;
+                var displayText = prop.Name;
                 if (propertyAttributes != null)
                 {
                     foreach (var att in propertyAttributes)
@@ -49,10 +50,15 @@ namespace TeamsGenerator.API
                         {
                             showInClient = editableInClient.Show;
                         }
+                        if(att is DisplayTextAttribute displayTextAtt)
+                        {
+                            displayText = displayTextAtt.Text;
+                        }
+
                     }
                 }
 
-                PlayerProperties.Add(new PlayerProperties() { Name = prop.Name, Type = inputToTypeMapper[prop.PropertyType] , ShowInClient = showInClient });
+                PlayerProperties.Add(new PlayerProperties() { Name = prop.Name, Type = inputToTypeMapper[prop.PropertyType] , ShowInClient = showInClient, DisplayText = displayText });
             }
 
         }

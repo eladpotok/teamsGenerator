@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using TeamsGenerator.Orchestration;
 using TeamsGenerator.Orchestration.Contracts;
 using TeamsGenerator.Utilities;
@@ -15,17 +16,21 @@ namespace TeamsGenerator.Algos.BackAndForthAlgo
 
         public List<Team> GenerateTeams(List<IPlayer> players)
         {
+            var teams = new List<Team>();
+            var teamsCount = _config.TeamsCount;
+            for (int i = 0; i < teamsCount; i++)
+            {
+                teams.Add(new Team());
+            }
+
+            players = Helper.SpreadGoalKeepersInDifferentTeams(teams, players);
             _orderedPlayers = Helper.SortPlayersByRank(players);
 
             var playersCount = _orderedPlayers.Count;
 
-            var teams = new List<Team>();
-            var teamsCount = _config.TeamsCount;
-
             // put the leader in each team
             for (int i = 0; i < teamsCount; i++)
             {
-                teams.Add(new Team());
                 teams[i].AddPlayer(_orderedPlayers[teamsCount - 1 - i]);
             }
 

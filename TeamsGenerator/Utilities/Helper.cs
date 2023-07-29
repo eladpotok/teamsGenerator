@@ -100,7 +100,22 @@ namespace TeamsGenerator.Utilities
             return result;
         }
 
-     
+        public static List<IPlayer> SpreadGoalKeepersInDifferentTeams(List<Team> teams, List<IPlayer> players)
+        {
+            var goalKeepers = players.Where(p => p.IsGoalKeeper);
+
+            var playersToRemove = new List<IPlayer>();
+            var teamIndices = 0;
+            foreach (var gk in goalKeepers)
+            {
+                if (teamIndices + 1 > teams.Count) break;
+                playersToRemove.Add(gk);
+                teams[teamIndices++].AddPlayer(gk);
+            }
+
+            players.RemoveAll((p) => playersToRemove.Select(t=>t.Key).Contains(p.Key) );
+            return players;
+        }
     }
 
 }

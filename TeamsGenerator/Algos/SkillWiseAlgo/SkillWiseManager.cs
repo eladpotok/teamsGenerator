@@ -31,6 +31,25 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
 
         private List<Team> RunAlgo(ref List<Team> teams)
         {
+            var allTypesOfSkills = GetSkillsRandomOrder();
+            var players = new List<SkillWisePlayer>(_players);
+
+            for (int i = 0; i < _players.Count; i++)
+            {
+                if (!allTypesOfSkills.Any())
+                {
+                    allTypesOfSkills = GetSkillsRandomOrder();
+                }
+
+                players = Helper.SpreadGoalKeepersInDifferentTeams(teams, players.Cast<IPlayer>().ToList()).Cast<SkillWisePlayer>().ToList();
+                AddSkillPlayerToTeam(ref teams, players, TakeRandomSkill(allTypesOfSkills));
+            }
+            
+            return teams;
+        }
+
+        private static List<OrderBy> GetSkillsRandomOrder()
+        {
             var allTypesOfSkills = new List<OrderBy>()
             {
                 new OrderBy() { Name="Leadership", Invoker = t => t.Leadership },
@@ -41,15 +60,7 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
             };
 
             allTypesOfSkills = Helper.Shuffle(allTypesOfSkills);
-            var players = new List<SkillWisePlayer>(_players);
-
-            AddSkillPlayerToTeam(ref teams, players, TakeRandomSkill(allTypesOfSkills));
-            AddSkillPlayerToTeam(ref teams, players, TakeRandomSkill(allTypesOfSkills));
-            AddSkillPlayerToTeam(ref teams, players, TakeRandomSkill(allTypesOfSkills));
-            AddSkillPlayerToTeam(ref teams, players, TakeRandomSkill(allTypesOfSkills));
-            AddSkillPlayerToTeam(ref teams, players, TakeRandomSkill(allTypesOfSkills));
-
-            return teams;
+            return allTypesOfSkills;
         }
 
         private Func<SkillWisePlayer, double> TakeRandomSkill(List<OrderBy> skills)

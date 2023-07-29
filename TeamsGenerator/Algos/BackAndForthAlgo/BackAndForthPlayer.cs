@@ -24,6 +24,8 @@ namespace TeamsGenerator.Algos.BackAndForthAlgo
         
         [EditableInClientAttribute(Show = false)]
         public bool IsArrived { get; set; }
-
+        
+        [DisplayTextAttribute(Text = "Goal Keeper")]
+        public bool IsGoalKeeper { get; set; }
     }
 }

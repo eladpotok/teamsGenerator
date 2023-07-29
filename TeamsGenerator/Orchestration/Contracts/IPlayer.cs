@@ -8,5 +8,6 @@
         string Id { get; }
         string ModifyTime { get; }
         bool IsArrived { get; }
+        bool IsGoalKeeper { get; }
     }
 }
