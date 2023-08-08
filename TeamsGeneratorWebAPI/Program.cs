@@ -17,6 +17,7 @@ builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddTransient<IUserConfigAzureStorage, UserConfigAzureStorage>();
 builder.Services.AddTransient<IPlayersStorageBlobConnector, PlayersStorageBlobConnector>();
 builder.Services.AddTransient<IUserAzureStorage, UserAzureStorage>();
+builder.Services.AddTransient<IEventsStorageBlobConnector, EventsStorageBlobConnector>();
 
 
 var app = builder.Build();
