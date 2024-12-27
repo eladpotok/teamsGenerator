@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "nofDn4AomDl+mnX+feSPM+55UIhhO04Thbb2xZ08You7P2wLc+p/eGTfGXGe94VJ2Inv6qM2oT2M0edBcswAMg==",
+  "success": true,
+  "projectFilePath": "F:\\Documents\\Projects\\teamsGenerator\\TeamsDesignCreator\\TeamsDesignCreator.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\potok\\.nuget\\packages\\skiasharp\\3.116.1\\skiasharp.3.116.1.nupkg.sha512",
+    "C:\\Users\\potok\\.nuget\\packages\\skiasharp.nativeassets.macos\\3.116.1\\skiasharp.nativeassets.macos.3.116.1.nupkg.sha512",
+    "C:\\Users\\potok\\.nuget\\packages\\skiasharp.nativeassets.win32\\3.116.1\\skiasharp.nativeassets.win32.3.116.1.nupkg.sha512"
+  ],
+  "logs": []
+}

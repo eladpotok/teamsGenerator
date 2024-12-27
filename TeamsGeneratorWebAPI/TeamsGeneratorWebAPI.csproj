@@ -7,15 +7,41 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="DesignCreator\team_template.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="DesignCreator\team_template.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!--<ItemGroup>
+    <Compile Remove="DesignCreator\ImageCreator.cs" />
+    <Compile Remove="DesignCreator\SkiaImageCreator.cs" />
+  </ItemGroup>-->
+
+  <!--<ItemGroup>
+    <None Remove="DesignCreator\team_template.png" />
+  </ItemGroup>-->
+
+  <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.16.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.13" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.18.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="SkiaSharp" Version="3.116.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TeamsGenerator\TeamsGenerator.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="DesignCreator\team_template.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
 </Project>
