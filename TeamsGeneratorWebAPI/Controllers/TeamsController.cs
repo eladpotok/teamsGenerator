@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.ApplicationInsights;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using TeamsGenerator.Algos.BackAndForthAlgo;
 using TeamsGenerator.Algos.SkillWiseAlgo;
@@ -12,15 +13,18 @@ namespace TeamsGeneratorWebAPI.Controllers
     public class TeamsController : ControllerBase
     {
         private readonly ILogger<TeamsController> _logger;
+        private readonly TelemetryClient _telemetryClient;
 
-        public TeamsController(ILogger<TeamsController> logger)
+        public TeamsController(ILogger<TeamsController> logger, TelemetryClient telemetryClient)
         {
             _logger = logger;
+            _telemetryClient = telemetryClient;
         }
 
         [HttpPost()]
         public GetTeamsResponse Post([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic dicJson, int algoKey)
         {
+            _telemetryClient.TrackEvent("GetTeams");
             return WebAppAPI.GetTeams(dicJson, algoKey);
         }
 

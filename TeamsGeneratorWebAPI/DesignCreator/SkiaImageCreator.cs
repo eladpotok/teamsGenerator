@@ -9,14 +9,31 @@ namespace TeamsDesignCreator
 {
     public static class SkiaImageCreator
     {
-        public const int firstLineY = 270;
-        public const int secondLineY = 480;
+        public const int firstLineY = 130;
+        public const int secondLineY = 340;
+
+
+        public static readonly Dictionary<int, List<Point>> locations = new Dictionary<int, List<Point>>() 
+        {
+           { 1, new List<Point>() {  new Point(287, firstLineY) } },
+           { 2, new List<Point>() { new Point(200, firstLineY), new Point(360, firstLineY) } },
+           { 3, new List<Point>() { new Point(200, firstLineY), new Point(360, firstLineY), new Point(287, secondLineY) } },
+           { 4, new List<Point>() { new Point(142, firstLineY), new Point(432, firstLineY), new Point(142, secondLineY), new Point(432, secondLineY)  } },
+           { 5, new List<Point>() { new Point(200, firstLineY), new Point(360, firstLineY), new Point(142, secondLineY), new Point(287, secondLineY), new Point(432, secondLineY)  } },
+           { 6, new List<Point>() { new Point(142, firstLineY), new Point(287, firstLineY), new Point(432, firstLineY), new Point(142, secondLineY), new Point(287, secondLineY), new Point(432, secondLineY)  } },
+           { 7, new List<Point>() { new Point(287, firstLineY - 100), new Point(142, firstLineY + 100), new Point(287, firstLineY + 100), new Point(432, firstLineY + 100), new Point(142, secondLineY + 100), new Point(287, secondLineY + 100), new Point(432, secondLineY + 100)  } },
+           { 8, new List<Point>() { new Point(142, firstLineY - 100), new Point(432, firstLineY - 100), new Point(142, firstLineY + 100), new Point(287, firstLineY + 100), new Point(432, firstLineY + 100), new Point(142, secondLineY + 100), new Point(287, secondLineY + 100), new Point(432, secondLineY + 100)  } },
+           { 9, new List<Point>() { new Point(142, firstLineY - 100), new Point(287, firstLineY - 100), new Point(432, firstLineY - 100), new Point(142, firstLineY + 100), new Point(287, firstLineY + 100), new Point(432, firstLineY + 100), new Point(142, secondLineY + 100), new Point(287, secondLineY + 100), new Point(432, secondLineY + 100)  } },
+           { 10, new List<Point>() { new Point(142, firstLineY - 100), new Point(287, firstLineY - 100), new Point(432, firstLineY - 100), new Point(82, firstLineY + 100), new Point(197, firstLineY + 100), new Point(382, firstLineY + 100), new Point(492, firstLineY + 100), new Point(142, secondLineY + 100), new Point(287, secondLineY + 100), new Point(432, secondLineY + 100)  } },
+           { 11, new List<Point>() { new Point(142, firstLineY - 100), new Point(287, firstLineY - 100), new Point(432, firstLineY - 100), new Point(82, firstLineY + 100), new Point(177, firstLineY + 100), new Point(280, firstLineY + 100), new Point(382, firstLineY + 100), new Point(492, firstLineY + 100), new Point(142, secondLineY + 100), new Point(287, secondLineY + 100), new Point(432, secondLineY + 100)  } },
+
+        };
 
         public static MemoryStream GenerateImage(List<string> playerNames, string color)
         {
-            var positions = new List<Point>() { new Point(250, firstLineY), new Point(410, firstLineY), new Point(192, secondLineY), new Point(337, secondLineY), new Point(482, secondLineY) };
+            var positions = locations[playerNames.Count];
 
-            using (var templateStream = System.IO.File.OpenRead($@"templates/{color}.png"))
+            using (var templateStream = System.IO.File.OpenRead($@"templates/field.png"))
             using (var templateBitmap = SKBitmap.Decode(templateStream))
             {
                 // Create an SKImage from the template bitmap
@@ -43,8 +60,15 @@ namespace TeamsDesignCreator
                         var lines = WrapText(paint, name.ToUpper(), 100);
                         foreach (var line in lines)
                         {
+                            using (var shirtIconStream = System.IO.File.OpenRead($@"templates/shirt{color}.png"))
+                            using (var shirtIconBitmap = SKBitmap.Decode(shirtIconStream))
+                            {
+                                var currPoint = positions[index];
+                                canvas.DrawBitmap(shirtIconBitmap, currPoint.X, currPoint.Y);
+                            }
+
                             string bidiLine = ReverseIfNeeded(line);
-                            canvas.DrawText(bidiLine, positions[index].X, positions[index].Y + lineHeight, paint); // Adjust position as necessary
+                            canvas.DrawText(bidiLine, positions[index].X + 49, positions[index].Y + lineHeight + 120, paint); // Adjust position as necessary
                             lineHeight += paint.TextSize + 4;
                         }
                         index++;
