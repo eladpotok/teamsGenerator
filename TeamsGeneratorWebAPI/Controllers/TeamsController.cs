@@ -25,6 +25,7 @@ namespace TeamsGeneratorWebAPI.Controllers
         public GetTeamsResponse Post([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic dicJson, int algoKey)
         {
             _telemetryClient.TrackEvent("GetTeams");
+            _telemetryClient.TrackMetric("GetTeams", 1);
             return WebAppAPI.GetTeams(dicJson, algoKey);
         }
 
@@ -38,8 +39,6 @@ namespace TeamsGeneratorWebAPI.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> GetTeamsDesign([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic team)
         {
-            var result = new List<byte[]>();
-
             var teamsSerializedObject = JsonConvert.SerializeObject(team.playerNames, Newtonsoft.Json.Formatting.Indented);
             IEnumerable<string> players = JsonConvert.DeserializeObject<List<string>>(teamsSerializedObject);
 
@@ -47,8 +46,9 @@ namespace TeamsGeneratorWebAPI.Controllers
 
             // Convert the image to a byte array and add it to the result list
             byte[] imageBytes = ms.ToArray();
-            return File(imageBytes, "image/png");
 
+            _telemetryClient.TrackMetric("ShareWithImage", 1);
+            return File(imageBytes, "image/png");
         }
     }
  

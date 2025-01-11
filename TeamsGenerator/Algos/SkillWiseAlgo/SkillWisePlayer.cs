@@ -26,7 +26,7 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
         public bool IsArrived { get; set; }
 
         [VersionAttribute(MinVersion = "8.0.1")]
-        [DisplayTextAttribute(Text = "Goal Keeper")]
+        [DisplayTextAttribute(Text = "GoalKeeper")]
         public bool IsGoalKeeper { get; set; }
     }
 }

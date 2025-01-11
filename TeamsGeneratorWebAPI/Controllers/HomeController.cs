@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.ApplicationInsights;
+using Microsoft.AspNetCore.Mvc;
 using TeamsGenerator;
 using TeamsGenerator.API;
 using TeamsGeneratorWebAPI.ConfigBlob;
@@ -13,11 +14,14 @@ namespace TeamsGeneratorWebAPI.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IUserConfigAzureStorage _azureStorage;
+        private readonly TelemetryClient _telemetryClient;
 
-        public HomeController(ILogger<HomeController> logger, IUserConfigAzureStorage azureStorage)
+
+        public HomeController(ILogger<HomeController> logger, IUserConfigAzureStorage azureStorage, TelemetryClient telemetryClient)
         {
             _logger = logger;
             _azureStorage = azureStorage;
+            _telemetryClient = telemetryClient;
         }
         
         [HttpGet(Name = "AlgosController")]
@@ -32,7 +36,8 @@ namespace TeamsGeneratorWebAPI.Controllers
             {
                 appSetup.Config = response.Config;
             }
-
+            
+            _telemetryClient.TrackMetric("UserEntered", 1);
             return appSetup;
         }
     }
