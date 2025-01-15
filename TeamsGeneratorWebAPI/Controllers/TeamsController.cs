@@ -42,7 +42,7 @@ namespace TeamsGeneratorWebAPI.Controllers
             var teamsSerializedObject = JsonConvert.SerializeObject(team.playerNames, Newtonsoft.Json.Formatting.Indented);
             IEnumerable<string> players = JsonConvert.DeserializeObject<List<string>>(teamsSerializedObject);
 
-            var ms = ImageCreator.Create(players.ToList(), team.color.ToString());
+            var ms = ImageCreator.CreateTeams(players.ToList(), team.color.ToString());
 
             // Convert the image to a byte array and add it to the result list
             byte[] imageBytes = ms.ToArray();

@@ -12,7 +12,10 @@
     <None Remove="templates\blue.png" />
     <None Remove="templates\field.png" />
     <None Remove="templates\green.png" />
+    <None Remove="templates\namePlaceHolder.png" />
     <None Remove="templates\orange.png" />
+    <None Remove="templates\playersListTemplate.png" />
+    <None Remove="templates\plyaerShirt.png" />
     <None Remove="templates\purple.png" />
     <None Remove="templates\red.png" />
     <None Remove="templates\shirtBlack.png" />
@@ -44,7 +47,16 @@
     <Content Include="templates\green.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="templates\namePlaceHolder.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="templates\orange.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="templates\playersListTemplate.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="templates\plyaerShirt.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="templates\purple.png">

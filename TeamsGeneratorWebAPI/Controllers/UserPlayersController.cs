@@ -1,9 +1,11 @@
 ﻿using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using TeamsGenerator.Algos.BackAndForthAlgo;
 using TeamsGenerator.Algos.SkillWiseAlgo;
 using TeamsGenerator.API;
 using TeamsGenerator.Orchestration.Contracts;
+using TeamsGeneratorWebAPI.DesignCreator;
 using TeamsGeneratorWebAPI.PlayersBlob;
 using TeamsGeneratorWebAPI.Storage;
 
@@ -30,6 +32,22 @@ namespace TeamsGeneratorWebAPI.Controllers
             var config = new PlayersBlobConfig() { UId = uid, AlgoType = algoType };
             _telemetryClient.TrackMetric("PlayerAdded", 1);
             return await  _azureStorage.UploadAsync(players, config);
+        }
+
+        [HttpPost("SharePlayers")]
+        public async Task<IActionResult> PostSharePlayers([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic config, string uid)
+        {
+            var teamsSerializedObject = JsonConvert.SerializeObject(config.players, Newtonsoft.Json.Formatting.Indented);
+            IEnumerable<string> playersList = JsonConvert.DeserializeObject<List<string>>(teamsSerializedObject);
+
+            var teamInfo = config.teamInfo;
+            var ms = ImageCreator.CreatePlayersList(playersList.ToList(), teamInfo.teamName.ToString(), teamInfo.location.ToString(), teamInfo.date.ToString(), teamInfo.dayInWeek.ToString());
+
+            // Convert the image to a byte array and add it to the result list
+            byte[] imageBytes = ms.ToArray();
+
+            _telemetryClient.TrackMetric("SharePlayersWithImage", 1);
+            return File(imageBytes, "image/png");
         }
 
 
