@@ -25,8 +25,8 @@ namespace TeamsGenerator.API
             EventTime = DateTime.UtcNow;
             SelectedAlgoKey = 0;
             NumberOfTeams = 3;
-            TeamName = "Your Team Name";
-            Location = "Your Location";
+            TeamName = "";
+            Location = "";
         }
     }
 }
