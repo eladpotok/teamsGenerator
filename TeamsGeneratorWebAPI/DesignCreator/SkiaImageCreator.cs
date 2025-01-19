@@ -50,7 +50,7 @@ namespace TeamsDesignCreator
             teamName = ReverseIfNeeded(teamName);
             location = ReverseIfNeeded(location);
 
-            using (var templateStream = System.IO.File.OpenRead($@"templates/playersListTemplate.png"))
+            using (var templateStream = System.IO.File.OpenRead($@"templates/playersListTemplate1.png"))
             using (var templateBitmap = SKBitmap.Decode(templateStream))
             {
                 // Create an SKImage from the template bitmap
@@ -102,7 +102,7 @@ namespace TeamsDesignCreator
                     DrawText(isRtl ? 195 - timeAndLocationpaint.MeasureText(location) : 4, 40 + timeAndLocationpaint.TextSize * 2, timeAndLocationpaint, canvas, location);
 
                     //float yOffset = 477; // Adjust as necessary for your design
-                    var offsetX = templateBitmap.Width;
+                    var offsetX = templateBitmap.Width-10;
                     var offsetY = 100;
                     var spaceBetween = 17;
                     var numberOfPlayersInRow = 7;
@@ -134,7 +134,7 @@ namespace TeamsDesignCreator
                         if (currPlayerIndex % numberOfPlayersInRow == 0)
                         {
                             offsetY += 120;
-                            offsetX = templateBitmap.Width;
+                            offsetX = templateBitmap.Width-10;
                         }
                         else
                         {
