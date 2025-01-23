@@ -35,11 +35,24 @@ namespace TeamsDesignCreator
             canvas.DrawText(text, x, y, paint);
         }
 
-        internal static object GeneratePlayersListImage(List<string> players, string teamName, string location, string date, string dayInWeek)
+        private static CultureInfo GetCulture(string symbol)
+        {
+            try
+            {
+                return new CultureInfo(symbol);
+            }
+            catch (Exception)
+            {
+                return CultureInfo.CurrentCulture;
+            }
+        }
+
+        internal static object GeneratePlayersListImage(List<string> players, string teamName, string location, string date, string dayInWeek, string currentCulture)
         {
             var sidePadding = 10;
             var topPadding = 30;
-            var culture = CultureInfo.CurrentCulture;
+
+            var culture = GetCulture(currentCulture);
 
             var dateTime = DateTime.Parse(date);
             var dateTimeDisplay = dateTime.ToString("g", culture);

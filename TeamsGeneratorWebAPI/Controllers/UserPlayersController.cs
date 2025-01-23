@@ -41,7 +41,8 @@ namespace TeamsGeneratorWebAPI.Controllers
             IEnumerable<string> playersList = JsonConvert.DeserializeObject<List<string>>(teamsSerializedObject);
 
             var teamInfo = config.teamInfo;
-            var ms = ImageCreator.CreatePlayersList(playersList.ToList(), teamInfo.teamName.ToString(), teamInfo.location.ToString(), teamInfo.date.ToString(), teamInfo.dayInWeek.ToString());
+            var culture = teamInfo.currentCulture ?? "en-us";
+            var ms = ImageCreator.CreatePlayersList(playersList.ToList(), teamInfo.teamName.ToString(), teamInfo.location.ToString(), teamInfo.date.ToString(), teamInfo.dayInWeek.ToString(), culture.ToString());
 
             // Convert the image to a byte array and add it to the result list
             byte[] imageBytes = ms.ToArray();

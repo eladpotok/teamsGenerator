@@ -14,9 +14,9 @@ namespace TeamsGeneratorWebAPI.DesignCreator
             return SkiaImageCreator.GenerateTeamsImage(players, color);
         }
 
-        internal static object CreatePlayersList(List<string> players, string teamName, string location, string date, string dayInWeek)
+        internal static object CreatePlayersList(List<string> players, string teamName, string location, string date, string dayInWeek, string currentCulture)
         {
-            return SkiaImageCreator.GeneratePlayersListImage(players, teamName.ToUpper(), location.ToUpper(), date, dayInWeek.ToUpper());
+            return SkiaImageCreator.GeneratePlayersListImage(players, teamName.ToUpper(), location.ToUpper(), date, dayInWeek.ToUpper(), currentCulture);
         }
     }
 }
