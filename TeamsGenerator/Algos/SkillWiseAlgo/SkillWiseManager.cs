@@ -41,7 +41,7 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
                     allTypesOfSkills = GetSkillsRandomOrder();
                 }
 
-                players = Helper.SpreadGoalKeepersInDifferentTeams(teams, players.Cast<IPlayer>().ToList()).Cast<SkillWisePlayer>().ToList();
+                //players = Helper.SpreadGoalKeepersInDifferentTeams(teams, players.Cast<IPlayer>().ToList()).Cast<SkillWisePlayer>().ToList();
                 AddSkillPlayerToTeam(ref teams, players, TakeRandomSkill(allTypesOfSkills));
             }
             
