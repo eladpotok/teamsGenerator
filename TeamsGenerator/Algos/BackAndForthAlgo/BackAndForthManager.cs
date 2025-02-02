@@ -14,7 +14,7 @@ namespace TeamsGenerator.Algos.BackAndForthAlgo
         {
         }
 
-        public List<Team> GenerateTeams(List<IPlayer> players)
+        public List<Team> GenerateTeams(List<IPlayer> players, List<Team> generatedTeamWithLockedPlayers)
         {
             var teams = new List<Team>();
             var teamsCount = _config.TeamsCount;

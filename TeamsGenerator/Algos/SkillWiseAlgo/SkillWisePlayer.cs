@@ -28,5 +28,7 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
         [VersionAttribute(MinVersion = "8.0.1")]
         [DisplayTextAttribute(Text = "GoalKeeper")]
         public bool IsGoalKeeper { get; set; }
+        [EditableInClientAttribute(Show = false)]
+        public bool IsLocked { get; set; }
     }
 }

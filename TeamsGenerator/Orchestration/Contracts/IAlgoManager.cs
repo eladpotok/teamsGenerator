@@ -9,6 +9,6 @@ namespace TeamsGenerator.Orchestration.Contracts
 {
     public interface IAlgoManager
     {
-        List<Team> GenerateTeams(List<IPlayer> players);
+        List<Team> GenerateTeams(List<IPlayer> players, List<Team> generatedTeamWithLockedPlayers);
     }
 }

@@ -62,9 +62,20 @@ namespace TeamsGenerator.API
             var playersSerializedObject = JsonConvert.SerializeObject(json.players, Newtonsoft.Json.Formatting.Indented);
             IEnumerable<IPlayer> playersCollection = AlgoTypeToPlayerSerializerMapper[algoKeyEnum].Invoke(playersSerializedObject);
 
+            List<Team> alreadyGeneratedTeams = null;
+            if(json.teams != null)
+            {
+                alreadyGeneratedTeams = new List<Team>();
+                foreach (var team in json.teams)
+                {
+                    var playersInTeamJson = JsonConvert.SerializeObject(team.players, Newtonsoft.Json.Formatting.Indented);
+                    IEnumerable<IPlayer> playersInTeam = AlgoTypeToPlayerSerializerMapper[algoKeyEnum].Invoke(playersInTeamJson);
+                    alreadyGeneratedTeams.Add(new Team() { Players = playersInTeam.ToList() });
+                }
+            }
 
             var algoConfig = new AlgoConfig() { TeamsCount = config.NumberOfTeams };
-            var teams = AlgoRunner.Run(algoKeyEnum, playersCollection.ToList(), algoConfig);
+            var teams = AlgoRunner.Run(algoKeyEnum, playersCollection.ToList(), algoConfig, alreadyGeneratedTeams);
             var teamsResponse = GetDisplayTeams(config.ShirtsColors, teams, config.ShowWhoBegins);
 
             return new GetTeamsResponse() { Teams = teamsResponse };

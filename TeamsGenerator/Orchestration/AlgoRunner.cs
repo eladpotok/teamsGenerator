@@ -20,10 +20,10 @@ namespace TeamsGenerator.Orchestration
             { AlgoType.SkillWise, (config) => new SkillWiseManager(config) },
         };
 
-        public static List<Algos.Team> Run(AlgoType algoType, List<IPlayer> players, AlgoConfig config)
+        public static List<Algos.Team> Run(AlgoType algoType, List<IPlayer> players, AlgoConfig config, List<Team> generatedTeamsWithLockedPlayers)
         {
             var algo = _algoTypeToTeamsGeneratorMapper[algoType];
-            var teams = algo.Invoke(config).GenerateTeams(players) ?? null;
+            var teams = algo.Invoke(config).GenerateTeams(players, generatedTeamsWithLockedPlayers) ?? null;
             return teams;
         }
 

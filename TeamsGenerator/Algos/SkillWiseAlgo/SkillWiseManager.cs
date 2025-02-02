@@ -15,7 +15,7 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
         {
         }
 
-        public List<Team> GenerateTeams(List<IPlayer> players)
+        public List<Team> GenerateTeams(List<IPlayer> players, List<Team> generatedTeamWithLockedPlayers)
         {
             _players = new List<SkillWisePlayer>(players.Cast<SkillWisePlayer>());
 
@@ -24,16 +24,32 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
             for (int i = 0; i < _config.TeamsCount; i++)
             {
                 teams.Add(new Team());
+
             }
 
-            return RunAlgo(ref teams);
+            if (generatedTeamWithLockedPlayers != null)
+            {
+                var teamIndex = 0;
+                foreach (var team in generatedTeamWithLockedPlayers)
+                {
+                    foreach(var player in team.Players)
+                    {
+                        teams[teamIndex].AddPlayer(player);
+                    }
+                    players = players.Where(pl => !team.Players.Select(t => t.Key).Contains(pl.Key)).ToList();
+                    teamIndex++;
+                }
+
+                teams = teams.OrderBy(t => t.Players.Count).ThenBy(t => t.TotalRank).ToList();
+            }
+
+            return RunAlgo(ref teams, players.Cast<SkillWisePlayer>().ToList());
         }
 
-        private List<Team> RunAlgo(ref List<Team> teams)
+        private List<Team> RunAlgo(ref List<Team> teams, List<SkillWisePlayer> players)
         {
             var allTypesOfSkills = GetSkillsRandomOrder();
-            var players = new List<SkillWisePlayer>(_players);
-
+       
             for (int i = 0; i < _players.Count; i++)
             {
                 if (!allTypesOfSkills.Any())
@@ -75,13 +91,21 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
 
         private void AddSkillPlayerToTeam(ref List<Team> teams, List<SkillWisePlayer> playersLeft, Func<SkillWisePlayer, double> orderBy)
         {
+            var firstTeamsPlyersCount = teams.First().Players.Count;
+            var allTeamsHasSamePlayersCount = teams.All(t => t.Players.Count == firstTeamsPlyersCount);
+            var maxPlayersCount = teams.Max(t => t.Players.Count);
+
             var orderedPlayers = OrderByAndShuffleSequence(playersLeft, orderBy);
             for (int i = 0; i < _config.TeamsCount; i++)
             {
                 if (!playersLeft.Any()) return;
+                
+                // if not all teams has the same players count, and this team has reached the limit. we skip for padding all other teams.
+                if (teams[i].Players.Count == (int)(_players.Count / _config.TeamsCount)) continue;
+
                 teams[i].AddPlayer(TakePlayer(orderedPlayers.Count - 1, orderedPlayers, playersLeft));
             }
-            teams = teams.OrderBy(t => t.TotalRank).ToList();
+            teams = teams.OrderBy(t => t.Players.Count).OrderBy(t => t.TotalRank).ToList();
         }
 
         private SkillWisePlayer TakePlayer(int playerIndex, List<SkillWisePlayer> orderedPlayers, List<SkillWisePlayer> originalPlayers)

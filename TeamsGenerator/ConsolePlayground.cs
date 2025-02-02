@@ -114,7 +114,7 @@ namespace TeamsGenerator
             var players = playersReader.GetPlayers();
 
             var config = new AlgoConfig() { TeamsCount = ConfigurationManager.NumberOfTeams };
-            var teams = AlgoRunner.Run((AlgoType)algoToUse, players, config);
+            var teams = AlgoRunner.Run((AlgoType)algoToUse, players, config, null);
             var teamsToDisplay = GetCliDisplayTeam(ConfigurationManager.ShirtsColorNameToSymbolMapper, teams);
             return teamsToDisplay;
         }
