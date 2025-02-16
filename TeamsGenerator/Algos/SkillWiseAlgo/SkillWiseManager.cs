@@ -91,17 +91,13 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
 
         private void AddSkillPlayerToTeam(ref List<Team> teams, List<SkillWisePlayer> playersLeft, Func<SkillWisePlayer, double> orderBy)
         {
-            var firstTeamsPlyersCount = teams.First().Players.Count;
-            var allTeamsHasSamePlayersCount = teams.All(t => t.Players.Count == firstTeamsPlyersCount);
-            var maxPlayersCount = teams.Max(t => t.Players.Count);
-
             var orderedPlayers = OrderByAndShuffleSequence(playersLeft, orderBy);
             for (int i = 0; i < _config.TeamsCount; i++)
             {
                 if (!playersLeft.Any()) return;
                 
                 // if not all teams has the same players count, and this team has reached the limit. we skip for padding all other teams.
-                if (teams[i].Players.Count == (int)(_players.Count / _config.TeamsCount)) continue;
+                if (teams[i].Players.Count == Math.Ceiling((double)_players.Count / _config.TeamsCount)) continue;
 
                 teams[i].AddPlayer(TakePlayer(orderedPlayers.Count - 1, orderedPlayers, playersLeft));
             }
