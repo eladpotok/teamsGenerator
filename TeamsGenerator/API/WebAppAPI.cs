@@ -133,7 +133,7 @@ namespace TeamsGenerator.API
             foreach (var team in teams)
             {
                 var shirtColor = selectedShirts[0];
-                results.Add(new WebAppTeam() { Players = team.Players, Rank = team.TotalRank, Color = shirtColor.ColorName, TeamSymbol = shirtColor.Symbol, TeamName = index.ToString(), TeamId = index });
+                results.Add(new WebAppTeam() { Players = Helper.Shuffle(team.Players), Rank = team.TotalRank, Color = shirtColor.ColorName, TeamSymbol = shirtColor.Symbol, TeamName = index.ToString(), TeamId = index });
                 index++;
                 selectedShirts.RemoveAt(0);
             }
