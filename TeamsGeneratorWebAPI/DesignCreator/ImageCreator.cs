@@ -18,5 +18,10 @@ namespace TeamsGeneratorWebAPI.DesignCreator
         {
             return SkiaImageCreator.GeneratePlayersListImage(players, teamName.ToUpper(), location.ToUpper(), date, dayInWeek.ToUpper(), currentCulture);
         }
+
+        internal static MemoryStream CreateTable(dynamic stats, dynamic topScorers)
+        {
+            return SkiaImageCreator.GenerateTable(stats, topScorers);
+        }
     }
 }

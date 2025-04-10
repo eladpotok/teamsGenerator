@@ -30,6 +30,141 @@ namespace TeamsDesignCreator
 
         };
 
+        internal static MemoryStream GenerateTable(dynamic stats, dynamic topScorers)
+        {
+            var teamsScores = new Dictionary<string, Score>();
+
+            foreach (var match in stats)
+            {
+                var teamA = match.teamA;
+                var teamB = match.teamB;
+
+                HandleScore(teamsScores, teamA, teamB);
+                HandleScore(teamsScores, teamB, teamA);
+            }
+
+            IOrderedEnumerable<KeyValuePair<string, Score>> orderedTable = teamsScores.OrderByDescending(t => t.Value.Points).ThenByDescending(t => t.Value.Gf - t.Value.Ga).ThenByDescending( t=> t.Value.Gf);
+            return DrawTable(orderedTable, topScorers);
+        }
+
+        public static MemoryStream DrawTable(IOrderedEnumerable<KeyValuePair<string, Score>> table, dynamic topScorers)
+        {
+            using (var templateStream = System.IO.File.OpenRead($@"templates/standings.png"))
+            using (var templateBitmap = SKBitmap.Decode(templateStream))
+            {
+                // Create an SKImage from the template bitmap
+                using (var surface = SKSurface.Create(new SKImageInfo(templateBitmap.Width, templateBitmap.Height)))
+                {
+                    var canvas = surface.Canvas;
+                    // Draw the template onto the canvas
+                    canvas.DrawBitmap(templateBitmap, SKPoint.Empty);
+
+                    var paint = new SKPaint
+                    {
+                        Color = SKColors.White,
+                        TextSize = 16,
+                        IsAntialias = true,
+                        TextAlign = SKTextAlign.Center,
+                        Typeface = SKTypeface.FromFamilyName("Berlin Sans FB Demi", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright)
+                    };
+
+                    using (var shirtIconStream = System.IO.File.OpenRead($@"templates/teamPlaceHolder.png"))
+                    using (var placeHolder = SKBitmap.Decode(shirtIconStream))
+                    {  
+                        //float yOffset = 477; // Adjust as necessary for your design
+                        var index = 0;
+
+                        foreach (var team in table)
+                        {
+                            var linePoint = new Point(106, 144 + index * 44);
+                            var lineTextPoint = new Point(106, 170 + index * 44);
+                            canvas.DrawBitmap(placeHolder, linePoint.X, linePoint.Y);
+                            DrawText(144, lineTextPoint.Y, paint, canvas, $"{team.Key}");
+                            DrawText(232, lineTextPoint.Y, paint, canvas, $"{team.Value.GP}");
+                            DrawText(293, lineTextPoint.Y, paint, canvas, $"{team.Value.W}");
+                            DrawText(325, lineTextPoint.Y, paint, canvas, $"{team.Value.D}");
+                            DrawText(357, lineTextPoint.Y, paint, canvas, $"{team.Value.L}");
+                            DrawText(392, lineTextPoint.Y, paint, canvas, $"{team.Value.Gf}");
+                            DrawText(438, lineTextPoint.Y, paint, canvas, $"{team.Value.Ga}");
+                            DrawText(494, lineTextPoint.Y, paint, canvas, $"{team.Value.Points}");
+
+                            index++;
+                        }
+                    }
+
+                    var topScorerName = new SKPaint
+                    {
+                        Color = SKColors.White,
+                        TextSize = 18,
+                        IsAntialias = true,
+                        TextAlign = SKTextAlign.Center,
+                        Typeface = SKTypeface.FromFamilyName("Myriad Hebrew", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright)
+                    };
+
+                    var topScorerValue = new SKPaint
+                    {
+                        Color = SKColors.White,
+                        TextSize = 30,
+                        IsAntialias = true,
+                        TextAlign = SKTextAlign.Center,
+                        Typeface = SKTypeface.FromFamilyName("Berlin Sans FB Demi", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright)
+                    };
+
+
+                    var scorers = (IEnumerable<dynamic>)topScorers;
+                    if (scorers.Any())
+                    {
+                        DrawText(315, 478, topScorerName, canvas, ReverseIfNeeded(topScorers[0].name.ToString()));
+                        DrawText(315, 507, topScorerValue, canvas, topScorers[0].scores.ToString());
+
+                        var scorersPaint = new SKPaint
+                        {
+                            Color = SKColors.White,
+                            TextSize = 14,
+                            TextAlign = SKTextAlign.Left,
+                            IsAntialias = true,
+                            Typeface = SKTypeface.FromFamilyName("Berlin Sans FB Demi", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright)
+                        };
+
+                        var indexScorers = 0;
+                        foreach (var item in scorers.Skip(1))
+                        {
+                            DrawText(184, 552 + indexScorers * 20, scorersPaint, canvas, ReverseIfNeeded(item.name.ToString()));
+                            DrawText(438, 552 + indexScorers * 20, scorersPaint, canvas, item.scores.ToString());
+                            indexScorers++;
+                        }
+                    }
+
+                    // Save the final image
+                    using (var image = surface.Snapshot())
+                    using (var png = image.Encode(SKEncodedImageFormat.Png, 100))
+                    using (var ms = new MemoryStream())
+                    {
+                        png.SaveTo(ms);
+                        return ms;
+                        //using (FileStream fileStream = new FileStream(@"C:\Users\potok\OneDrive\שולחן העבודה\ddd2.jpg", FileMode.Create))
+                        //{
+                        //    fileStream.Write(ms.ToArray());
+                        //    return fileStream;
+                        //}
+                    }
+                }
+            }
+        }
+
+        private static void HandleScore(Dictionary<string, Score> teamsScores, dynamic teamA, dynamic teamB)
+        {
+            var color = teamA.color.ToString();
+            if (!teamsScores.TryGetValue(color, out Score score))
+            {
+                teamsScores.Add(color, new Score(int.Parse(teamA.score.ToString()), int.Parse(teamB.score.ToString())));
+            }
+            else
+            {
+                score.AddScore(int.Parse(teamA.score.ToString()), int.Parse(teamB.score.ToString()));
+            }
+        }
+
         private static void DrawText(float x, float y, SKPaint paint, SKCanvas canvas, string text)
         {
             canvas.DrawText(text, x, y, paint);
@@ -305,5 +440,50 @@ namespace TeamsDesignCreator
 
 
         public record Point(int X, int Y);
+
     }
+
+    public class Score
+    {
+        public int W { get; set; }
+        public int D { get; set; }
+        public int L { get; set; }
+        public int GP => W + D + L;
+
+        public int Ga { get; set; }
+        public int Gf { get; set; }
+
+        public int Points => W * 3 + D;
+
+        public Score()
+        {
+
+        }
+
+        public Score(int myScore, int opponentScore)
+        {
+            AddScore(myScore, opponentScore);
+        }
+
+        internal void AddScore(int myScore, int opponentScore)
+        {
+            if(myScore == opponentScore)
+            {
+                D++;
+            }
+            else if(myScore < opponentScore)
+            {
+                L++;
+            }
+            else
+            {
+                W++;
+            }
+
+            Ga += opponentScore;
+            Gf += myScore;
+
+        }
+    }
+
 }
