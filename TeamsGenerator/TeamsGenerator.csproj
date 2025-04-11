@@ -64,7 +64,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algos\AlgoManagerBase.cs" />
+    <Compile Include="Algos\PositionsAlgo\PositionsPlayer.cs" />
     <Compile Include="Algos\SkillWiseAlgo\OrderBy.cs" />
+    <Compile Include="Algos\PositionsAlgo\PositionsWithValues.cs" />
+    <Compile Include="Algos\PositionsAlgo\PositionPlayersReader.cs" />
     <Compile Include="API\DisplayTextAttribute.cs" />
     <Compile Include="API\EditableInClientAttribute.cs" />
     <Compile Include="API\GetTeamsResponse.cs" />
@@ -82,6 +85,7 @@
     <Compile Include="Orchestration\Configuration\ConfigurationManager.cs" />
     <Compile Include="Orchestration\Contracts\IAlgoManager.cs" />
     <Compile Include="Orchestration\Contracts\IDisplayTeam.cs" />
+    <Compile Include="Orchestration\Contracts\IGoalKeeperSupport.cs" />
     <Compile Include="Orchestration\Contracts\IPlayersReader.cs" />
     <Compile Include="Algos\BackAndForthAlgo\BackAndForthManager.cs" />
     <Compile Include="Algos\BackAndForthAlgo\BackAndForthPlayersReader.cs" />
@@ -110,6 +114,9 @@
     <Compile Include="Algos\Team.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Algos\PositionsAlgo\players.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="App.config" />
     <None Include="Algos\BackAndForthAlgo\players.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

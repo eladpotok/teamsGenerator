@@ -1,9 +1,10 @@
-﻿using TeamsGenerator.API;
+﻿using System.Collections.Generic;
+using TeamsGenerator.API;
 using TeamsGenerator.Orchestration.Contracts;
 
 namespace TeamsGenerator.Algos.SkillWiseAlgo
 {
-    public class SkillWisePlayer : IPlayer
+    public class SkillWisePlayer : IPlayer, IGoalKeeperSupport
     {
         [EditableInClientAttribute(Show = false)]
         public double Rank { get { return (Defence + Attack + Stamina + Leadership + Passing) / 5; } set { } }

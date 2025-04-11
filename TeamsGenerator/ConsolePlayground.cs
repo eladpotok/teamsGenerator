@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TeamsGenerator.Algos;
 using TeamsGenerator.Algos.BackAndForthAlgo;
+using TeamsGenerator.Algos.PositionsAlgo;
 using TeamsGenerator.Algos.SkillWiseAlgo;
 using TeamsGenerator.API;
 using TeamsGenerator.CLI;
@@ -22,6 +23,7 @@ namespace TeamsGenerator
         {
             { AlgoType.BackAndForth, (path) => new BackAndForthPlayersReader(path) },
             { AlgoType.SkillWise, (path) => new SkillWisePlayersReader(path) },
+            { AlgoType.Positions, (path) => new PositionPlayersReader(path) },
         };
 
         public static void Start()

@@ -3,6 +3,7 @@
     public enum AlgoType
     {
         SkillWise,
-        BackAndForth
+        BackAndForth,
+        Positions
     }
 }

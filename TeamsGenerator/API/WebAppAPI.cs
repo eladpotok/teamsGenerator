@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TeamsGenerator.Algos;
 using TeamsGenerator.Algos.BackAndForthAlgo;
+using TeamsGenerator.Algos.PositionsAlgo;
 using TeamsGenerator.Algos.SkillWiseAlgo;
 using TeamsGenerator.Orchestration;
 using TeamsGenerator.Orchestration.Configuration;
@@ -27,12 +28,14 @@ namespace TeamsGenerator.API
             _algoTypeToInformationMapper = new Dictionary<AlgoType, WebAppAlgoInfo>() {
                 { AlgoType.SkillWise, new WebAppAlgoInfo(AlgoType.SkillWise, "Skillwise", "Divide the players according to their skills") },
                 { AlgoType.BackAndForth, new WebAppAlgoInfo(AlgoType.BackAndForth, "Back And Forth", "Do it in cycle") },
+                { AlgoType.Positions, new WebAppAlgoInfo(AlgoType.Positions, "Positions", "Divide by the positions on the field") },
             };
 
             AlgoTypeToPlayerSerializerMapper = new Dictionary<AlgoType, Func<dynamic, IPlayer[]>>()
             {
                 { AlgoType.SkillWise, (json) => JsonConvert.DeserializeObject<SkillWisePlayer[]>(json) },
                 { AlgoType.BackAndForth, (json) => JsonConvert.DeserializeObject<BackAndForthPlayer[]>(json) },
+                { AlgoType.Positions, (json) => JsonConvert.DeserializeObject<PositionsPlayer[]>(json) },
             };
 
             foreach (var item in _algoTypeToInformationMapper)

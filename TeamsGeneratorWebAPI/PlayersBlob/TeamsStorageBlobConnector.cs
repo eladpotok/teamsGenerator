@@ -56,13 +56,17 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
 
                     return new GetTeamsFromStorageResponse(JObject.Parse(json.ToString()));
                 }
+                else
+                {
+                    return GetTeamsFromStorageResponse.Failure("Contact's teams where not found");
+                }
             }
             catch (Exception e)
             {
                 return GetPlayersResponse.Failure(e.Message);
             }
 
-            return GetPlayersResponse.Failure("Players were not found");
+            return GetTeamsFromStorageResponse.Failure("Teams were not found");
         }
 
         public async Task<IResponse> UploadAsync(dynamic teams, IConfig config)

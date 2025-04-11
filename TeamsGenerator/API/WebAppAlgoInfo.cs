@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TeamsGenerator.Algos.PositionsAlgo;
 using TeamsGenerator.Orchestration;
 
 namespace TeamsGenerator.API
@@ -31,6 +32,7 @@ namespace TeamsGenerator.API
                 { typeof(string), "text" },
                 { typeof(double), "number" },
                 { typeof(bool), "boolean" },
+                { typeof(List<Position>), "list" },
             };
 
             var playerInterface = Type.GetType($"TeamsGenerator.Algos.{AlgoName}Algo.{AlgoName}Player");
