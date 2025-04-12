@@ -41,7 +41,7 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
                 var playersConfig = config as PlayersBlobConfig;
                 BlobContainerClient container = new BlobContainerClient(_storageConnectionString, _storageContainerName);
 
-                BlobClient client = container.GetBlobClient($"{playersConfig.UId}_players");
+                BlobClient client = container.GetBlobClient(GetPlayersPath(playersConfig));
                 if (client == null) return GetPlayersResponse.Failure("Players were not found");
 
                 if (await client.ExistsAsync())
@@ -67,11 +67,25 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
             return GetPlayersResponse.Failure("Players were not found");
         }
 
+        private static string GetPlayersPath(PlayersBlobConfig config)
+        {
+            var prefix = $"{config.UId}_players";
+            if(config.AlgoType == (int)AlgoType.SkillWise)
+            {
+                // for support backward compatability
+                return prefix;
+            }
+
+            return $"{prefix}_{config.AlgoType}";
+        }
+
+
+
         public async Task<IResponse> UploadAsync(dynamic players, IConfig config)
         {
             var playersConfig = config as PlayersBlobConfig;
             BlobContainerClient container = new BlobContainerClient(_storageConnectionString, _storageContainerName);
-            BlobClient client = container.GetBlobClient($"{playersConfig.UId}_players");
+            BlobClient client = container.GetBlobClient(GetPlayersPath(playersConfig));
             using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(players.ToString())))
             {
                 await client.UploadAsync(ms, overwrite: true);
