@@ -27,9 +27,9 @@ namespace TeamsGeneratorWebAPI.Controllers
         }
 
         [HttpPost("Upload")]
-        public async Task<SavePlayersResponse> Post([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic players, string uid, int algoType)
+        public async Task<SavePlayersResponse> Post([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic players, string uid, int algoKey)
         {
-            var config = new PlayersBlobConfig() { UId = uid, AlgoType = algoType };
+            var config = new PlayersBlobConfig() { UId = uid, AlgoType = algoKey };
             _telemetryClient.TrackMetric("PlayerAdded", 1);
             return await  _azureStorage.UploadAsync(players, config);
         }
