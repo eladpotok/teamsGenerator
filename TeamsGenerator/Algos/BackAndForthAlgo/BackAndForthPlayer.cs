@@ -8,7 +8,7 @@ using TeamsGenerator.Orchestration.Contracts;
 
 namespace TeamsGenerator.Algos.BackAndForthAlgo
 {
-    public class BackAndForthPlayer : IPlayer
+    public class BackAndForthPlayer : IPlayer, IGoalKeeperSupport
     {
         public string Name { get; set; }
         public double Rank { get; set; }

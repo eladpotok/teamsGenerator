@@ -9,9 +9,16 @@ namespace TeamsGenerator.Algos
 
         public double TotalRank { get; set; }
 
+        public int Index { get; set; }
+
         public Team()
         {
             Players = new List<IPlayer>();
+        }
+
+        public Team(int index) : this()
+        {
+            Index = index;
         }
 
         internal void AddPlayer(IPlayer player)

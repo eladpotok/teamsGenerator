@@ -31,13 +31,33 @@ namespace TeamsGenerator.Algos.PositionsAlgo
 
         public List<Team> GenerateTeams(List<IPlayer> players, List<Team> generatedTeamWithLockedPlayers)
         {
-            var positionsPlayers = players.Cast<PositionsPlayer>().ToList();
             var teamsResult = new List<Team>();
+            var positionsPlayers = players.Cast<PositionsPlayer>().ToList();
 
             var numberOfPositions = Enum.GetValues(typeof(Position)).Length;
-            for (int i = 0; i < _config.TeamsCount; i++)
+            
+            if (generatedTeamWithLockedPlayers != null)
             {
-                teamsResult.Add(new Team());
+                for (int i = 0; i < _config.TeamsCount; i++)
+                {
+                    teamsResult.Add(generatedTeamWithLockedPlayers.FirstOrDefault(t => t.Index == i) ?? new Team(i));
+                }
+
+                foreach (var team in generatedTeamWithLockedPlayers)
+                {
+                    foreach (var player in team.Players.Cast<PositionsPlayer>())
+                    {
+                        var playerRef = positionsPlayers.FirstOrDefault(t => t.Key == player.Key);
+                        positionsPlayers.Remove(playerRef);
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < _config.TeamsCount; i++)
+                {
+                    teamsResult.Add(new Team(i));
+                }
             }
 
             while (positionsPlayers.Any())
@@ -45,16 +65,37 @@ namespace TeamsGenerator.Algos.PositionsAlgo
                 for (int i = 0; i < numberOfPositions; i++)
                 {
                     var position = (Position)i;
-                    var playersOfCurrentPosition = positionsPlayers.Where(p => p.Positions.Contains(position)).ToList();
+                    var playersOfCurrentPosition = positionsPlayers
+                        .Where(p => p.Positions.Contains(position))
+                        .ToList();
+
                     playersOfCurrentPosition = _positionToOrderMapper[position](playersOfCurrentPosition);
 
-                    teamsResult = teamsResult.OrderBy(t => t.Players.Count).OrderBy(t => t.TotalRank).ToList();
+                    // Count how many players per team already play in this position
+                    var teamPositionCounts = teamsResult
+                        .Select(t => new {
+                            Team = t,
+                            Count = t.Players.Count(p => ((PositionsPlayer)p).Positions.Contains(position))
+                        })
+                        .ToList();
 
-                    var playerIndex = 0;
-                    for (int teamIndex = 0; teamIndex < Math.Min(_config.TeamsCount, playersOfCurrentPosition.Count); teamIndex++)
+                    // Get the minimum count for this position
+                    int minPositionCount = teamPositionCounts.Min(t => t.Count);
+
+                    // Only include teams with the minimal count
+                    var teamsToFill = teamPositionCounts
+                        .Where(t => t.Count == minPositionCount)
+                        .Select(t => t.Team)
+                        .OrderBy(t => t.Players.Count) // Optional: maintain balance in player count
+                        .ThenBy(t => t.TotalRank)
+                        .ToList();
+
+
+                    int playerIndex = 0;
+                    for (int teamIndex = 0; teamIndex < Math.Min(teamsToFill.Count, playersOfCurrentPosition.Count); teamIndex++)
                     {
                         var player = playersOfCurrentPosition[playerIndex++];
-                        teamsResult[teamIndex].AddPlayer(player);
+                        teamsToFill[teamIndex].AddPlayer(player);
                         positionsPlayers.Remove(player);
                     }
                 }
@@ -62,6 +103,8 @@ namespace TeamsGenerator.Algos.PositionsAlgo
 
             return teamsResult;
         }
+
+
 
 
         private static List<PositionsPlayer> OrderWithRandomMiddle(List<PositionsPlayer> players,

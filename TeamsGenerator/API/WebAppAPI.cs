@@ -68,12 +68,13 @@ namespace TeamsGenerator.API
             List<Team> alreadyGeneratedTeams = null;
             if(json.teams != null)
             {
+                var indexTeam = 0;
                 alreadyGeneratedTeams = new List<Team>();
                 foreach (var team in json.teams)
                 {
                     var playersInTeamJson = JsonConvert.SerializeObject(team.players, Newtonsoft.Json.Formatting.Indented);
                     IEnumerable<IPlayer> playersInTeam = AlgoTypeToPlayerSerializerMapper[algoKeyEnum].Invoke(playersInTeamJson);
-                    alreadyGeneratedTeams.Add(new Team() { Players = playersInTeam.ToList() });
+                    alreadyGeneratedTeams.Add(new Team(indexTeam++) { Players = playersInTeam.ToList() });
                 }
             }
 
