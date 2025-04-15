@@ -28,5 +28,8 @@ namespace TeamsGenerator.Algos.BackAndForthAlgo
         [VersionAttribute(MinVersion = "8.0.1")]
         [DisplayTextAttribute(Text = "Goal Keeper")]
         public bool IsGoalKeeper { get; set; }
+
+        [EditableInClientAttribute(Show = false)]
+        public bool IsLocked { get; set; }
     }
 }
