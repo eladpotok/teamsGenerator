@@ -112,6 +112,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Algos\Team.cs" />
+    <Compile Include="Utilities\TableCalculator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Algos\PositionsAlgo\players.json">

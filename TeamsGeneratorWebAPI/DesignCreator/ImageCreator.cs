@@ -23,5 +23,10 @@ namespace TeamsGeneratorWebAPI.DesignCreator
         {
             return SkiaImageCreator.GenerateTable(stats, topScorers);
         }
+
+        internal static MemoryStream CreateNormalizedTable(dynamic stats)
+        {
+            return SkiaImageCreator.GenerateNormalizedTable(stats);
+        }
     }
 }

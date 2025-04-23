@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
+using TeamsGenerator.Utilities;
 
 namespace TeamsDesignCreator
 {
@@ -32,22 +34,21 @@ namespace TeamsDesignCreator
 
         internal static MemoryStream GenerateTable(dynamic stats, dynamic topScorers)
         {
-            var teamsScores = new Dictionary<string, Score>();
-
-            foreach (var match in stats)
-            {
-                var teamA = match.teamA;
-                var teamB = match.teamB;
-
-                HandleScore(teamsScores, teamA, teamB);
-                HandleScore(teamsScores, teamB, teamA);
-            }
-
-            IOrderedEnumerable<KeyValuePair<string, Score>> orderedTable = teamsScores.OrderByDescending(t => t.Value.Points).ThenByDescending(t => t.Value.Gf - t.Value.Ga).ThenByDescending( t=> t.Value.Gf);
+            var orderedTable = TableCalculator.Create(stats);
             return DrawTable(orderedTable, topScorers);
         }
 
-        public static MemoryStream DrawTable(IOrderedEnumerable<KeyValuePair<string, Score>> table, dynamic topScorers)
+        internal static MemoryStream GenerateNormalizedTable(dynamic stats)
+        {
+            Dictionary<string, Score> scores = JsonSerializer.Deserialize<Dictionary<string, Score>>(stats.stats.stats.ToString(), new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+            return DrawTable(scores, stats.stats.scorers);
+        }
+
+
+        public static MemoryStream DrawTable(Dictionary<string, Score> table, dynamic topScorers)
         {
             using (var templateStream = System.IO.File.OpenRead($@"templates/standings.png"))
             using (var templateBitmap = SKBitmap.Decode(templateStream))
@@ -152,18 +153,6 @@ namespace TeamsDesignCreator
             }
         }
 
-        private static void HandleScore(Dictionary<string, Score> teamsScores, dynamic teamA, dynamic teamB)
-        {
-            var color = teamA.color.ToString();
-            if (!teamsScores.TryGetValue(color, out Score score))
-            {
-                teamsScores.Add(color, new Score(int.Parse(teamA.score.ToString()), int.Parse(teamB.score.ToString())));
-            }
-            else
-            {
-                score.AddScore(int.Parse(teamA.score.ToString()), int.Parse(teamB.score.ToString()));
-            }
-        }
 
         private static void DrawText(float x, float y, SKPaint paint, SKCanvas canvas, string text)
         {
@@ -443,47 +432,6 @@ namespace TeamsDesignCreator
 
     }
 
-    public class Score
-    {
-        public int W { get; set; }
-        public int D { get; set; }
-        public int L { get; set; }
-        public int GP => W + D + L;
-
-        public int Ga { get; set; }
-        public int Gf { get; set; }
-
-        public int Points => W * 3 + D;
-
-        public Score()
-        {
-
-        }
-
-        public Score(int myScore, int opponentScore)
-        {
-            AddScore(myScore, opponentScore);
-        }
-
-        internal void AddScore(int myScore, int opponentScore)
-        {
-            if(myScore == opponentScore)
-            {
-                D++;
-            }
-            else if(myScore < opponentScore)
-            {
-                L++;
-            }
-            else
-            {
-                W++;
-            }
-
-            Ga += opponentScore;
-            Gf += myScore;
-
-        }
-    }
+  
 
 }

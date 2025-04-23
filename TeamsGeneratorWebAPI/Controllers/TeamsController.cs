@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using TeamsGenerator.Algos.BackAndForthAlgo;
 using TeamsGenerator.Algos.SkillWiseAlgo;
 using TeamsGenerator.API;
+using TeamsGenerator.Utilities;
 using TeamsGeneratorWebAPI.DesignCreator;
 using TeamsGeneratorWebAPI.PlayersBlob;
 
@@ -72,6 +73,22 @@ namespace TeamsGeneratorWebAPI.Controllers
         }
 
         [HttpPost("[action]")]
+        public async Task<IActionResult> GetNormalizedScoresDesign([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic statsJson)
+        {
+            var statsSerializedObject = JsonConvert.SerializeObject(statsJson.stats, Newtonsoft.Json.Formatting.Indented);
+            var topScorersSerializedObject = JsonConvert.SerializeObject(statsJson.topScorers, Newtonsoft.Json.Formatting.Indented);
+            //IEnumerable<string> stats = JsonConvert.DeserializeObject<List<string>>(statsSerializedObject);
+
+            var ms = ImageCreator.CreateNormalizedTable(statsJson);
+
+            // Convert the image to a byte array and add it to the result list
+            byte[] imageBytes = ms.ToArray();
+
+            _telemetryClient.TrackMetric("ShareWithImage", 1);
+            return File(imageBytes, "image/png");
+        }
+
+        [HttpPost("[action]")]
         public async Task<IResponse> SaveToStorage([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic teams, string uid)
         {
             _telemetryClient.TrackEvent("SaveTeamsToStorage");
@@ -85,6 +102,14 @@ namespace TeamsGeneratorWebAPI.Controllers
             _telemetryClient.TrackEvent("GetTeamsFromStorage");
             _telemetryClient.TrackMetric("GetTeamsFromStorage", 1);
             return await _azureStorage.ListAsync(new TeamsBlobConfig() { UId = uid });
+        }
+
+        [HttpPost("[action]")]
+        public Dictionary<string, Score> GetScores([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic stats)
+        {
+            _telemetryClient.TrackEvent("GetScores");
+            _telemetryClient.TrackMetric("GetScores", 1);
+            return TableCalculator.Create(stats.stats);
         }
     }
 
