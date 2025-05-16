@@ -16,7 +16,7 @@ namespace TeamsGeneratorWebAPI.DesignCreator
 
         internal static object CreatePlayersList(List<string> players, string teamName, string location, string date, string dayInWeek, string currentCulture)
         {
-            return SkiaImageCreator.GeneratePlayersListImage(players, teamName.ToUpper(), location.ToUpper(), date, dayInWeek.ToUpper(), currentCulture);
+            return SkiaImageCreator.GeneratePlayersListImageTemplate2(players, teamName.ToUpper(), location.ToUpper(), date, dayInWeek.ToUpper(), currentCulture);
         }
 
         internal static MemoryStream CreateTable(dynamic stats, dynamic topScorers)

@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using TeamsGenerator.Utilities;
+using TeamsGeneratorWebAPI.DesignCreator;
 
 namespace TeamsDesignCreator
 {
@@ -115,7 +116,7 @@ namespace TeamsDesignCreator
                     var scorers = (IEnumerable<dynamic>)topScorers;
                     if (scorers.Any())
                     {
-                        DrawText(315, 478, topScorerName, canvas, ReverseIfNeeded(topScorers[0].name.ToString()));
+                        DrawText(315, 478, topScorerName, canvas, Helpers.ReverseIfNeeded(topScorers[0].name.ToString()));
                         DrawText(315, 507, topScorerValue, canvas, topScorers[0].scores.ToString());
 
                         var scorersPaint = new SKPaint
@@ -130,7 +131,7 @@ namespace TeamsDesignCreator
                         var indexScorers = 0;
                         foreach (var item in scorers.Skip(1))
                         {
-                            DrawText(184, 552 + indexScorers * 20, scorersPaint, canvas, ReverseIfNeeded(item.name.ToString()));
+                            DrawText(184, 552 + indexScorers * 20, scorersPaint, canvas, Helpers.ReverseIfNeeded(item.name.ToString()));
                             DrawText(438, 552 + indexScorers * 20, scorersPaint, canvas, item.scores.ToString());
                             indexScorers++;
                         }
@@ -181,11 +182,11 @@ namespace TeamsDesignCreator
             var dateTime = DateTime.Parse(date);
             var dateTimeDisplay = dateTime.ToString("g", culture);
 
-            var dayOfWeekCurrentCulture = ReverseIfNeeded(culture.DateTimeFormat.GetDayName(dateTime.DayOfWeek));
+            var dayOfWeekCurrentCulture = Helpers.ReverseIfNeeded(culture.DateTimeFormat.GetDayName(dateTime.DayOfWeek));
             var dayInWeekDisplay = dayOfWeekCurrentCulture.ToUpper() == dayInWeek.ToUpper() ? dayInWeek.ToUpper() : $"{dayInWeek} | {dayOfWeekCurrentCulture}";
 
-            teamName = ReverseIfNeeded(teamName);
-            location = ReverseIfNeeded(location);
+            teamName = Helpers.ReverseIfNeeded(teamName);
+            location = Helpers.ReverseIfNeeded(location);
 
             using (var templateStream = System.IO.File.OpenRead($@"templates/playersListTemplate1.png"))
             using (var templateBitmap = SKBitmap.Decode(templateStream))
@@ -230,7 +231,7 @@ namespace TeamsDesignCreator
                         TextAlign = SKTextAlign.Center,
                     };
 
-                    var isRtl = IsRightToLeft(teamName);
+                    var isRtl = Helpers.IsRightToLeft(teamName);
                     DrawText(isRtl ? templateBitmap.Width - mainHeaderPaint.MeasureText(teamName) - 10 : 221, topPadding, mainHeaderPaint, canvas, teamName);
                     DrawText(isRtl ? templateBitmap.Width - mainHeaderPaint.MeasureText(players.Count + " PARTICIPANTS") - 10 : 221, topPadding + mainHeaderPaint.TextSize + 5, mainHeaderPaint, canvas, players.Count + " PARTICIPANTS");               
                     DrawText(195 - timeAndLocationpaint.MeasureText(dayInWeekDisplay), 20, timeAndLocationpaint, canvas, dayInWeekDisplay);
@@ -260,10 +261,10 @@ namespace TeamsDesignCreator
                         {
                             var currShirtX = offsetX - shirtIconBitmap.Width * ((currPlayerIndex % numberOfPlayersInRow) + 1);
                             canvas.DrawBitmap(shirtIconBitmap, currShirtX, offsetY);
-                            string bidiLine = ReverseIfNeeded(firstName.ToUpper());
+                            string bidiLine = Helpers.ReverseIfNeeded(firstName.ToUpper());
                             canvas.DrawText(bidiLine, currShirtX + shirtIconBitmap.Width / 2, offsetY + shirtIconBitmap.Height + 15, firstNamePaint);
 
-                            string bidiLine2 = ReverseIfNeeded(lastNames.ToUpper());
+                            string bidiLine2 = Helpers.ReverseIfNeeded(lastNames.ToUpper());
                             canvas.DrawText(bidiLine2, currShirtX + shirtIconBitmap.Width / 2, offsetY + shirtIconBitmap.Height + 15 + firstNamePaint.TextSize, lastNamesPaint);
 
                         }
@@ -294,6 +295,101 @@ namespace TeamsDesignCreator
                     }
                 }
             }
+        }
+
+
+
+        internal static object GeneratePlayersListImageTemplate2(List<string> players, string teamName, string location, string date, string dayInWeek, string currentCulture)
+        {
+            var playersAreaHeight = 390;
+            var playersCount = players.Count;
+            var playerNameFontSize = 18;
+            for (int i = 0; i < 8; i++)
+            {
+                var lineHeightExtra = playerNameFontSize / 3;
+                var playerNameLineHeight = playerNameFontSize + lineHeightExtra;
+                if (playersAreaHeight - ((playersCount / 2) * (playerNameLineHeight)) <= 0)
+                {
+                    playerNameFontSize--;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            var culture = GetCulture(currentCulture);
+
+            var dateTime = DateTime.Parse(date);
+            var dateTimeDisplay = dateTime.ToString("g", culture);
+            
+            var dataInfoPaintStyle = new SKPaint
+            {
+                Color = SKColors.White,
+                TextSize = 12,
+                TextAlign = SKTextAlign.Center,
+                IsAntialias = true,
+                Typeface = SKTypeface.FromFamilyName("Berlin Sans FB Demi", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright)
+            };
+
+            var matchdayNamePaintStyle = new SKPaint
+            {
+                Color = SKColors.White,
+                TextSize = 32,
+                TextAlign = SKTextAlign.Center,
+                IsAntialias = true,
+                Typeface = SKTypeface.FromFamilyName("Berlin Sans FB Demi", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright)
+            };
+
+            var playerNamePaintStyle = new SKPaint
+            {
+                Color = SKColors.White,
+                TextSize = playerNameFontSize,
+                TextAlign = SKTextAlign.Left,
+                IsAntialias = true,
+                Typeface = SKTypeface.FromFamilyName("Berlin Sans FB Demi", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright)
+            };
+
+            var matchdayDrawObject = new ImageGraphicObjectWrapper(teamName, matchdayNamePaintStyle);
+            var locationDrawObject = new ImageGraphicObjectWrapper(location, dataInfoPaintStyle);
+            var dateDrawObject = new ImageGraphicObjectWrapper(dateTimeDisplay, dataInfoPaintStyle);
+            var dayInWeekDrawObject = new ImageGraphicObjectWrapper(culture.DateTimeFormat.GetDayName(dateTime.DayOfWeek), dataInfoPaintStyle);
+
+            using (var templateStream = System.IO.File.OpenRead($@"templates/playersListTemplate2.png"))
+            {
+                var canvasWrapper = new ImageGraphicWrapper(templateStream);
+                canvasWrapper.DrawCanvas();
+
+                canvasWrapper.Draw(canvasWrapper.HorizontalMiddle, 130, dayInWeekDrawObject);
+                canvasWrapper.Draw(183, 130, dateDrawObject);
+                canvasWrapper.Draw(440, 130, locationDrawObject);
+                canvasWrapper.Draw(canvasWrapper.HorizontalMiddle, 170, matchdayDrawObject);
+
+                int columnsNumber = (int)Math.Ceiling(players.Count / 15.0);
+
+                var startFromHeight = 200;
+                var columnsLeftOffset = Helpers.GetSliceCenters(canvasWrapper.Width, columnsNumber, 30);
+                var leftOffsetIndex = 0;
+                var lineHeight = playerNameFontSize + playerNameFontSize / 3;
+                var line = 0;
+                var toggle = true;
+                foreach (var name in players)
+                {
+                    var nameWrapper = new ImageGraphicObjectWrapper(name, playerNamePaintStyle);
+                    canvasWrapper.Draw(columnsLeftOffset[leftOffsetIndex], startFromHeight + line * lineHeight, nameWrapper, toggle);
+                    toggle = !toggle;
+                    leftOffsetIndex++;
+                    if (leftOffsetIndex >= columnsLeftOffset.Count)
+                    {
+                        leftOffsetIndex = 0;
+                        line++;
+                    }
+                }
+
+                return canvasWrapper.Save();
+            }
+                
+            
         }
 
         public static MemoryStream GenerateTeamsImage(List<string> playerNames, string color)
@@ -334,7 +430,7 @@ namespace TeamsDesignCreator
                                 canvas.DrawBitmap(shirtIconBitmap, currPoint.X, currPoint.Y);
                             }
 
-                            string bidiLine = ReverseIfNeeded(line);
+                            string bidiLine = Helpers.ReverseIfNeeded(line);
                             canvas.DrawText(bidiLine, positions[index].X + 49, positions[index].Y + lineHeight + 120, paint); // Adjust position as necessary
                             lineHeight += paint.TextSize + 4;
                         }
@@ -359,38 +455,7 @@ namespace TeamsDesignCreator
             }
         }
 
-        private static string ReverseIfNeeded(string text)
-        {
-            // Check if the text is RTL using a simple check for Hebrew Unicode range
-            if (text.Any(c => c >= '\u0590' && c <= '\u05FF')) // Hebrew Unicode range
-            {
-                return new string(text.Reverse().ToArray()); // Reverse the text
-            }
-            return text;
-        }
-
-        private static bool IsRightToLeft(string input)
-        {
-            foreach (char c in input)
-            {
-                var category = CharUnicodeInfo.GetUnicodeCategory(c);
-
-                // Check if the character is from an RTL script
-                if (category == UnicodeCategory.OtherLetter ||
-                    category == UnicodeCategory.LetterNumber ||
-                    category == UnicodeCategory.NonSpacingMark)
-                {
-                    // Check specific ranges for RTL languages (Hebrew, Arabic, etc.)
-                    if ((c >= '\u0590' && c <= '\u08FF') || // Hebrew, Arabic, Syriac, etc.
-                        (c >= '\uFB1D' && c <= '\uFEFC'))   // RTL Presentation Forms
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
+     
 
 
 

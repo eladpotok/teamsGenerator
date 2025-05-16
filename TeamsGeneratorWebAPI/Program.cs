@@ -1,4 +1,6 @@
+using Azure.Data.Tables;
 using TeamsGenerator.API;
+using TeamsGeneratorWebAPI.Clients;
 using TeamsGeneratorWebAPI.PlayersBlob;
 using TeamsGeneratorWebAPI.Storage;
 using TeamsGeneratorWebAPI.UsersBlob;
@@ -18,6 +20,8 @@ builder.Services.AddTransient<IUserConfigAzureStorage, UserConfigAzureStorage>()
 builder.Services.AddTransient<IPlayersStorageBlobConnector, PlayersStorageBlobConnector>();
 builder.Services.AddTransient<ITeamsStorageBlobConnector, TeamsStorageBlobConnector>();
 builder.Services.AddTransient<IUserAzureStorage, UserAzureStorage>();
+builder.Services.AddSingleton<AzureTableStorageService>();
+
 
 builder.Services.AddApplicationInsightsTelemetry((appInsightOption) => 
 {
@@ -32,6 +36,12 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
+});
+
+builder.Services.AddSingleton<TableServiceClient>(provider =>
+{
+    var connectionString = builder.Configuration.GetValue<string>("BlobConnectionString");
+    return new TableServiceClient(connectionString);
 });
 
 

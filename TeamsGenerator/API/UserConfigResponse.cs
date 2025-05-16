@@ -15,6 +15,8 @@ namespace TeamsGenerator.API
         public int SelectedAlgoKey { get; set; }
         public string TeamName { get; set; }
         public string Location { get; set; }
+        public bool AllowOnlineScoreboard { get; set; }
+        public string CurrentVersion => "18.2";
 
         public UserConfigResponse()
         {

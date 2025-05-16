@@ -5,6 +5,7 @@ using TeamsGenerator.Algos.BackAndForthAlgo;
 using TeamsGenerator.Algos.SkillWiseAlgo;
 using TeamsGenerator.API;
 using TeamsGenerator.Utilities;
+using TeamsGeneratorWebAPI.Clients;
 using TeamsGeneratorWebAPI.DesignCreator;
 using TeamsGeneratorWebAPI.PlayersBlob;
 
@@ -18,12 +19,14 @@ namespace TeamsGeneratorWebAPI.Controllers
 
         private readonly ILogger<TeamsController> _logger;
         private readonly TelemetryClient _telemetryClient;
+        private readonly AzureTableStorageService _matchService;
 
-        public TeamsController(ILogger<TeamsController> logger, TelemetryClient telemetryClient, ITeamsStorageBlobConnector teamsStorageBlobConnector)
+        public TeamsController(ILogger<TeamsController> logger, TelemetryClient telemetryClient, ITeamsStorageBlobConnector teamsStorageBlobConnector, AzureTableStorageService matchService)
         {
             _logger = logger;
             _telemetryClient = telemetryClient;
             _azureStorage = teamsStorageBlobConnector;
+            _matchService = matchService;
         }
 
         [HttpPost()]
@@ -111,6 +114,64 @@ namespace TeamsGeneratorWebAPI.Controllers
             _telemetryClient.TrackMetric("GetScores", 1);
             return TableCalculator.Create(stats.stats);
         }
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> AddMatch([FromBody] MatchEntity match)
+        {
+            var isClosed = await _matchService.IsClosed(match.PartitionKey);
+            if (isClosed)
+            {
+                return Ok(new
+                {
+                    IsClosed = true,
+                    Message = "Matchday is closed. No further matches can be added."
+                });
+            }
+
+            await _matchService.AddMatchAsync(match);
+            var matches = await _matchService.GetAllMatchesAsync(match.PartitionKey);
+            return Ok(matches);
+        }
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> ReadMatches(string partitionKey)
+        {
+            var matches = await _matchService.GetAllMatchesAsync(partitionKey);
+            return Ok(matches);
+        }
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> DoneAndReadMatches(string partitionKey)
+        {
+            var matches = await _matchService.GetAllMatchesAsync(partitionKey);
+            await _matchService.DoneMatch(new MatchdayMetadataEntity() { PartitionKey = partitionKey, RowKey = AzureTableStorageService.RowKeyForCloseStatus, IsClosed = true  });
+            return Ok(matches);
+        }
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> EditMatch([FromBody] MatchEntity match)
+        {
+            var succeeded = await _matchService.EditMatch(match);
+            if(succeeded)
+            {
+                var matches = await _matchService.GetAllMatchesAsync(match.PartitionKey);
+                return Ok(matches);
+            }
+            return NotFound();
+        }
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> DeleteMatch([FromBody] MatchEntity match)
+        {
+            var succeeded = await _matchService.DeleteMatch(match);
+            if (succeeded)
+            {
+                var matches = await _matchService.GetAllMatchesAsync(match.PartitionKey);
+                return Ok(matches);
+            }
+            return NotFound();
+        }
+
     }
 
 }
