@@ -25,4 +25,32 @@ namespace TeamsGeneratorWebAPI.Clients
         public bool IsClosed { get; set; }
 
     }
+
+    public class UpdateEntity : ITableEntity
+    {
+        public string PartitionKey { get; set; }
+        public string RowKey { get; set; }
+        public DateTimeOffset? Timestamp { get; set; }
+        public ETag ETag { get; set; }
+
+        public string VersionNumber { get; set; }
+
+        public string ReleaseNotes { get; set; }
+
+        public string VersionName { get; set; }
+    }
+
+    public class FeedbackEntity : ITableEntity
+    {
+        public string PartitionKey { get; set; }
+        public string RowKey { get; set; }
+        public DateTimeOffset? Timestamp { get; set; }
+        public ETag ETag { get; set; }
+
+        public string Feedback { get; set; }
+        public int Rating { get; set; }
+        public string Email { get; set; }
+        public string Name { get; set; }
+    }
+
 }

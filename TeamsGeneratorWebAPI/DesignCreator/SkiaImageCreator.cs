@@ -13,44 +13,200 @@ namespace TeamsDesignCreator
 {
     public static class SkiaImageCreator
     {
-        public const int firstLineY = 130;
-        public const int secondLineY = 340;
+        public static Point TopLeft = new Point(91, 116);
+        public static Point TopMiddle = new Point(273, 116);
+        public static Point TopRight = new Point(455, 116);
+
+        public static Point MiddleMostLeft = new Point(51, 281);
+        public static Point MiddleLeft = new Point(172, 358);
+        public static Point Center = new Point(274, 281);
+        public static Point MiddleRight = new Point(378, 358);
+        public static Point MiddleMostRight = new Point(512, 281);
+
+        public static Point BottomLeft = new Point(91, 472);
+        public static Point BottomMiddle = new Point(273, 427);
+        public static Point BottomRight = new Point(455, 472);
 
 
         public static readonly Dictionary<int, List<Point>> locations = new Dictionary<int, List<Point>>() 
         {
-           { 1, new List<Point>() {  new Point(287, firstLineY) } },
-           { 2, new List<Point>() { new Point(200, firstLineY), new Point(360, firstLineY) } },
-           { 3, new List<Point>() { new Point(200, firstLineY), new Point(360, firstLineY), new Point(287, secondLineY) } },
-           { 4, new List<Point>() { new Point(142, firstLineY), new Point(432, firstLineY), new Point(142, secondLineY), new Point(432, secondLineY)  } },
-           { 5, new List<Point>() { new Point(200, firstLineY), new Point(360, firstLineY), new Point(142, secondLineY), new Point(287, secondLineY), new Point(432, secondLineY)  } },
-           { 6, new List<Point>() { new Point(142, firstLineY), new Point(287, firstLineY), new Point(432, firstLineY), new Point(142, secondLineY), new Point(287, secondLineY), new Point(432, secondLineY)  } },
-           { 7, new List<Point>() { new Point(287, firstLineY - 100), new Point(142, firstLineY + 100), new Point(287, firstLineY + 100), new Point(432, firstLineY + 100), new Point(142, secondLineY + 100), new Point(287, secondLineY + 100), new Point(432, secondLineY + 100)  } },
-           { 8, new List<Point>() { new Point(142, firstLineY - 100), new Point(432, firstLineY - 100), new Point(142, firstLineY + 100), new Point(287, firstLineY + 100), new Point(432, firstLineY + 100), new Point(142, secondLineY + 100), new Point(287, secondLineY + 100), new Point(432, secondLineY + 100)  } },
-           { 9, new List<Point>() { new Point(142, firstLineY - 100), new Point(287, firstLineY - 100), new Point(432, firstLineY - 100), new Point(142, firstLineY + 100), new Point(287, firstLineY + 100), new Point(432, firstLineY + 100), new Point(142, secondLineY + 100), new Point(287, secondLineY + 100), new Point(432, secondLineY + 100)  } },
-           { 10, new List<Point>() { new Point(142, firstLineY - 100), new Point(287, firstLineY - 100), new Point(432, firstLineY - 100), new Point(82, firstLineY + 100), new Point(197, firstLineY + 100), new Point(382, firstLineY + 100), new Point(492, firstLineY + 100), new Point(142, secondLineY + 100), new Point(287, secondLineY + 100), new Point(432, secondLineY + 100)  } },
-           { 11, new List<Point>() { new Point(142, firstLineY - 100), new Point(287, firstLineY - 100), new Point(432, firstLineY - 100), new Point(82, firstLineY + 100), new Point(177, firstLineY + 100), new Point(280, firstLineY + 100), new Point(382, firstLineY + 100), new Point(492, firstLineY + 100), new Point(142, secondLineY + 100), new Point(287, secondLineY + 100), new Point(432, secondLineY + 100)  } },
+           { 1, new List<Point>() {  Center } },
+           { 2, new List<Point>() { MiddleLeft, MiddleRight } },
+           { 3, new List<Point>() { MiddleLeft, MiddleRight, TopMiddle } },
+           { 4, new List<Point>() { TopLeft, TopRight, BottomLeft, BottomRight } },
+           { 5, new List<Point>() { TopLeft, TopMiddle, TopRight, MiddleLeft, MiddleRight  } },
+           { 6, new List<Point>() { TopLeft, TopRight, TopMiddle, MiddleMostLeft, MiddleMostRight, Center} },
+           { 7, new List<Point>() { BottomLeft, BottomMiddle, BottomRight, MiddleLeft, MiddleRight, Center, TopMiddle } },
+           { 8, new List<Point>() { TopLeft, TopRight, BottomLeft, BottomRight, TopMiddle, BottomMiddle, MiddleMostLeft, MiddleMostRight } },
+           { 9, new List<Point>() { TopLeft, TopRight, BottomLeft, BottomRight, TopMiddle, BottomMiddle, MiddleMostLeft, MiddleMostRight, Center } },
+           { 10, new List<Point>() { TopLeft, TopRight, BottomLeft, BottomRight, TopMiddle, BottomMiddle, MiddleMostLeft, MiddleMostRight, MiddleLeft, MiddleRight } },
+           { 11, new List<Point>() { TopLeft, TopRight, BottomLeft, BottomRight, TopMiddle, BottomMiddle, MiddleMostLeft, MiddleMostRight, MiddleLeft, MiddleRight, Center } },
 
         };
 
-        internal static MemoryStream GenerateTable(dynamic stats, dynamic topScorers)
+        internal static MemoryStream GenerateTable(dynamic stats, dynamic topScorers, string ver)
         {
             var orderedTable = TableCalculator.Create(stats);
-            return DrawTable(orderedTable, topScorers);
+            return DrawTable(orderedTable, topScorers, ver);
         }
 
-        internal static MemoryStream GenerateNormalizedTable(dynamic stats)
+        internal static MemoryStream GenerateNormalizedTable(dynamic stats, string ver)
         {
             Dictionary<string, Score> scores = JsonSerializer.Deserialize<Dictionary<string, Score>>(stats.stats.stats.ToString(), new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
-            return DrawTable(scores, stats.stats.scorers);
+            return DrawTable(scores, stats, ver);
         }
 
 
-        public static MemoryStream DrawTable(Dictionary<string, Score> table, dynamic topScorers)
+        public static MemoryStream DrawTable(Dictionary<string, Score> table, dynamic stats, string ver)
         {
+            if (!string.IsNullOrEmpty(ver) && double.TryParse(ver, out double verNum) && verNum >= 19.0)
+            {
+                return DrawScoreTableWithAssist(table, stats);
+            }
+            else
+            {
+                return DrawScoreTableLegacy(table, stats);
+            }
+        }
+
+        private static MemoryStream DrawScoreTableWithAssist(Dictionary<string, Score> table, dynamic stats)
+        {
+            var topScorers = stats.stats?.topPlayers?.topScorers;
+            var topAssists = stats.stats?.topPlayers?.topAssists;
+            using (var templateStream = System.IO.File.OpenRead($@"templates/standingsWithAssists.png"))
+            using (var templateBitmap = SKBitmap.Decode(templateStream))
+            {
+                // Create an SKImage from the template bitmap
+                using (var surface = SKSurface.Create(new SKImageInfo(templateBitmap.Width, templateBitmap.Height)))
+                {
+                    var canvas = surface.Canvas;
+                    // Draw the template onto the canvas
+                    canvas.DrawBitmap(templateBitmap, SKPoint.Empty);
+
+                    var paint = new SKPaint
+                    {
+                        Color = SKColors.White,
+                        TextSize = 16,
+                        IsAntialias = true,
+                        TextAlign = SKTextAlign.Center,
+                        Typeface = SKTypeface.FromFamilyName("Berlin Sans FB Demi", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright)
+                    };
+
+                    using (var shirtIconStream = System.IO.File.OpenRead($@"templates/teamPlaceHolder.png"))
+                    using (var placeHolder = SKBitmap.Decode(shirtIconStream))
+                    {
+                        //float yOffset = 477; // Adjust as necessary for your design
+                        var index = 0;
+
+                        foreach (var team in table)
+                        {
+                            var linePoint = new Point(106, 144 + index * 44);
+                            var lineTextPoint = new Point(106, 170 + index * 44);
+                            canvas.DrawBitmap(placeHolder, linePoint.X, linePoint.Y);
+                            DrawText(144, lineTextPoint.Y, paint, canvas, $"{team.Key}");
+                            DrawText(232, lineTextPoint.Y, paint, canvas, $"{team.Value.GP}");
+                            DrawText(293, lineTextPoint.Y, paint, canvas, $"{team.Value.W}");
+                            DrawText(325, lineTextPoint.Y, paint, canvas, $"{team.Value.D}");
+                            DrawText(357, lineTextPoint.Y, paint, canvas, $"{team.Value.L}");
+                            DrawText(392, lineTextPoint.Y, paint, canvas, $"{team.Value.Gf}");
+                            DrawText(438, lineTextPoint.Y, paint, canvas, $"{team.Value.Ga}");
+                            DrawText(494, lineTextPoint.Y, paint, canvas, $"{team.Value.Points}");
+
+                            index++;
+                        }
+                    }
+
+                    var topScorerName = new SKPaint
+                    {
+                        Color = SKColors.White,
+                        TextSize = 18,
+                        IsAntialias = true,
+                        TextAlign = SKTextAlign.Center,
+                        Typeface = SKTypeface.FromFamilyName("Myriad Hebrew", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright)
+                    };
+
+                    var topScorerValue = new SKPaint
+                    {
+                        Color = SKColors.White,
+                        TextSize = 30,
+                        IsAntialias = true,
+                        TextAlign = SKTextAlign.Center,
+                        Typeface = SKTypeface.FromFamilyName("Berlin Sans FB Demi", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright)
+                    };
+
+                    var scorersPaint = new SKPaint
+                    {
+                        Color = SKColors.White,
+                        TextSize = 14,
+                        TextAlign = SKTextAlign.Left,
+                        IsAntialias = true,
+                        Typeface = SKTypeface.FromFamilyName("Berlin Sans FB Demi", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright)
+                    };
+
+                    var scorerValuePaint = new SKPaint
+                    {
+                        Color = SKColors.White,
+                        TextSize = 14,
+                        TextAlign = SKTextAlign.Right,
+                        IsAntialias = true,
+                        Typeface = SKTypeface.FromFamilyName("Berlin Sans FB Demi", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright)
+                    };
+
+                    var scorers = (IEnumerable<dynamic>)topScorers;
+                    if (scorers.Any())
+                    {
+                        DrawText(186, 441, topScorerName, canvas, Helpers.ReverseIfNeeded(topScorers[0].name.ToString()));
+                        DrawText(186, 474, topScorerValue, canvas, topScorers[0].scores.ToString());
+
+
+                        var indexScorers = 0;
+                        foreach (var item in scorers.Skip(1))
+                        {
+                            DrawText(83, 515 + indexScorers * 20, scorersPaint, canvas, Helpers.ReverseIfNeeded(item.name.ToString()));
+                            DrawText(288, 515 + indexScorers * 20, scorerValuePaint, canvas, item.scores.ToString());
+                            indexScorers++;
+                        }
+                    }
+
+                    var assists = (IEnumerable<dynamic>)topAssists;
+                    if (scorers.Any())
+                    {
+                        DrawText(489, 441, topScorerName, canvas, Helpers.ReverseIfNeeded(topAssists[0].name.ToString()));
+                        DrawText(489, 474, topScorerValue, canvas, topAssists[0].scores.ToString());
+
+                        var indexScorers = 0;
+                        foreach (var item in assists.Skip(1))
+                        {
+                            DrawText(409, 515 + indexScorers * 20, scorersPaint, canvas, Helpers.ReverseIfNeeded(item.name.ToString()));
+                            DrawText(569, 515 + indexScorers * 20, scorerValuePaint, canvas, item.scores.ToString());
+                            indexScorers++;
+                        }
+                    }
+
+                    // Save the final image
+                    using (var image = surface.Snapshot())
+                    using (var png = image.Encode(SKEncodedImageFormat.Png, 100))
+                    using (var ms = new MemoryStream())
+                    {
+                        png.SaveTo(ms);
+                        return ms;
+                        //using (FileStream fileStream = new FileStream(@"C:\Users\potok\OneDrive\שולחן העבודה\ddd2.jpg", FileMode.Create))
+                        //{
+                        //    fileStream.Write(ms.ToArray());
+                        //    return fileStream;
+                        //}
+                    }
+                }
+            }
+        }
+
+        private static MemoryStream DrawScoreTableLegacy(Dictionary<string, Score> table, dynamic stats)
+        {
+            var topScorers = stats.stats.scorers;
+
             using (var templateStream = System.IO.File.OpenRead($@"templates/standings.png"))
             using (var templateBitmap = SKBitmap.Decode(templateStream))
             {
@@ -72,7 +228,7 @@ namespace TeamsDesignCreator
 
                     using (var shirtIconStream = System.IO.File.OpenRead($@"templates/teamPlaceHolder.png"))
                     using (var placeHolder = SKBitmap.Decode(shirtIconStream))
-                    {  
+                    {
                         //float yOffset = 477; // Adjust as necessary for your design
                         var index = 0;
 
@@ -334,7 +490,7 @@ namespace TeamsDesignCreator
 
             var matchdayNamePaintStyle = new SKPaint
             {
-                Color = SKColors.White,
+                Color = SKColors.LightGoldenrodYellow,
                 TextSize = 32,
                 TextAlign = SKTextAlign.Center,
                 IsAntialias = true,
@@ -396,68 +552,45 @@ namespace TeamsDesignCreator
         {
             var positions = locations[playerNames.Count];
 
-            using (var templateStream = System.IO.File.OpenRead($@"templates/field.png"))
-            using (var templateBitmap = SKBitmap.Decode(templateStream))
+            using (var templateStream = System.IO.File.OpenRead($@"templates/generatedTeams2.png"))
             {
-                // Create an SKImage from the template bitmap
-                using (var surface = SKSurface.Create(new SKImageInfo(templateBitmap.Width, templateBitmap.Height)))
+                var canvasWrapper = new ImageGraphicWrapper(templateStream);
+                canvasWrapper.DrawCanvas();
+
+                var paint = new SKPaint
                 {
-                    var canvas = surface.Canvas;
-                    // Draw the template onto the canvas
-                    canvas.DrawBitmap(templateBitmap, SKPoint.Empty);
+                    Color = SKColors.White,
+                    TextSize = 26,
+                    IsAntialias = true,
+                    TextAlign = SKTextAlign.Center,
+                    Typeface = SKTypeface.FromFamilyName("Berlin Sans FB Demi", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright)
+                };
 
-                    var paint = new SKPaint
+                var index = 0;
+                foreach (var name in playerNames)
+                {
+                    float lineHeight = 0; // add it each line
+                    var lines = WrapText(paint, name.ToUpper(), 100);
+                    foreach (var line in lines)
                     {
-                        Color = SKColors.Black,
-                        TextSize = 26,
-                        IsAntialias = true,
-                        TextAlign = SKTextAlign.Center,
-                    };
-
-                    
-                    //float yOffset = 477; // Adjust as necessary for your design
-                    var index = 0;
-                    foreach (var name in playerNames)
-                    {
-                        float lineHeight = 0; // add it each line
-                        var lines = WrapText(paint, name.ToUpper(), 100);
-                        foreach (var line in lines)
+                        using (var shirtIconStream = System.IO.File.OpenRead($@"templates/shirt{color}.png"))
+                        using (var shirtIconBitmap = SKBitmap.Decode(shirtIconStream))
                         {
-                            using (var shirtIconStream = System.IO.File.OpenRead($@"templates/shirt{color}.png"))
-                            using (var shirtIconBitmap = SKBitmap.Decode(shirtIconStream))
-                            {
-                                var currPoint = positions[index];
-                                canvas.DrawBitmap(shirtIconBitmap, currPoint.X, currPoint.Y);
-                            }
-
-                            string bidiLine = Helpers.ReverseIfNeeded(line);
-                            canvas.DrawText(bidiLine, positions[index].X + 49, positions[index].Y + lineHeight + 120, paint); // Adjust position as necessary
-                            lineHeight += paint.TextSize + 4;
+                            var currPoint = positions[index];
+                            var graphicObject = new ImageGraphicObjectWrapper(shirtIconBitmap);
+                            canvasWrapper.Draw(currPoint.X, currPoint.Y, graphicObject);
                         }
-                        index++;
-                        //yOffset += paint.TextSize + 10; // Add some space between names
-                    }
 
-                    // Save the final image
-                    using (var image = surface.Snapshot())
-                    using (var png = image.Encode(SKEncodedImageFormat.Png, 100))
-                    using (var ms = new MemoryStream())
-                    {
-                        png.SaveTo(ms);
-                        return ms;
-                        //using (FileStream fileStream = new FileStream(@"C:\Users\potok\OneDrive\שולחן העבודה\ddd2.jpg", FileMode.Create))
-                        //{
-                        //    fileStream.Write(ms.ToArray());
-                        //    return fileStream;
-                        //}
+                        var playerName = new ImageGraphicObjectWrapper(line, paint);
+                        canvasWrapper.Draw(positions[index].X + 49, positions[index].Y + lineHeight + 120, playerName);
+                        lineHeight += paint.TextSize + 4;
                     }
+                    index++;
                 }
+
+                return canvasWrapper.Save();
             }
         }
-
-     
-
-
 
         public static List<string> WrapText(SKPaint paint, string text, float maxWidth)
         {

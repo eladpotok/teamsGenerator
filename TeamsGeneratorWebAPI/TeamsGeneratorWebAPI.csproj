@@ -11,11 +11,13 @@
     <None Remove="templates\black.png" />
     <None Remove="templates\blue.png" />
     <None Remove="templates\field.png" />
+    <None Remove="templates\generatedTeams2.png" />
     <None Remove="templates\green.png" />
     <None Remove="templates\namePlaceHolder.png" />
     <None Remove="templates\orange.png" />
     <None Remove="templates\playersListTemplate.png" />
     <None Remove="templates\playersListTemplate1.png" />
+    <None Remove="templates\playersListTemplate2.png" />
     <None Remove="templates\plyaerShirt.png" />
     <None Remove="templates\purple.png" />
     <None Remove="templates\red.png" />
@@ -28,6 +30,7 @@
     <None Remove="templates\shirtWhite.png" />
     <None Remove="templates\shirtYellow.png" />
     <None Remove="templates\standings.png" />
+    <None Remove="templates\standingsWithAssists.png" />
     <None Remove="templates\table.png" />
     <None Remove="templates\table.psd" />
     <None Remove="templates\teamPlaceHolder.png" />
@@ -49,6 +52,9 @@
     <Content Include="templates\field.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="templates\generatedTeams2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="templates\green.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -62,6 +68,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="templates\playersListTemplate1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="templates\playersListTemplate2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="templates\plyaerShirt.png">
@@ -98,6 +107,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="templates\standings.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="templates\standingsWithAssists.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="templates\table.psd">

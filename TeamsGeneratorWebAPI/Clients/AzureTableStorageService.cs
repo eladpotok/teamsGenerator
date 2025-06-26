@@ -18,7 +18,25 @@ namespace TeamsGeneratorWebAPI.Clients
 
         public async Task AddMatchAsync(MatchEntity match)
         {
-            await _tableClient.AddEntityAsync(match);
+            try
+            {
+                await _tableClient.AddEntityAsync(match);
+            }
+            catch (Exception e)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task AddUpdate(UpdateEntity update)
+        {
+            await _tableClient.AddEntityAsync(update);
+        }
+
+        public async Task AddFeedback(FeedbackEntity feedback)
+        {
+            await _tableClient.AddEntityAsync(feedback);
         }
 
         public async Task<List<MatchEntity>> GetAllMatchesAsync(string partitionKey)
@@ -29,6 +47,17 @@ namespace TeamsGeneratorWebAPI.Clients
                 matches.Add(entity);
             }
             return matches.OrderBy(t => t.CreatedAt).ToList();
+        }
+
+        public async Task<List<T>> GetAllEntities<T>(string partitionKey, CancellationToken cancellationToken = default)
+                where T : class, ITableEntity, new()
+        {
+            var matches = new List<T>();
+            await foreach (var entity in _tableClient.QueryAsync<T>(e => e.PartitionKey == partitionKey, cancellationToken: cancellationToken))
+            {
+                matches.Add(entity);
+            }
+            return matches.OrderByDescending(t => t.Timestamp).ToList();
         }
 
         internal async Task DoneMatch(MatchdayMetadataEntity match)
@@ -73,20 +102,19 @@ namespace TeamsGeneratorWebAPI.Clients
             }
         }
 
-        internal async Task<bool> DeleteMatch(MatchEntity match)
+        internal async Task<bool> DeleteEntity(ITableEntity entity)
         {
             try
             {
-                await _tableClient.DeleteEntityAsync(match.PartitionKey, match.RowKey, ETag.All);
+                await _tableClient.DeleteEntityAsync(entity.PartitionKey, entity.RowKey, ETag.All);
 
                 return true;
             }
-            catch (RequestFailedException e) 
+            catch (RequestFailedException e)
             {
                 return false;
             }
-           
-        }
 
+        }
     }
 }

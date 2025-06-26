@@ -19,14 +19,14 @@ namespace TeamsGeneratorWebAPI.DesignCreator
             return SkiaImageCreator.GeneratePlayersListImageTemplate2(players, teamName.ToUpper(), location.ToUpper(), date, dayInWeek.ToUpper(), currentCulture);
         }
 
-        internal static MemoryStream CreateTable(dynamic stats, dynamic topScorers)
+        internal static MemoryStream CreateTable(dynamic stats, dynamic topScorers, string ver)
         {
-            return SkiaImageCreator.GenerateTable(stats, topScorers);
+            return SkiaImageCreator.GenerateTable(stats, topScorers, ver);
         }
 
-        internal static MemoryStream CreateNormalizedTable(dynamic stats)
+        internal static MemoryStream CreateNormalizedTable(dynamic stats, string ver)
         {
-            return SkiaImageCreator.GenerateNormalizedTable(stats);
+            return SkiaImageCreator.GenerateNormalizedTable(stats, ver);
         }
     }
 }

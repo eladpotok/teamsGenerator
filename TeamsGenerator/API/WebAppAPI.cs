@@ -93,10 +93,10 @@ namespace TeamsGenerator.API
             var numberOfTeams = ConfigurationManager.NumberOfTeams;
 
             var algos = _algoTypeToInformationMapper.Values.ToList();
-            foreach (var algo in algos)
-            {
-                algo.PlayerProperties = algo.PlayerProperties.Where(p => CompareVersion(p.MinVersion, version)).ToList();
-            }
+            //foreach (var algo in algos)
+            //{
+            //    algo.PlayerProperties = algo.PlayerProperties.Where(p => CompareVersion(p.MinVersion, version)).ToList();
+            //}
 
             var config = new UserConfigResponse() { ShirtsColors = shirtsColors, NumberOfTeams = numberOfTeams };
 

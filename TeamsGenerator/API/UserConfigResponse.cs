@@ -16,7 +16,7 @@ namespace TeamsGenerator.API
         public string TeamName { get; set; }
         public string Location { get; set; }
         public bool AllowOnlineScoreboard { get; set; }
-        public string CurrentVersion => "18.2";
+        public string CurrentVersion { get; set; }
 
         public UserConfigResponse()
         {

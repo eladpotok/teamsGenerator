@@ -66,7 +66,7 @@ namespace TeamsGeneratorWebAPI.Controllers
             var topScorersSerializedObject = JsonConvert.SerializeObject(statsJson.topScorers, Newtonsoft.Json.Formatting.Indented);
             //IEnumerable<string> stats = JsonConvert.DeserializeObject<List<string>>(statsSerializedObject);
 
-            var ms = ImageCreator.CreateTable(statsJson.stats, statsJson.topScorers);
+            var ms = ImageCreator.CreateTable(statsJson.stats, statsJson.topScorers, ver);
 
             // Convert the image to a byte array and add it to the result list
             byte[] imageBytes = ms.ToArray();
@@ -82,7 +82,7 @@ namespace TeamsGeneratorWebAPI.Controllers
             var topScorersSerializedObject = JsonConvert.SerializeObject(statsJson.topScorers, Newtonsoft.Json.Formatting.Indented);
             //IEnumerable<string> stats = JsonConvert.DeserializeObject<List<string>>(statsSerializedObject);
 
-            var ms = ImageCreator.CreateNormalizedTable(statsJson);
+            var ms = ImageCreator.CreateNormalizedTable(statsJson, ver);
 
             // Convert the image to a byte array and add it to the result list
             byte[] imageBytes = ms.ToArray();
@@ -163,7 +163,7 @@ namespace TeamsGeneratorWebAPI.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> DeleteMatch([FromBody] MatchEntity match)
         {
-            var succeeded = await _matchService.DeleteMatch(match);
+            var succeeded = await _matchService.DeleteEntity(match);
             if (succeeded)
             {
                 var matches = await _matchService.GetAllMatchesAsync(match.PartitionKey);
