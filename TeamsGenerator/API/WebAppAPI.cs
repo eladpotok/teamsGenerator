@@ -108,7 +108,7 @@ namespace TeamsGenerator.API
             if (!_algoTypeToInformationMapper.ContainsKey((AlgoType)algoType)) return new List<PlayerProperties>();
             var playerProperties = _algoTypeToInformationMapper[(AlgoType)algoType].PlayerProperties;
 
-            var propertiesFilteredByVersion = playerProperties.Where(p => CompareVersion(p.MinVersion, version));
+            var propertiesFilteredByVersion = playerProperties;
             return propertiesFilteredByVersion;
         }
 

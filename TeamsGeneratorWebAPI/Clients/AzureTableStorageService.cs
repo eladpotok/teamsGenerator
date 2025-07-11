@@ -39,6 +39,12 @@ namespace TeamsGeneratorWebAPI.Clients
             await _tableClient.AddEntityAsync(feedback);
         }
 
+        public async Task AddEntity<T>(T entity, CancellationToken cancellationToken = default)
+               where T : class, ITableEntity, new()
+        {
+            await _tableClient.AddEntityAsync(entity);
+        }
+
         public async Task<List<MatchEntity>> GetAllMatchesAsync(string partitionKey)
         {
             var matches = new List<MatchEntity>();
@@ -89,6 +95,29 @@ namespace TeamsGeneratorWebAPI.Clients
 
                 // Update with original ETag for concurrency safety
                 await _tableClient.UpdateEntityAsync(match, entity.ETag, TableUpdateMode.Replace);
+
+                return true;
+            }
+            catch (RequestFailedException ex) when (ex.Status == 412)
+            {
+                return false;
+            }
+            catch (RequestFailedException ex) when (ex.Status == 404)
+            {
+                return false;
+            }
+        }
+
+        internal async Task<bool> EditEntity<T>(T entity, string partitionKey, string rowKey)
+            where T : class, ITableEntity, new()
+        {
+            try
+            {
+                var entityResponse = await _tableClient.GetEntityAsync<T>(partitionKey, rowKey);
+                var entityRes = entityResponse.Value;
+
+                // Update with original ETag for concurrency safety
+                await _tableClient.UpdateEntityAsync(entity, entityRes.ETag, TableUpdateMode.Replace);
 
                 return true;
             }

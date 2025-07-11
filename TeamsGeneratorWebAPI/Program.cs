@@ -21,6 +21,7 @@ builder.Services.AddTransient<IPlayersStorageBlobConnector, PlayersStorageBlobCo
 builder.Services.AddTransient<ITeamsStorageBlobConnector, TeamsStorageBlobConnector>();
 builder.Services.AddTransient<IUserAzureStorage, UserAzureStorage>();
 builder.Services.AddSingleton<AzureTableStorageService>();
+builder.Services.AddSingleton<OpenAiService>();
 
 
 builder.Services.AddApplicationInsightsTelemetry((appInsightOption) => 

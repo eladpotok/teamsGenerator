@@ -20,13 +20,15 @@ namespace TeamsGeneratorWebAPI.Controllers
         private readonly ILogger<TeamsController> _logger;
         private readonly TelemetryClient _telemetryClient;
         private readonly AzureTableStorageService _matchService;
+        private readonly OpenAiService _aiService;
 
-        public TeamsController(ILogger<TeamsController> logger, TelemetryClient telemetryClient, ITeamsStorageBlobConnector teamsStorageBlobConnector, AzureTableStorageService matchService)
+        public TeamsController(ILogger<TeamsController> logger, TelemetryClient telemetryClient, ITeamsStorageBlobConnector teamsStorageBlobConnector, AzureTableStorageService matchService, OpenAiService aiService)
         {
             _logger = logger;
             _telemetryClient = telemetryClient;
             _azureStorage = teamsStorageBlobConnector;
             _matchService = matchService;
+            _aiService = aiService;
         }
 
         [HttpPost()]
@@ -170,6 +172,13 @@ namespace TeamsGeneratorWebAPI.Controllers
                 return Ok(matches);
             }
             return NotFound();
+        }
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> GetAiSummary([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic matchesHistory)
+        {
+            var reply = await _aiService.GetResponseFromAgent(matchesHistory);
+            return Ok(reply);
         }
 
     }
