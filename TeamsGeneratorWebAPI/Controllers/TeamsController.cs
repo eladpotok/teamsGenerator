@@ -46,6 +46,7 @@ namespace TeamsGeneratorWebAPI.Controllers
             return WebAppAPI.GetResultString(dicJson);
         }
 
+    
         [HttpPost("[action]")]
         public async Task<IActionResult> GetTeamsDesign([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic team)
         {
@@ -117,6 +118,8 @@ namespace TeamsGeneratorWebAPI.Controllers
             return TableCalculator.Create(stats.stats);
         }
 
+
+
         [HttpPost("[action]")]
         public async Task<IActionResult> AddMatch([FromBody] MatchEntity match)
         {
@@ -181,6 +184,11 @@ namespace TeamsGeneratorWebAPI.Controllers
             return Ok(reply);
         }
 
+        [HttpPost("[action]")]
+        public async Task<IActionResult> IsMatchClosed([FromHeader(Name = "client_version")] string ver, string partitionKey)
+        {
+            var isClosed = await _matchService.IsClosed(partitionKey);
+            return Ok(isClosed);
+        }
     }
-
 }
