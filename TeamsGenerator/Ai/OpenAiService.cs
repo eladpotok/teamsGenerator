@@ -35,17 +35,18 @@ namespace TeamsGenerator.Ai
 
         private static string TeamsPrompt = @"";
         private readonly HttpClient _httpClient;
-        private const string Endpoint = "https://potok-mcwfn6md-eastus2.cognitiveservices.azure.com/openai/deployments/teams-generator-gpt-4.1/chat/completions?api-version=2025-01-01-preview";
+        private string _endpoint;
+        private string _apiKey;
 
         public OpenAiService()
         {
             _httpClient = new HttpClient();
-            var apiKey = GetApiKey();
+            SetAiConfig();
 
-            _httpClient.DefaultRequestHeaders.Add("api-key", apiKey);
+            _httpClient.DefaultRequestHeaders.Add("api-key", _apiKey);
         }
 
-        private string GetApiKey()
+        private void SetAiConfig()
         {
             // Read the JSON file
             var json = File.ReadAllText("config.json");
@@ -53,10 +54,9 @@ namespace TeamsGenerator.Ai
             using (var doc = JsonDocument.Parse(json))
             {
                 // Access a specific element
-                string name = doc.RootElement.GetProperty("AiApiKey").GetString();
-                return name;
+                _apiKey = doc.RootElement.GetProperty("AiApiKey").GetString();
+                _endpoint = doc.RootElement.GetProperty("AiAudience").GetString();
             }
-            return null;
         }
 
         public async Task<string> GetResponseFromAgentForTeams(string prompt, string userInput)
@@ -85,7 +85,7 @@ namespace TeamsGenerator.Ai
                 Encoding.UTF8,
                 "application/json"
             );
-            var response = await _httpClient.PostAsync(Endpoint, content);
+            var response = await _httpClient.PostAsync(_endpoint, content);
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadAsStringAsync();
@@ -237,7 +237,7 @@ namespace TeamsGenerator.Ai
                 Encoding.UTF8,
                 "application/json"
             );
-            var response = await _httpClient.PostAsync(Endpoint, content);
+            var response = await _httpClient.PostAsync(_endpoint, content);
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadAsStringAsync();
