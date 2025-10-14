@@ -8,6 +8,13 @@ namespace TeamsGeneratorWebAPI.Clients
         private readonly TableClient _tableClient;
 
         public static string RowKeyForCloseStatus = "ReservedToStatus";
+        public static string RowKeyForStartStatus = "ReservedToStatusStart";
+
+        public static HashSet<string> MatchesForStatusKeys = new HashSet<string>() 
+        {
+            RowKeyForCloseStatus,
+            RowKeyForStartStatus
+        };
 
         public AzureTableStorageService(TableServiceClient tableServiceClient)
         {
@@ -47,12 +54,21 @@ namespace TeamsGeneratorWebAPI.Clients
 
         public async Task<List<MatchEntity>> GetAllMatchesAsync(string partitionKey)
         {
-            var matches = new List<MatchEntity>();
-            await foreach (var entity in _tableClient.QueryAsync<MatchEntity>((e => e.PartitionKey == partitionKey && e.RowKey != RowKeyForCloseStatus)))
+            try
             {
-                matches.Add(entity);
+                var matches = new List<MatchEntity>();
+                await foreach (var entity in _tableClient.QueryAsync<MatchEntity>((e => e.PartitionKey == partitionKey)))
+                {
+                    matches.Add(entity);
+                }
+
+
+                return matches.Where(row => !MatchesForStatusKeys.Contains(row.RowKey)).OrderBy(t => t.CreatedAt).ToList();
             }
-            return matches.OrderBy(t => t.CreatedAt).ToList();
+            catch (Exception e)
+            {
+                return null;
+            }
         }
 
         public async Task<List<T>> GetAllEntities<T>(string partitionKey, CancellationToken cancellationToken = default)
@@ -83,6 +99,29 @@ namespace TeamsGeneratorWebAPI.Clients
             catch (Exception ex)
             {
                 return false;
+            }
+        }
+
+        internal async Task<object> GetMatchday(string partitionKey)
+        {
+            try
+            {
+                var entity = await _tableClient.GetEntityAsync<MatchdayMetadataEntity>(partitionKey: partitionKey, rowKey: RowKeyForStartStatus);
+                if (entity == null)
+                {
+                    return new { result = "not-found" };
+                }
+                var entityClosed = await _tableClient.GetEntityIfExistsAsync<MatchdayMetadataEntity>(partitionKey: partitionKey, rowKey: RowKeyForCloseStatus);
+                if (entityClosed.HasValue)
+                {
+                    return new { result = "closed" };
+                }
+
+                return new { result = "ok" };
+            }
+            catch (Exception ex)
+            {
+                return new { result = "not-found" };
             }
         }
 

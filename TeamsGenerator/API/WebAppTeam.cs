@@ -18,6 +18,12 @@ namespace TeamsGenerator.API
         public int TeamId { get; set; }
         public bool IsStarting { get; set; }
 
+        // For AI Teams
+        public IEnumerable<string> Weakness { get; set; }
+        public IEnumerable<string> Strength { get; set; }
+        public string Description { get; set; }
+        public string PlayStyle { get; set; }
+
 
         public double GetAvarage()
         {

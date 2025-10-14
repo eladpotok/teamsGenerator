@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using TeamsGenerator.Ai;
 using TeamsGenerator.Algos;
 using TeamsGenerator.API;
 using TeamsGenerator.CLI;
@@ -16,6 +17,8 @@ namespace TeamsGenerator.Utilities
 {
     internal static class Helper
     {
+        public static OpenAiService AiService = new OpenAiService();
+
         public static List<T> Shuffle<T>(List<T> items)
         {
             var result = new List<T>();

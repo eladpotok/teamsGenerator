@@ -4,6 +4,7 @@
     {
         SkillWise,
         BackAndForth,
-        Positions
+        Positions,
+        Ai
     }
 }

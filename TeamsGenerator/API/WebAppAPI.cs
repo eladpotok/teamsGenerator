@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TeamsGenerator.Algos;
+using TeamsGenerator.Algos.AiAlgo;
 using TeamsGenerator.Algos.BackAndForthAlgo;
 using TeamsGenerator.Algos.PositionsAlgo;
 using TeamsGenerator.Algos.SkillWiseAlgo;
@@ -29,6 +30,7 @@ namespace TeamsGenerator.API
                 { AlgoType.SkillWise, new WebAppAlgoInfo(AlgoType.SkillWise, "Skillwise", "Divide the players according to their skills") },
                 { AlgoType.BackAndForth, new WebAppAlgoInfo(AlgoType.BackAndForth, "Back And Forth", "Do it in cycle") },
                 { AlgoType.Positions, new WebAppAlgoInfo(AlgoType.Positions, "Positions", "Divide by the positions on the field") },
+                { AlgoType.Ai, new WebAppAlgoInfo(AlgoType.Ai, "AI", "Using AI algorithm") },
             };
 
             AlgoTypeToPlayerSerializerMapper = new Dictionary<AlgoType, Func<dynamic, IPlayer[]>>()
@@ -36,6 +38,7 @@ namespace TeamsGenerator.API
                 { AlgoType.SkillWise, (json) => JsonConvert.DeserializeObject<SkillWisePlayer[]>(json) },
                 { AlgoType.BackAndForth, (json) => JsonConvert.DeserializeObject<BackAndForthPlayer[]>(json) },
                 { AlgoType.Positions, (json) => JsonConvert.DeserializeObject<PositionsPlayer[]>(json) },
+                { AlgoType.Ai, (json) => JsonConvert.DeserializeObject<AiPlayer[]>(json) },
             };
 
             foreach (var item in _algoTypeToInformationMapper)
@@ -80,7 +83,7 @@ namespace TeamsGenerator.API
                 }
             }
 
-            var algoConfig = new AlgoConfig() { TeamsCount = config.NumberOfTeams };
+            var algoConfig = new AlgoConfig() { TeamsCount = config.NumberOfTeams, Language = config.Language };
             var teams = AlgoRunner.Run(algoKeyEnum, playersCollection.ToList(), algoConfig, alreadyGeneratedTeams);
             var teamsResponse = GetDisplayTeams(config.ShirtsColors, teams, config.ShowWhoBegins);
 
@@ -139,7 +142,19 @@ namespace TeamsGenerator.API
             foreach (var team in teams)
             {
                 var shirtColor = selectedShirts[0];
-                results.Add(new WebAppTeam() { Players = Helper.Shuffle(team.Players), Rank = team.TotalRank, Color = shirtColor.ColorName, TeamSymbol = shirtColor.Symbol, TeamName = index.ToString(), TeamId = index });
+                results.Add(new WebAppTeam() 
+                { 
+                    Players = Helper.Shuffle(team.Players), 
+                    Rank = team.TotalRank, 
+                    Color = shirtColor.ColorName, 
+                    TeamSymbol = shirtColor.Symbol, 
+                    TeamName = index.ToString(), 
+                    TeamId = index,
+                    Description = team.Description,
+                    PlayStyle = team.PlayStyle,
+                    Strength = team.Strength,
+                    Weakness = team.Weakness
+                });
                 index++;
                 selectedShirts.RemoveAt(0);
             }

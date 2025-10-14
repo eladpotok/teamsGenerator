@@ -3,13 +3,17 @@ using TeamsGenerator.Orchestration.Contracts;
 
 namespace TeamsGenerator.Algos
 {
-    public class Team
+    public class Team : IAITeam
     {
         public List<IPlayer> Players { get; set; }
 
         public double TotalRank { get; set; }
 
         public int Index { get; set; }
+        public IEnumerable<string> Weakness { get; set; }
+        public IEnumerable<string> Strength { get; set; }
+        public string Description { get; set; }
+        public string PlayStyle { get; set; }
 
         public Team()
         {
@@ -27,5 +31,13 @@ namespace TeamsGenerator.Algos
             TotalRank += player.Rank;
         }
 
+    }
+
+    public interface IAITeam
+    {
+        IEnumerable<string> Weakness { get; set; }
+        IEnumerable<string> Strength { get; set; }
+        string Description { get; set; }
+        string PlayStyle { get; set; }
     }
 }

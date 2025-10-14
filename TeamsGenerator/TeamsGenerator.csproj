@@ -54,7 +54,9 @@
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL" />
     <Reference Include="System.Security" />
+    <Reference Include="System.Text.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -63,8 +65,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Ai\OpenAiService.cs" />
     <Compile Include="Algos\AlgoManagerBase.cs" />
     <Compile Include="Algos\PositionsAlgo\PositionsPlayer.cs" />
+    <Compile Include="Algos\AiAlgo\AiManager.cs" />
+    <Compile Include="Algos\AiAlgo\AiPlayer.cs" />
+    <Compile Include="Algos\AiAlgo\AiPlayersReader.cs" />
     <Compile Include="Algos\SkillWiseAlgo\OrderBy.cs" />
     <Compile Include="Algos\PositionsAlgo\PositionsWithValues.cs" />
     <Compile Include="Algos\PositionsAlgo\PositionPlayersReader.cs" />
@@ -116,6 +122,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Algos\PositionsAlgo\players.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Algos\AiAlgo\players.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="App.config" />

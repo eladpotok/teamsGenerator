@@ -1,11 +1,14 @@
 ﻿using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Text.Json;
+using TeamsGenerator.Ai;
 using TeamsGenerator.Algos.BackAndForthAlgo;
 using TeamsGenerator.Algos.SkillWiseAlgo;
 using TeamsGenerator.API;
 using TeamsGenerator.Utilities;
 using TeamsGeneratorWebAPI.Clients;
+using TeamsGeneratorWebAPI.Debugging;
 using TeamsGeneratorWebAPI.DesignCreator;
 using TeamsGeneratorWebAPI.PlayersBlob;
 
@@ -185,10 +188,59 @@ namespace TeamsGeneratorWebAPI.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> IsMatchClosed([FromHeader(Name = "client_version")] string ver, string partitionKey)
+        public async Task<IActionResult> GetMatchday([FromHeader(Name = "client_version")] string ver, string partitionKey)
         {
-            var isClosed = await _matchService.IsClosed(partitionKey);
-            return Ok(isClosed);
+            var matchday = await _matchService.GetMatchday(partitionKey);
+            if(matchday == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(matchday);
+        }
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> StartScoreboard([FromHeader(Name = "client_version")] string ver, string partitionKey)
+        {
+            try
+            {
+                var matchdayMetadata = new MatchdayMetadataEntity() { PartitionKey = partitionKey, RowKey = AzureTableStorageService.RowKeyForStartStatus, IsClosed = false };
+                await _matchService.AddEntity<MatchdayMetadataEntity>(matchdayMetadata);
+                return Ok();
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+
+        }
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> GetHistory([FromHeader(Name = "client_version")] string ver)
+        {
+            try
+            {
+                var matches = await _matchService.GetAllMatchesAsync("0b1b47fc-21b5-4335-8992-a6767839a524");
+                var matchesResult = new List<Match>();
+                foreach (var match in matches)
+                {
+                    var serializedMatch = match.SerializedMatch;
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+
+                    var deserializedMatch = System.Text.Json.JsonSerializer.Deserialize<Match>(serializedMatch, options);
+                    matchesResult.Add(deserializedMatch);
+                }
+                DebuggingHelpers.WriteMatchToCsv(matchesResult, $"{Environment.CurrentDirectory}/matches.csv");
+                return Ok(matches);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+
         }
     }
 }

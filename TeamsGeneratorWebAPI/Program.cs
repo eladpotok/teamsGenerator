@@ -1,4 +1,5 @@
 using Azure.Data.Tables;
+using TeamsGenerator.Ai;
 using TeamsGenerator.API;
 using TeamsGeneratorWebAPI.Clients;
 using TeamsGeneratorWebAPI.PlayersBlob;

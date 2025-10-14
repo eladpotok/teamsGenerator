@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using TeamsGenerator.Algos;
+using TeamsGenerator.Algos.AiAlgo;
 using TeamsGenerator.Algos.BackAndForthAlgo;
 using TeamsGenerator.Algos.PositionsAlgo;
 using TeamsGenerator.Algos.SkillWiseAlgo;
@@ -20,6 +21,7 @@ namespace TeamsGenerator.Orchestration
             { AlgoType.BackAndForth, (config) => new BackAndForthManager(config) },
             { AlgoType.SkillWise, (config) => new SkillWiseManager(config) },
             { AlgoType.Positions, (config) => new PositionsWithValues(config) },
+            { AlgoType.Ai, (config) => new AiManager(config) },
         };
 
         public static List<Algos.Team> Run(AlgoType algoType, List<IPlayer> players, AlgoConfig config, List<Team> generatedTeamsWithLockedPlayers)
