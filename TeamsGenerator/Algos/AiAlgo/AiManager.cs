@@ -208,7 +208,7 @@ If the meaning is unclear, prefer to keep the score neutral and avoid adding tra
                 PropertyNameCaseInsensitive = true
             };
 
-           var skillWisePlayersAccordingToAi = JsonSerializer.Deserialize<IEnumerable<SkillWisePlayer>>(playersResponse, options);
+            var skillWisePlayersAccordingToAi = JsonSerializer.Deserialize<IEnumerable<SkillWisePlayer>>(playersResponse, options);
             var teams = new SkillWiseManager(_config).GenerateTeams(skillWisePlayersAccordingToAi.Cast<IPlayer>().ToList(), generatedTeamWithLockedPlayers);
 
             var promptForTeamsResults = @"You will receive an input that contains a list of teams.  

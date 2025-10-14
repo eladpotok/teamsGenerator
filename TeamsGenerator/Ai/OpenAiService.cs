@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -35,12 +36,27 @@ namespace TeamsGenerator.Ai
         private static string TeamsPrompt = @"";
         private readonly HttpClient _httpClient;
         private const string Endpoint = "https://potok-mcwfn6md-eastus2.cognitiveservices.azure.com/openai/deployments/teams-generator-gpt-4.1/chat/completions?api-version=2025-01-01-preview";
-        private const string ApiKey = "Agnsz4KEO5cp8P9QLNrwjFCP2TCz3q4YYqvzFgRQsPSRxLXLk7jfJQQJ99BGACHYHv6XJ3w3AAAAACOGoQk1";
 
         public OpenAiService()
         {
             _httpClient = new HttpClient();
-            _httpClient.DefaultRequestHeaders.Add("api-key", ApiKey);
+            var apiKey = GetApiKey();
+
+            _httpClient.DefaultRequestHeaders.Add("api-key", apiKey);
+        }
+
+        private string GetApiKey()
+        {
+            // Read the JSON file
+            var json = File.ReadAllText("config.json");
+
+            using (var doc = JsonDocument.Parse(json))
+            {
+                // Access a specific element
+                string name = doc.RootElement.GetProperty("AiApiKey").GetString();
+                return name;
+            }
+            return null;
         }
 
         public async Task<string> GetResponseFromAgentForTeams(string prompt, string userInput)
