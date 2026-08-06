@@ -181,9 +181,13 @@ namespace TeamsGeneratorWebAPI.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> GetAiSummary([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic matchesHistory)
+        public async Task<IActionResult> GetAiSummary(
+            [FromHeader(Name = "client_version")] string ver,
+            [FromBody] dynamic matchesHistory,
+            string language = "he",
+            CancellationToken cancellationToken = default)
         {
-            var reply = await _aiService.GetResponseFromAgent(matchesHistory);
+            var reply = await _aiService.GetResponseFromAgent(matchesHistory, language, cancellationToken);
             return Ok(reply);
         }
 

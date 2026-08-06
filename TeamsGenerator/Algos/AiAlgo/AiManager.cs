@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.Json;
+using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TeamsGenerator.Ai;
@@ -201,11 +201,7 @@ If the meaning is unclear, prefer to keep the score neutral and avoid adding tra
             _prompt = _config.Language == "he" ? promptHe : promptEn;
             string playersResponse = GetAiResponse(_prompt, playersToProvideInAi);
 
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
-            var skillWisePlayersAccordingToAi = JsonSerializer.Deserialize<IEnumerable<SkillWisePlayer>>(playersResponse, options);
+            var skillWisePlayersAccordingToAi = JsonConvert.DeserializeObject<IEnumerable<SkillWisePlayer>>(playersResponse);
 
             var result = new List<Team>();
 
@@ -274,7 +270,7 @@ Additional instructions:
             //var constrainsts = 
 
             string aiGeneratedTeamsResponse = GetAiResponse(promptForTeamsGeneration, skillWisePlayersAccordingToAi);
-            var aiGeneratedTeams = JsonSerializer.Deserialize<IEnumerable<AiTeam>>(aiGeneratedTeamsResponse, options);
+            var aiGeneratedTeams = JsonConvert.DeserializeObject<IEnumerable<AiTeam>>(aiGeneratedTeamsResponse);
             //var teams = new SkillWiseManager(_config).GenerateTeams(skillWisePlayersAccordingToAi.Cast<IPlayer>().ToList(), generatedTeamWithLockedPlayers);
 
             return aiGeneratedTeams.Select(team =>
@@ -391,7 +387,7 @@ If the meaning of the numbers is ambiguous, make reasonable neutral assumptions 
             string response = null;
             var task = Task.Run(async () =>
             {
-                response = await _aiService.GetResponseFromAgentForTeams(prompt, JsonSerializer.Serialize(playersToProvideInAi));
+                response = await _aiService.GetResponseFromAgentForTeams(prompt, JsonConvert.SerializeObject(playersToProvideInAi));
             });
             task.Wait();
             return response;
