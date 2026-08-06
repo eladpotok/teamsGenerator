@@ -18,6 +18,7 @@ namespace TeamsGenerator.Ai
             var players = FindPlayers(source, matches);
             var playerTeams = FindPlayerTeams(matches);
             var partnerships = FindAssistPartnerships(matches);
+            var ownGoals = FindOwnGoals(matches, playerTeams);
             var unexpectedContributors = FindUnexpectedContributors(
                 source,
                 matches,
@@ -34,8 +35,7 @@ namespace TeamsGenerator.Ai
                 scorers,
                 assisters,
                 standings,
-                playerTeams,
-                unexpectedContributors);
+                playerTeams);
             var factSheet = new
             {
                 standings = standings.Select((entry, index) => new
@@ -62,6 +62,7 @@ namespace TeamsGenerator.Ai
                     assisters,
                     playerTeams,
                     partnerships,
+                    ownGoals,
                     unexpectedContributors),
                 dataLimitations = CreateLimitations(matches, standings, scorers, assisters, players)
             };
@@ -356,6 +357,66 @@ namespace TeamsGenerator.Ai
             return partnerships;
         }
 
+        private static List<OwnGoalFact> FindOwnGoals(
+            IEnumerable<JObject> matches,
+            IDictionary<string, string> playerTeams)
+        {
+            var ownGoals = new List<OwnGoalFact>();
+
+            foreach (var match in matches)
+            {
+                foreach (var candidate in match.DescendantsAndSelf().OfType<JObject>())
+                {
+                    var ownGoalValue = GetValue(candidate, "ownGoal");
+                    var marker = GetValue(candidate, "isOwnGoal", "ownGoal", "isOwn");
+                    var eventType = GetValue(candidate, "type", "eventType", "goalType");
+                    var ownGoalPlayerName = ownGoalValue != null
+                        && ownGoalValue.Type == JTokenType.String
+                        && !IsTruthyText(ownGoalValue.Value<string>())
+                        && !IsExplicitFalseText(ownGoalValue.Value<string>());
+                    if (!IsTruthy(marker)
+                        && !IsOwnGoalType(eventType)
+                        && !ownGoalPlayerName)
+                    {
+                        continue;
+                    }
+
+                    var player = GetName(GetValue(
+                        candidate,
+                        "scorer",
+                        "goalScorer",
+                        "scoredBy"));
+                    if (string.IsNullOrWhiteSpace(player)
+                        && ownGoalPlayerName)
+                    {
+                        player = ownGoalValue.Value<string>()?.Trim();
+                    }
+
+                    string team = null;
+                    if (!string.IsNullOrWhiteSpace(player))
+                    {
+                        playerTeams.TryGetValue(player, out team);
+                    }
+
+                    team = team
+                        ?? GetName(GetValue(
+                            candidate,
+                            "ownGoalTeam",
+                            "concedingTeam",
+                            "scorerTeam",
+                            "team"));
+
+                    ownGoals.Add(new OwnGoalFact
+                    {
+                        Player = player,
+                        Team = team
+                    });
+                }
+            }
+
+            return ownGoals;
+        }
+
         private static HashSet<string> FindUnexpectedContributors(
             JToken source,
             IEnumerable<JObject> matches,
@@ -405,8 +466,7 @@ namespace TeamsGenerator.Ai
             IDictionary<string, int> scorers,
             IDictionary<string, int> assisters,
             IList<StandingFact> standings,
-            IDictionary<string, string> playerTeams,
-            ISet<string> unexpectedContributors)
+            IDictionary<string, string> playerTeams)
         {
             var maxGoals = scorers.Count == 0 ? 0 : scorers.Values.Max();
             var maxAssists = assisters.Count == 0 ? 0 : assisters.Values.Max();
@@ -438,12 +498,6 @@ namespace TeamsGenerator.Ai
                 {
                     score += 0.4;
                     factors.Add("top assister");
-                }
-
-                if (unexpectedContributors.Contains(player))
-                {
-                    score += 0.35;
-                    factors.Add("surprising attacking impact");
                 }
 
                 string team;
@@ -505,10 +559,13 @@ namespace TeamsGenerator.Ai
             IDictionary<string, int> assisters,
             IDictionary<string, string> playerTeams,
             IEnumerable<PartnershipFact> partnerships,
+            IEnumerable<OwnGoalFact> ownGoals,
             IEnumerable<string> unexpectedContributors)
         {
             var patterns = new List<object>();
             var maxGoals = scorers.Count == 0 ? 0 : scorers.Values.Max();
+            var maxAssists = assisters.Count == 0 ? 0 : assisters.Values.Max();
+            var ownGoalList = ownGoals.ToList();
 
             foreach (var player in assisters.Where(entry => entry.Value >= 2))
             {
@@ -564,6 +621,108 @@ namespace TeamsGenerator.Ai
                     goals = GetValue(scorers, player),
                     assists = GetValue(assisters, player)
                 });
+            }
+
+            if (ownGoalList.Count >= 3)
+            {
+                patterns.Add(new
+                {
+                    type = "own_goal_festival",
+                    totalOwnGoals = ownGoalList.Count
+                });
+            }
+
+            foreach (var team in ownGoalList
+                .Where(item => !string.IsNullOrWhiteSpace(item.Team))
+                .GroupBy(item => item.Team, StringComparer.OrdinalIgnoreCase)
+                .Where(group => group.Count() >= 2))
+            {
+                patterns.Add(new
+                {
+                    type = "team_own_goal_total",
+                    team = team.Key,
+                    ownGoals = team.Count()
+                });
+            }
+
+            foreach (var player in ownGoalList
+                .Where(item => !string.IsNullOrWhiteSpace(item.Player))
+                .GroupBy(item => item.Player, StringComparer.OrdinalIgnoreCase)
+                .Where(group => group.Count() >= 2))
+            {
+                patterns.Add(new
+                {
+                    type = "repeat_own_goal",
+                    player = player.Key,
+                    ownGoals = player.Count()
+                });
+            }
+
+            if (maxGoals > 0 && maxAssists > 0)
+            {
+                foreach (var player in scorers
+                    .Where(entry => entry.Value == maxGoals)
+                    .Select(entry => entry.Key)
+                    .Intersect(
+                        assisters
+                            .Where(entry => entry.Value == maxAssists)
+                            .Select(entry => entry.Key),
+                        StringComparer.OrdinalIgnoreCase))
+                {
+                    patterns.Add(new
+                    {
+                        type = "double_crown",
+                        player,
+                        goals = maxGoals,
+                        assists = maxAssists
+                    });
+                }
+            }
+
+            foreach (var player in scorers.Where(entry => entry.Value >= 2))
+            {
+                var assists = GetValue(assisters, player.Key);
+                if (assists >= 2)
+                {
+                    patterns.Add(new
+                    {
+                        type = "all_round_attacker",
+                        player = player.Key,
+                        goals = player.Value,
+                        assists
+                    });
+                }
+            }
+
+            if (standings.Count > 1)
+            {
+                var highestGoalsFor = standings.Max(team => team.GoalsFor);
+                var highestGoalsAgainst = standings.Max(team => team.GoalsAgainst);
+                foreach (var team in standings.Where(team =>
+                    team.GoalsFor == highestGoalsFor
+                    && team.GoalsAgainst == highestGoalsAgainst
+                    && highestGoalsFor > 0
+                    && highestGoalsAgainst > 0))
+                {
+                    patterns.Add(new
+                    {
+                        type = "all_action_team",
+                        team = team.Team,
+                        goalsFor = team.GoalsFor,
+                        goalsAgainst = team.GoalsAgainst
+                    });
+                }
+
+                var lastTeam = standings.Last();
+                if (lastTeam.GoalsFor == highestGoalsFor && highestGoalsFor > 0)
+                {
+                    patterns.Add(new
+                    {
+                        type = "highest_scoring_last_place_team",
+                        team = lastTeam.Team,
+                        goalsFor = lastTeam.GoalsFor
+                    });
+                }
             }
 
             foreach (var streak in FindLossStreaks(matches).Where(item => item.Value >= 3))
@@ -780,6 +939,60 @@ namespace TeamsGenerator.Ai
             return names.Any(name => GetValue(value, name) != null);
         }
 
+        private static bool IsTruthy(JToken value)
+        {
+            if (value == null || value.Type == JTokenType.Null)
+            {
+                return false;
+            }
+
+            if (value.Type == JTokenType.Boolean)
+            {
+                return value.Value<bool>();
+            }
+
+            if (value.Type == JTokenType.Integer)
+            {
+                return value.Value<int>() == 1;
+            }
+
+            return value.Type == JTokenType.String
+                && IsTruthyText(value.Value<string>());
+        }
+
+        private static bool IsTruthyText(string value)
+        {
+            var normalized = (value ?? string.Empty)
+                .Replace("_", string.Empty)
+                .Replace("-", string.Empty)
+                .Replace(" ", string.Empty);
+            return string.Equals(normalized, "true", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(normalized, "yes", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(normalized, "1", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(normalized, "owngoal", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsExplicitFalseText(string value)
+        {
+            var normalized = (value ?? string.Empty).Trim();
+            return string.Equals(normalized, "false", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(normalized, "no", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(normalized, "0", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsOwnGoalType(JToken value)
+        {
+            return value != null
+                && value.Type == JTokenType.String
+                && string.Equals(
+                    value.Value<string>()
+                        ?.Replace("_", string.Empty)
+                        .Replace("-", string.Empty)
+                        .Replace(" ", string.Empty),
+                    "owngoal",
+                    StringComparison.OrdinalIgnoreCase);
+        }
+
         private sealed class StandingFact
         {
             public string Team { get; set; }
@@ -797,6 +1010,12 @@ namespace TeamsGenerator.Ai
             public string PlayerB { get; set; }
             public int AToB { get; set; }
             public int BToA { get; set; }
+        }
+
+        private sealed class OwnGoalFact
+        {
+            public string Player { get; set; }
+            public string Team { get; set; }
         }
 
         private sealed class PlayerRatingFact

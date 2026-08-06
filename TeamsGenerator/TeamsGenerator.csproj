@@ -68,6 +68,7 @@
     <Compile Include="Ai\OpenAiService.cs" />
     <Compile Include="Algos\AlgoManagerBase.cs" />
     <Compile Include="Algos\PositionsAlgo\PositionsPlayer.cs" />
+    <Compile Include="Algos\AiAlgo\AiTeamPrompts.cs" />
     <Compile Include="Algos\AiAlgo\AiManager.cs" />
     <Compile Include="Algos\AiAlgo\AiPlayer.cs" />
     <Compile Include="Algos\AiAlgo\AiPlayersReader.cs" />

@@ -20,7 +20,9 @@ Relevance rules:
 - Mention only information that helps tell the story.
 - Do not force an insight, pattern, joke, tactical conclusion, or dramatic claim.
 - Use verifiedPatterns only when the pattern is genuinely interesting. It is acceptable to omit all patterns.
-- An unexpected_contributor pattern means the player exceeded their usual expected impact. You may praise the surprise or positive difference they made, but never mention or imply low ratings, weak skills, below-average ability, or hidden player statistics.
+- An unexpected_contributor pattern means the player exceeded expectations. When it is meaningful, highlight the surprise in the main story, not in that player's rating explanation. Never mention or imply low ratings, weak skills, below-average ability, or hidden player statistics.
+- Own-goal and other playful patterns may use gentle humor, but never ridicule, shame, or insult a player.
+- Patterns such as double_crown, all_round_attacker, all_action_team, and highest_scoring_last_place_team are optional story material, not mandatory sections.
 - Never infer player roles, atmosphere, team quality, decisive goals, or causation.
 - If dataLimitations contains entries, avoid claims that require the missing data. Mention a limitation only when necessary to understand the report.
 - Preserve names exactly as provided.
@@ -32,7 +34,7 @@ Output:
 4. A compact ""Awards"" section using awards exactly as provided. Omit an award if its list is empty.
 5. A ""Player ratings"" table containing every entry from players exactly once, in the supplied order. Copy each numeric rating, goal count, and assist count exactly. Keep the explanation very short and use only ratingFactors.
 
-Do not add a closing section merely to fill space. Do not show calculations or hidden reasoning.
+Never use unexpected_contributor as a reason for changing or explaining a player rating. Do not add a closing section merely to fill space. Do not show calculations or hidden reasoning.
 
 Write the entire response in {outputLanguage}.";
         }

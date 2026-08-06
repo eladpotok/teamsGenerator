@@ -36,7 +36,7 @@ namespace TeamsGenerator.Ai
             string userInput,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return SendChatRequestAsync(prompt, userInput, 0.7, cancellationToken);
+            return SendChatRequestAsync(prompt, userInput, 0.2, cancellationToken);
         }
 
         public Task<string> GetResponseFromAgent(
