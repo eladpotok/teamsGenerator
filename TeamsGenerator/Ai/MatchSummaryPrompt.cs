@@ -20,6 +20,7 @@ Relevance rules:
 - Mention only information that helps tell the story.
 - Do not force an insight, pattern, joke, tactical conclusion, or dramatic claim.
 - Use verifiedPatterns only when the pattern is genuinely interesting. It is acceptable to omit all patterns.
+- An unexpected_contributor pattern means the player exceeded their usual expected impact. You may praise the surprise or positive difference they made, but never mention or imply low ratings, weak skills, below-average ability, or hidden player statistics.
 - Never infer player roles, atmosphere, team quality, decisive goals, or causation.
 - If dataLimitations contains entries, avoid claims that require the missing data. Mention a limitation only when necessary to understand the report.
 - Preserve names exactly as provided.

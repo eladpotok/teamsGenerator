@@ -18,13 +18,24 @@ namespace TeamsGenerator.Ai
             var players = FindPlayers(source, matches);
             var playerTeams = FindPlayerTeams(matches);
             var partnerships = FindAssistPartnerships(matches);
+            var unexpectedContributors = FindUnexpectedContributors(
+                source,
+                matches,
+                scorers,
+                assisters);
 
             foreach (var name in scorers.Keys.Concat(assisters.Keys))
             {
                 players.Add(name);
             }
 
-            var ratings = CreateRatings(players, scorers, assisters, standings, playerTeams);
+            var ratings = CreateRatings(
+                players,
+                scorers,
+                assisters,
+                standings,
+                playerTeams,
+                unexpectedContributors);
             var factSheet = new
             {
                 standings = standings.Select((entry, index) => new
@@ -50,7 +61,8 @@ namespace TeamsGenerator.Ai
                     scorers,
                     assisters,
                     playerTeams,
-                    partnerships),
+                    partnerships,
+                    unexpectedContributors),
                 dataLimitations = CreateLimitations(matches, standings, scorers, assisters, players)
             };
 
@@ -344,12 +356,57 @@ namespace TeamsGenerator.Ai
             return partnerships;
         }
 
+        private static HashSet<string> FindUnexpectedContributors(
+            JToken source,
+            IEnumerable<JObject> matches,
+            IDictionary<string, int> scorers,
+            IDictionary<string, int> assisters)
+        {
+            var result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var skillNames = new[] { "attack", "defence", "stamina", "leadership", "passing" };
+
+            foreach (var player in GetDataTokens(source, matches).OfType<JObject>())
+            {
+                var name = GetName(player);
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    continue;
+                }
+
+                var skills = skillNames
+                    .Select(skill => GetValue(player, skill))
+                    .Where(value => value != null)
+                    .Select(value =>
+                    {
+                        double parsed;
+                        return double.TryParse(value.ToString(), out parsed)
+                            ? (double?)parsed
+                            : null;
+                    })
+                    .Where(value => value.HasValue)
+                    .Select(value => value.Value)
+                    .ToList();
+
+                var contribution = GetValue(scorers, name) + GetValue(assisters, name);
+                var hasMostlyBelowAverageSkills = skills.Count >= 3
+                    && skills.Count(skill => skill < 5) > skills.Count / 2;
+
+                if (hasMostlyBelowAverageSkills && contribution >= 2)
+                {
+                    result.Add(name);
+                }
+            }
+
+            return result;
+        }
+
         private static List<PlayerRatingFact> CreateRatings(
             IEnumerable<string> players,
             IDictionary<string, int> scorers,
             IDictionary<string, int> assisters,
             IList<StandingFact> standings,
-            IDictionary<string, string> playerTeams)
+            IDictionary<string, string> playerTeams,
+            ISet<string> unexpectedContributors)
         {
             var maxGoals = scorers.Count == 0 ? 0 : scorers.Values.Max();
             var maxAssists = assisters.Count == 0 ? 0 : assisters.Values.Max();
@@ -381,6 +438,12 @@ namespace TeamsGenerator.Ai
                 {
                     score += 0.4;
                     factors.Add("top assister");
+                }
+
+                if (unexpectedContributors.Contains(player))
+                {
+                    score += 0.35;
+                    factors.Add("surprising attacking impact");
                 }
 
                 string team;
@@ -441,7 +504,8 @@ namespace TeamsGenerator.Ai
             IDictionary<string, int> scorers,
             IDictionary<string, int> assisters,
             IDictionary<string, string> playerTeams,
-            IEnumerable<PartnershipFact> partnerships)
+            IEnumerable<PartnershipFact> partnerships,
+            IEnumerable<string> unexpectedContributors)
         {
             var patterns = new List<object>();
             var maxGoals = scorers.Count == 0 ? 0 : scorers.Values.Max();
@@ -488,6 +552,17 @@ namespace TeamsGenerator.Ai
                     playerB = partnership.PlayerB,
                     playerAToPlayerB = partnership.AToB,
                     playerBToPlayerA = partnership.BToA
+                });
+            }
+
+            foreach (var player in unexpectedContributors)
+            {
+                patterns.Add(new
+                {
+                    type = "unexpected_contributor",
+                    player,
+                    goals = GetValue(scorers, player),
+                    assists = GetValue(assisters, player)
                 });
             }
 
