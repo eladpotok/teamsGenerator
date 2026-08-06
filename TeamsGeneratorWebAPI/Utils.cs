@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Identity;
+using System.IO.Compression;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace TeamsGeneratorWebAPI
 {
@@ -64,5 +66,58 @@ namespace TeamsGeneratorWebAPI
                 return ms.ToArray();
             }
         }
+
+        public static string CompressBase64(string base64Input)
+        {
+            // Decode original Base64 to raw bytes
+            var originalBytes = Convert.FromBase64String(base64Input);
+
+            using var output = new MemoryStream();
+            using (var gzip = new GZipStream(output, CompressionLevel.Optimal))
+            {
+                gzip.Write(originalBytes, 0, originalBytes.Length);
+            }
+
+            // Re-encode compressed bytes to Base64
+            return Convert.ToBase64String(output.ToArray());
+        }
+
+        public static string DecompressBase64(string compressedBase64)
+        {
+            var compressedBytes = Convert.FromBase64String(compressedBase64);
+
+            using var input = new MemoryStream(compressedBytes);
+            using var gzip = new GZipStream(input, CompressionMode.Decompress);
+            using var output = new MemoryStream();
+
+            gzip.CopyTo(output);
+
+            // Return original Base64 string
+            return Convert.ToBase64String(output.ToArray());
+        }
+
+        internal static List<string> GetStringByBlocks(string imageBase64)
+        {
+            string base64 = imageBase64;
+            int maxChunkSize = 32000; // safe for Azure Tables (UTF-16 + overhead)
+            var chunks = SplitString(base64, maxChunkSize);
+
+            return chunks;
+        }
+
+        public static List<string> SplitString(string str, int chunkSize)
+        {
+            var chunks = new List<string>();
+
+            for (int i = 0; i < str.Length; i += chunkSize)
+            {
+                int length = Math.Min(chunkSize, str.Length - i);
+                chunks.Add(str.Substring(i, length));
+            }
+
+            return chunks;
+        }
     }
 }
+
+

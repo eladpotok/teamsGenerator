@@ -201,15 +201,106 @@ If the meaning is unclear, prefer to keep the score neutral and avoid adding tra
             _prompt = _config.Language == "he" ? promptHe : promptEn;
             string playersResponse = GetAiResponse(_prompt, playersToProvideInAi);
 
-            var result = new List<Team>();
-
             var options = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             };
-
             var skillWisePlayersAccordingToAi = JsonSerializer.Deserialize<IEnumerable<SkillWisePlayer>>(playersResponse, options);
-            var teams = new SkillWiseManager(_config).GenerateTeams(skillWisePlayersAccordingToAi.Cast<IPlayer>().ToList(), generatedTeamWithLockedPlayers);
+
+            var result = new List<Team>();
+
+            var promptForTeamsGeneration = $@"I have a list of soccer players.  
+Each player has numeric attributes: attack, defence, stamina, leadership, and passing.  
+I also provide the number of teams to create - {_config.TeamsCount}.
+
+Your goal is to divide the players into the specified number of teams so that the teams are as balanced as possible.  
+
+""Balanced"" means that the sum of each attribute (attack, defence, stamina, leadership, passing) across all players in each team should be as close as possible between teams.  
+No team should be significantly stronger or weaker in any specific attribute compared to others.
+
+Additional instructions:
+1.You may assume that some player descriptions might include relational constraints, such as:
+   -A player who does* not want to be with another player*.
+   - A player who *prefers to be with another player *.
+   - A player who *must * or * must not* be in a specific team(if such instruction appears).
+   Take these constraints into account when forming teams.
+
+2.Return the result as a**valid JSON array * *, where each object represents a team with the following structure:
+
+📝 Instructions:
+1. Analyze the total attack, defence, stamina, leadership, and passing for each team.
+2. according these fields, Identify the max 2–3 attributes, and takes only theses attributes that there is high distance than other (5~ points than the other following attributes) → turn them into strength points (short text like ""strong attackers"", ""attackers"", ""defenders"" and etc).
+   should be in context of football team
+3. according these fields, Identify the min 2–3 attributes**, and takes only theses attributes that there is high distance than other  (5~ points than the other following attributes)→ turn them into weakness points (short text like “weak defence”, “lack of leadership” and etc).
+   should be in context of football team
+4. Determine the **style** based on the strongest attributes.
+   - For example:
+     - high attack → “attacking”
+     - high defence → “defensive”
+     - high passing or leadership → “vision” or “organized”
+     - balanced values → “balanced team”
+5. Generate a **short and fluent description** of the team in natural language (1–2 sentences), according attack, defence, stamina, leadership, and passing for each team.
+6. Do not include explanations, markdown, or any text outside the JSON.
+7. Ensure the JSON is valid, properly quoted, and without extra spaces or lines.
+
+
+[
+  {{
+    ""teamIndex"": 0, (and should be growing in each element)
+    ""players"": [ ""player Key 1"", ""player Key 2"", ... ],
+    ""attack"": 0,
+    ""defence"": 0,
+    ""stamina"": 0,
+    ""leadership"": 0,
+    ""passing"": 0,
+    ""strength"": [""short text point"", ""short text point""], --> in title case
+    ""weakness"": [""short text point"", ""short text point""], --> in title case
+    ""playStyle"": ""short text that describes the playstyle (e.g. attackers, defenders, technique, vision, balanced)"", --> in title case
+    ""description"": ""A short and clear paragraph describing the team based on its players' skills.""
+  }},
+  ...
+]
+
+3.Verify that the JSON is valid:
+   -No extra text, comments, or explanations outside the JSON.
+   -Quotes must be valid and properly escaped.
+   -Each field name must appear exactly as defined above.
+
+4.Calculate each team's averages and `overallRank` (the average of all five attributes).
+
+5.The output should contain** only**the JSON — no text or explanations.
+";
+
+            //var constrainsts = 
+
+            string aiGeneratedTeamsResponse = GetAiResponse(promptForTeamsGeneration, skillWisePlayersAccordingToAi);
+            var aiGeneratedTeams = JsonSerializer.Deserialize<IEnumerable<AiTeam>>(aiGeneratedTeamsResponse, options);
+            //var teams = new SkillWiseManager(_config).GenerateTeams(skillWisePlayersAccordingToAi.Cast<IPlayer>().ToList(), generatedTeamWithLockedPlayers);
+
+            return aiGeneratedTeams.Select(team =>
+            {
+                return new Team()
+                {
+                    Index = team.TeamIndex,
+                    Description = team.Description,
+                    PlayStyle = team.PlayStyle,
+                    Strength = team.Strength,
+                    Weakness = team.Weakness,
+                    Players = team.Players.Select(p =>
+                    {
+                        var originalPlayerFromInput = playersToProvideInAi.First(pl => pl.Key == p);
+                        return new AiPlayer()
+                        {
+                            Description = string.Join(", ", originalPlayerFromInput.Description),
+                            Key = originalPlayerFromInput.Key,
+                            Id = originalPlayerFromInput.Key,
+                            ModifyTime = originalPlayerFromInput.ModifiedTime,
+                            Name = originalPlayerFromInput.Name,
+                            IsArrived = true
+                        };
+                    }).Cast<IPlayer>().ToList()
+                };
+            }).ToList();
 
             var promptForTeamsResults = @"You will receive an input that contains a list of teams.  
 Each team includes numeric values for:
@@ -253,46 +344,46 @@ Output format (exact, valid JSON — no extra text):
 If the meaning of the numbers is ambiguous, make reasonable neutral assumptions and keep the text short and clear.
 ";
 
-            var teamAi = teams.Select(t => new
-            {
-                Index = t.Index,
-                Players = t.Players,
-                Attack = t.Players.Cast<SkillWisePlayer>().Sum(p => p.Attack),
-                Defence = t.Players.Cast<SkillWisePlayer>().Sum(p => p.Defence),
-                Leadership = t.Players.Cast<SkillWisePlayer>().Sum(p => p.Leadership),
-                Passing = t.Players.Cast<SkillWisePlayer>().Sum(p => p.Passing),
-                Stamina = t.Players.Cast<SkillWisePlayer>().Sum(p => p.Stamina)
-            });
+            //var teamAi = teams.Select(t => new
+            //{
+            //    Index = t.Index,
+            //    Players = t.Players,
+            //    Attack = t.Players.Cast<SkillWisePlayer>().Sum(p => p.Attack),
+            //    Defence = t.Players.Cast<SkillWisePlayer>().Sum(p => p.Defence),
+            //    Leadership = t.Players.Cast<SkillWisePlayer>().Sum(p => p.Leadership),
+            //    Passing = t.Players.Cast<SkillWisePlayer>().Sum(p => p.Passing),
+            //    Stamina = t.Players.Cast<SkillWisePlayer>().Sum(p => p.Stamina)
+            //});
 
-            string teamsResponse = GetAiResponse(promptForTeamsResults, teamAi);
-            var teamsAsAiResponse = JsonSerializer.Deserialize<IEnumerable<Team>>(teamsResponse, options);
+            //string teamsResponse = GetAiResponse(promptForTeamsResults, teamAi);
+            //var teamsAsAiResponse = JsonSerializer.Deserialize<IEnumerable<Team>>(teamsResponse, options);
 
-            int index = 0;
-            return teams.Select(team =>
-            {
-                var teamDescriptionAi = teamsAsAiResponse.First(t => t.Index == index);
-                return new Team()
-                {
-                    Index = index++,
-                    Description = teamDescriptionAi.Description,
-                    PlayStyle = teamDescriptionAi.PlayStyle,
-                    Strength = teamDescriptionAi.Strength,
-                    Weakness = teamDescriptionAi.Weakness,
-                    Players = team.Players.Select(p =>
-                    {
-                        var originalPlayerFromInput = playersToProvideInAi.First(pl => pl.Key == p.Key);
-                        return new AiPlayer()
-                        {
-                            Description = string.Join(", ", originalPlayerFromInput.Description),
-                            Key = p.Key,
-                            Id = p.Id,
-                            ModifyTime = p.ModifyTime.ToString(),
-                            Name = players.First(pl => pl.Key == p.Key).Name,
-                            IsArrived = true
-                        };
-                    }).Cast<IPlayer>().ToList()
-                };
-            }).ToList();
+            //int index = 0;
+            //return teams.Select(team =>
+            //{
+            //    var teamDescriptionAi = teamsAsAiResponse.First(t => t.Index == index);
+            //    return new Team()
+            //    {
+            //        Index = index++,
+            //        Description = teamDescriptionAi.Description,
+            //        PlayStyle = teamDescriptionAi.PlayStyle,
+            //        Strength = teamDescriptionAi.Strength,
+            //        Weakness = teamDescriptionAi.Weakness,
+            //        Players = team.Players.Select(p =>
+            //        {
+            //            var originalPlayerFromInput = playersToProvideInAi.First(pl => pl.Key == p.Key);
+            //            return new AiPlayer()
+            //            {
+            //                Description = string.Join(", ", originalPlayerFromInput.Description),
+            //                Key = p.Key,
+            //                Id = p.Id,
+            //                ModifyTime = p.ModifyTime.ToString(),
+            //                Name = players.First(pl => pl.Key == p.Key).Name,
+            //                IsArrived = true
+            //            };
+            //        }).Cast<IPlayer>().ToList()
+            //    };
+            //}).ToList();
         }
 
         private string GetAiResponse(string prompt, object playersToProvideInAi)

@@ -82,6 +82,18 @@ namespace TeamsGeneratorWebAPI.Clients
             return matches.OrderByDescending(t => t.Timestamp).ToList();
         }
 
+        public async Task<T> GetSingleEntitiy<T>(string partitionKey, CancellationToken cancellationToken = default)
+                where T : class, ITableEntity, new()
+        {
+            var entities = await GetAllEntities<T>(partitionKey, cancellationToken);
+            if(entities.Count == 0)
+            {
+                throw new KeyNotFoundException();
+            }
+
+            return entities.Single();
+        }
+
         internal async Task DoneMatch(MatchdayMetadataEntity match)
         {
             await _tableClient.AddEntityAsync(match);

@@ -1,4 +1,6 @@
 using Azure.Data.Tables;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using TeamsGenerator.Ai;
 using TeamsGenerator.API;
 using TeamsGeneratorWebAPI.Clients;
@@ -21,7 +23,11 @@ builder.Services.AddTransient<IUserConfigAzureStorage, UserConfigAzureStorage>()
 builder.Services.AddTransient<IPlayersStorageBlobConnector, PlayersStorageBlobConnector>();
 builder.Services.AddTransient<ITeamsStorageBlobConnector, TeamsStorageBlobConnector>();
 builder.Services.AddTransient<IUserAzureStorage, UserAzureStorage>();
+builder.Services.AddSingleton<GroceriesBlobStorage>();
+builder.Services.AddSingleton<QuestionStorageService>();
+builder.Services.AddSingleton<AzureTableGameRanker>();
 builder.Services.AddSingleton<AzureTableStorageService>();
+builder.Services.AddSingleton<AzureTableGroceries>();
 builder.Services.AddSingleton<OpenAiService>();
 
 
@@ -46,6 +52,14 @@ builder.Services.AddSingleton<TableServiceClient>(provider =>
     return new TableServiceClient(connectionString);
 });
 
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(
+            new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+        );
+    });
 
 var app = builder.Build();
 app.UseCors(builder => {

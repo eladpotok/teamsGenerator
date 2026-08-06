@@ -21,4 +21,20 @@ namespace TeamsGenerator.Algos.AiAlgo
         public bool IsArrived { get; set; }
         public string Description { get; set; }
     }
+
+    public class AiTeam
+    {
+        public List<string> Players { get; set; }
+
+        public int TeamIndex { get; set; }
+        public IEnumerable<string> Weakness { get; set; }
+        public IEnumerable<string> Strength { get; set; }
+        public string Description { get; set; }
+        public string PlayStyle { get; set; }
+        public float Defence { get; set; }
+        public float Attack { get; set; }
+        public float Stamina { get; set; }
+        public float Leadership { get; set; }
+        public float Passing { get; set; }
+    }
 }
