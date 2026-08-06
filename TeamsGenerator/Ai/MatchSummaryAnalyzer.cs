@@ -328,11 +328,6 @@ namespace TeamsGenerator.Ai
             {
                 var names = pair.Key.Split('\u001f');
                 var reverseKey = names[1] + "\u001f" + names[0];
-                if (!directed.ContainsKey(reverseKey))
-                {
-                    continue;
-                }
-
                 var identity = string.Compare(
                     names[0],
                     names[1],
@@ -350,7 +345,7 @@ namespace TeamsGenerator.Ai
                     PlayerA = names[0],
                     PlayerB = names[1],
                     AToB = pair.Value,
-                    BToA = directed[reverseKey]
+                    BToA = directed.ContainsKey(reverseKey) ? directed[reverseKey] : 0
                 });
             }
 
@@ -600,7 +595,10 @@ namespace TeamsGenerator.Ai
                 }
             }
 
-            foreach (var partnership in partnerships.Where(item => item.AToB + item.BToA >= 2))
+            foreach (var partnership in partnerships.Where(item =>
+                item.AToB > 0
+                && item.BToA > 0
+                && item.AToB + item.BToA >= 2))
             {
                 patterns.Add(new
                 {
@@ -725,6 +723,15 @@ namespace TeamsGenerator.Ai
                 }
             }
 
+            AddPlayerDependencyPatterns(patterns, standings, scorers, assisters, playerTeams);
+            AddTeamEffortPatterns(patterns, scorers, playerTeams);
+            AddPowerDuoPatterns(patterns, partnerships, scorers, assisters);
+            AddMatchStoryPatterns(patterns, matches, standings, playerTeams);
+            AddTablePatterns(patterns, standings);
+            AddDefensiveEveningPattern(patterns, matches);
+            AddResiliencePatterns(patterns, matches, standings);
+            AddRunPatterns(patterns, standings);
+
             foreach (var streak in FindLossStreaks(matches).Where(item => item.Value >= 3))
             {
                 patterns.Add(new
@@ -744,6 +751,611 @@ namespace TeamsGenerator.Ai
             }
 
             return patterns;
+        }
+
+        private static void AddPlayerDependencyPatterns(
+            ICollection<object> patterns,
+            IEnumerable<StandingFact> standings,
+            IDictionary<string, int> scorers,
+            IDictionary<string, int> assisters,
+            IDictionary<string, string> playerTeams)
+        {
+            var goalsByTeam = standings.ToDictionary(
+                team => team.Team,
+                team => team.GoalsFor,
+                StringComparer.OrdinalIgnoreCase);
+
+            foreach (var player in scorers.Keys
+                .Concat(assisters.Keys)
+                .Distinct(StringComparer.OrdinalIgnoreCase))
+            {
+                string team;
+                int teamGoals;
+                if (!playerTeams.TryGetValue(player, out team)
+                    || !goalsByTeam.TryGetValue(team, out teamGoals)
+                    || teamGoals < 2)
+                {
+                    continue;
+                }
+
+                var goals = GetValue(scorers, player);
+                var assists = GetValue(assisters, player);
+                var contributions = goals + assists;
+                if (contributions > teamGoals * 0.5)
+                {
+                    patterns.Add(new
+                    {
+                        type = "one_player_dependency",
+                        player,
+                        team,
+                        goals,
+                        assists,
+                        teamGoals,
+                        contributionShare = Math.Round((double)contributions / teamGoals, 2)
+                    });
+                }
+            }
+        }
+
+        private static void AddTeamEffortPatterns(
+            ICollection<object> patterns,
+            IDictionary<string, int> scorers,
+            IDictionary<string, string> playerTeams)
+        {
+            foreach (var team in scorers
+                .Where(player => player.Value > 0 && playerTeams.ContainsKey(player.Key))
+                .GroupBy(
+                    player => playerTeams[player.Key],
+                    StringComparer.OrdinalIgnoreCase)
+                .Where(group => group.Count() >= 4))
+            {
+                patterns.Add(new
+                {
+                    type = "team_scoring_effort",
+                    team = team.Key,
+                    differentScorers = team.Count()
+                });
+            }
+        }
+
+        private static void AddPowerDuoPatterns(
+            ICollection<object> patterns,
+            IEnumerable<PartnershipFact> partnerships,
+            IDictionary<string, int> scorers,
+            IDictionary<string, int> assisters)
+        {
+            foreach (var partnership in partnerships)
+            {
+                var directCombinations = partnership.AToB + partnership.BToA;
+                var combinedContributions =
+                    GetValue(scorers, partnership.PlayerA)
+                    + GetValue(assisters, partnership.PlayerA)
+                    + GetValue(scorers, partnership.PlayerB)
+                    + GetValue(assisters, partnership.PlayerB);
+
+                if (directCombinations >= 3
+                    || (directCombinations >= 2 && combinedContributions >= 6))
+                {
+                    patterns.Add(new
+                    {
+                        type = "power_duo",
+                        playerA = partnership.PlayerA,
+                        playerB = partnership.PlayerB,
+                        directGoalCombinations = directCombinations,
+                        combinedGoalsAndAssists = combinedContributions
+                    });
+                }
+            }
+        }
+
+        private static void AddMatchStoryPatterns(
+            ICollection<object> patterns,
+            IList<JObject> matches,
+            IList<StandingFact> standings,
+            IDictionary<string, string> playerTeams)
+        {
+            var winningGoals = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var match in matches)
+            {
+                MatchScoreFact score;
+                if (!TryGetMatchScore(match, out score) || score.TeamAScore == score.TeamBScore)
+                {
+                    continue;
+                }
+
+                var events = FindOrderedGoalEvents(match, score, playerTeams);
+                if (!GoalEventsMatchFinalScore(events, score))
+                {
+                    continue;
+                }
+
+                var winner = score.TeamAScore > score.TeamBScore
+                    ? score.TeamA
+                    : score.TeamB;
+                var loserScore = score.TeamAScore > score.TeamBScore
+                    ? score.TeamBScore
+                    : score.TeamAScore;
+                var winnerGoals = 0;
+                var runningA = 0;
+                var runningB = 0;
+                var winnerWasBehind = false;
+
+                foreach (var goalEvent in events)
+                {
+                    if (string.Equals(goalEvent.Team, score.TeamA, StringComparison.OrdinalIgnoreCase))
+                    {
+                        runningA++;
+                    }
+                    else
+                    {
+                        runningB++;
+                    }
+
+                    winnerWasBehind = winnerWasBehind
+                        || (string.Equals(winner, score.TeamA, StringComparison.OrdinalIgnoreCase)
+                            ? runningA < runningB
+                            : runningB < runningA);
+
+                    if (string.Equals(goalEvent.Team, winner, StringComparison.OrdinalIgnoreCase))
+                    {
+                        winnerGoals++;
+                        if (winnerGoals == loserScore + 1
+                            && !string.IsNullOrWhiteSpace(goalEvent.Scorer))
+                        {
+                            winningGoals[goalEvent.Scorer] =
+                                winningGoals.ContainsKey(goalEvent.Scorer)
+                                    ? winningGoals[goalEvent.Scorer] + 1
+                                    : 1;
+                        }
+                    }
+                }
+
+                if (winnerWasBehind)
+                {
+                    patterns.Add(new
+                    {
+                        type = "comeback_win",
+                        team = winner,
+                        opponent = string.Equals(
+                            winner,
+                            score.TeamA,
+                            StringComparison.OrdinalIgnoreCase)
+                            ? score.TeamB
+                            : score.TeamA,
+                        finalScore = score.TeamAScore + "-" + score.TeamBScore
+                    });
+                }
+
+                var finalGoal = events.Last();
+                var beforeFinalA = score.TeamAScore
+                    - (string.Equals(finalGoal.Team, score.TeamA, StringComparison.OrdinalIgnoreCase) ? 1 : 0);
+                var beforeFinalB = score.TeamBScore
+                    - (string.Equals(finalGoal.Team, score.TeamB, StringComparison.OrdinalIgnoreCase) ? 1 : 0);
+                if (beforeFinalA == beforeFinalB
+                    && string.Equals(finalGoal.Team, winner, StringComparison.OrdinalIgnoreCase))
+                {
+                    patterns.Add(new
+                    {
+                        type = "late_winner",
+                        team = winner,
+                        scorer = finalGoal.Scorer,
+                        finalScore = score.TeamAScore + "-" + score.TeamBScore
+                    });
+                }
+            }
+
+            if (winningGoals.Count > 0)
+            {
+                var maximum = winningGoals.Values.Max();
+                foreach (var player in winningGoals.Where(entry => entry.Value == maximum))
+                {
+                    patterns.Add(new
+                    {
+                        type = "clutch_player",
+                        player = player.Key,
+                        matchWinningGoals = player.Value
+                    });
+                }
+            }
+
+            AddLastMatchLeadChangePattern(patterns, matches, standings);
+        }
+
+        private static void AddLastMatchLeadChangePattern(
+            ICollection<object> patterns,
+            IList<JObject> matches,
+            IList<StandingFact> standings)
+        {
+            if (matches.Count == 0 || standings.Count < 2)
+            {
+                return;
+            }
+
+            MatchScoreFact score;
+            if (!TryGetMatchScore(matches.Last(), out score)
+                || score.TeamAScore == score.TeamBScore)
+            {
+                return;
+            }
+
+            var winner = score.TeamAScore > score.TeamBScore ? score.TeamA : score.TeamB;
+            if (!string.Equals(
+                standings.First().Team,
+                winner,
+                StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            var previousStandings = standings.Select(team => new StandingFact
+            {
+                Team = team.Team,
+                Wins = team.Wins,
+                Draws = team.Draws,
+                Losses = team.Losses,
+                GoalsFor = team.GoalsFor,
+                GoalsAgainst = team.GoalsAgainst,
+                Points = team.Points
+            }).ToList();
+
+            var teamA = previousStandings.FirstOrDefault(team => string.Equals(
+                team.Team,
+                score.TeamA,
+                StringComparison.OrdinalIgnoreCase));
+            var teamB = previousStandings.FirstOrDefault(team => string.Equals(
+                team.Team,
+                score.TeamB,
+                StringComparison.OrdinalIgnoreCase));
+            if (teamA == null || teamB == null)
+            {
+                return;
+            }
+
+            teamA.GoalsFor -= score.TeamAScore;
+            teamA.GoalsAgainst -= score.TeamBScore;
+            teamB.GoalsFor -= score.TeamBScore;
+            teamB.GoalsAgainst -= score.TeamAScore;
+
+            if (score.TeamAScore > score.TeamBScore)
+            {
+                teamA.Wins--;
+                teamA.Points -= 3;
+                teamB.Losses--;
+            }
+            else
+            {
+                teamB.Wins--;
+                teamB.Points -= 3;
+                teamA.Losses--;
+            }
+
+            var previousLeader = previousStandings
+                .OrderByDescending(team => team.Points)
+                .ThenByDescending(team => team.GoalsFor - team.GoalsAgainst)
+                .ThenByDescending(team => team.GoalsFor)
+                .First()
+                .Team;
+
+            if (!string.Equals(previousLeader, winner, StringComparison.OrdinalIgnoreCase))
+            {
+                patterns.Add(new
+                {
+                    type = "final_match_changed_leader",
+                    team = winner,
+                    previousLeader
+                });
+            }
+        }
+
+        private static void AddTablePatterns(
+            ICollection<object> patterns,
+            IList<StandingFact> standings)
+        {
+            if (standings.Count < 2)
+            {
+                return;
+            }
+
+            var gap = standings[0].Points - standings[1].Points;
+            if (gap <= 1)
+            {
+                patterns.Add(new
+                {
+                    type = "tight_table",
+                    first = standings[0].Team,
+                    second = standings[1].Team,
+                    pointsGap = gap,
+                    tiedOnPoints = gap == 0
+                });
+            }
+
+            var highestGoalsFor = standings.Max(team => team.GoalsFor);
+            var lowPositionStart = (standings.Count + 1) / 2 + 1;
+            foreach (var entry in standings
+                .Select((team, index) => new { Team = team, Position = index + 1 })
+                .Where(entry =>
+                    entry.Position >= lowPositionStart
+                    && entry.Team.GoalsFor == highestGoalsFor
+                    && highestGoalsFor > 0))
+            {
+                patterns.Add(new
+                {
+                    type = "attack_without_reward",
+                    team = entry.Team.Team,
+                    goalsFor = entry.Team.GoalsFor,
+                    finalPosition = entry.Position
+                });
+            }
+        }
+
+        private static void AddDefensiveEveningPattern(
+            ICollection<object> patterns,
+            IEnumerable<JObject> matches)
+        {
+            var parsedMatches = new List<MatchScoreFact>();
+            foreach (var match in matches)
+            {
+                MatchScoreFact score;
+                if (TryGetMatchScore(match, out score))
+                {
+                    parsedMatches.Add(score);
+                }
+            }
+
+            if (parsedMatches.Count < 3)
+            {
+                return;
+            }
+
+            var totalGoals = parsedMatches.Sum(match => match.TeamAScore + match.TeamBScore);
+            var cleanSheets = parsedMatches.Sum(match =>
+                (match.TeamAScore == 0 ? 1 : 0) + (match.TeamBScore == 0 ? 1 : 0));
+            var average = (double)totalGoals / parsedMatches.Count;
+            if (average <= 2 || cleanSheets >= 3)
+            {
+                patterns.Add(new
+                {
+                    type = "defensive_evening",
+                    matches = parsedMatches.Count,
+                    totalGoals,
+                    goalsPerMatch = Math.Round(average, 2),
+                    cleanSheets
+                });
+            }
+        }
+
+        private static void AddResiliencePatterns(
+            ICollection<object> patterns,
+            IEnumerable<JObject> matches,
+            IList<StandingFact> standings)
+        {
+            var outcomes = new Dictionary<string, List<char>>(StringComparer.OrdinalIgnoreCase);
+            foreach (var match in matches)
+            {
+                MatchScoreFact score;
+                if (!TryGetMatchScore(match, out score))
+                {
+                    continue;
+                }
+
+                AddOutcome(outcomes, score.TeamA, score.TeamAScore, score.TeamBScore);
+                AddOutcome(outcomes, score.TeamB, score.TeamBScore, score.TeamAScore);
+            }
+
+            foreach (var entry in standings
+                .Select((team, index) => new { Team = team.Team, Position = index + 1 })
+                .Where(entry => entry.Position <= 2))
+            {
+                List<char> teamOutcomes;
+                if (!outcomes.TryGetValue(entry.Team, out teamOutcomes))
+                {
+                    continue;
+                }
+
+                var streak = 0;
+                var recovered = false;
+                foreach (var outcome in teamOutcomes)
+                {
+                    if (outcome == 'L')
+                    {
+                        streak++;
+                    }
+                    else
+                    {
+                        recovered = recovered || (streak >= 2 && outcome == 'W');
+                        streak = 0;
+                    }
+                }
+
+                if (recovered)
+                {
+                    patterns.Add(new
+                    {
+                        type = "resilient_finish",
+                        team = entry.Team,
+                        finalPosition = entry.Position
+                    });
+                }
+            }
+        }
+
+        private static void AddRunPatterns(
+            ICollection<object> patterns,
+            IEnumerable<StandingFact> standings)
+        {
+            foreach (var team in standings.Where(team =>
+                team.Wins + team.Draws + team.Losses >= 2))
+            {
+                if (team.Losses == 0 && team.Draws == 0)
+                {
+                    patterns.Add(new
+                    {
+                        type = "perfect_run",
+                        team = team.Team,
+                        wins = team.Wins
+                    });
+                }
+                else if (team.Losses == 0)
+                {
+                    patterns.Add(new
+                    {
+                        type = "undefeated_run",
+                        team = team.Team,
+                        wins = team.Wins,
+                        draws = team.Draws
+                    });
+                }
+
+                if (team.Wins == 0)
+                {
+                    patterns.Add(new
+                    {
+                        type = "winless_run",
+                        team = team.Team,
+                        draws = team.Draws,
+                        losses = team.Losses
+                    });
+                }
+            }
+        }
+
+        private static bool TryGetMatchScore(JObject match, out MatchScoreFact score)
+        {
+            score = null;
+            var teamA = GetValue(match, "teamA") as JObject;
+            var teamB = GetValue(match, "teamB") as JObject;
+            int teamAScore;
+            int teamBScore;
+            var teamAName = GetTeamName(teamA);
+            var teamBName = GetTeamName(teamB);
+            if (string.IsNullOrWhiteSpace(teamAName)
+                || string.IsNullOrWhiteSpace(teamBName)
+                || !TryGetInt(teamA, out teamAScore, "score", "goals")
+                || !TryGetInt(teamB, out teamBScore, "score", "goals"))
+            {
+                return false;
+            }
+
+            score = new MatchScoreFact
+            {
+                TeamA = teamAName,
+                TeamB = teamBName,
+                TeamAScore = teamAScore,
+                TeamBScore = teamBScore
+            };
+            return true;
+        }
+
+        private static List<GoalEventFact> FindOrderedGoalEvents(
+            JObject match,
+            MatchScoreFact score,
+            IDictionary<string, string> playerTeams)
+        {
+            var eventArray = GetTokens(match)
+                .OfType<JProperty>()
+                .Where(property =>
+                    string.Equals(property.Name, "goals", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(property.Name, "goalEvents", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(property.Name, "scoringEvents", StringComparison.OrdinalIgnoreCase))
+                .Select(property => property.Value as JArray)
+                .Where(array => array != null)
+                .OrderByDescending(array => array.Count)
+                .FirstOrDefault();
+
+            if (eventArray == null)
+            {
+                return new List<GoalEventFact>();
+            }
+
+            var events = new List<GoalEventFact>();
+            foreach (var item in eventArray.OfType<JObject>())
+            {
+                var scorer = GetName(GetValue(item, "scorer", "goalScorer", "scoredBy"));
+                var explicitTeam = GetName(GetValue(
+                    item,
+                    "scoringTeam",
+                    "teamColor",
+                    "team"));
+                string playerTeam = null;
+                if (!string.IsNullOrWhiteSpace(scorer))
+                {
+                    playerTeams.TryGetValue(scorer, out playerTeam);
+                }
+
+                var team = explicitTeam ?? playerTeam;
+                var ownGoal = IsGoalEventOwnGoal(item);
+                if (ownGoal && !string.IsNullOrWhiteSpace(playerTeam))
+                {
+                    team = string.Equals(playerTeam, score.TeamA, StringComparison.OrdinalIgnoreCase)
+                        ? score.TeamB
+                        : score.TeamA;
+                }
+
+                if (!string.Equals(team, score.TeamA, StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(team, score.TeamB, StringComparison.OrdinalIgnoreCase))
+                {
+                    return new List<GoalEventFact>();
+                }
+
+                events.Add(new GoalEventFact
+                {
+                    Team = team,
+                    Scorer = scorer
+                });
+            }
+
+            return events;
+        }
+
+        private static bool GoalEventsMatchFinalScore(
+            IEnumerable<GoalEventFact> events,
+            MatchScoreFact score)
+        {
+            var eventList = events.ToList();
+            return eventList.Count == score.TeamAScore + score.TeamBScore
+                && eventList.Count(goal => string.Equals(
+                    goal.Team,
+                    score.TeamA,
+                    StringComparison.OrdinalIgnoreCase)) == score.TeamAScore
+                && eventList.Count(goal => string.Equals(
+                    goal.Team,
+                    score.TeamB,
+                    StringComparison.OrdinalIgnoreCase)) == score.TeamBScore;
+        }
+
+        private static bool IsGoalEventOwnGoal(JObject goalEvent)
+        {
+            var marker = GetValue(goalEvent, "isOwnGoal", "ownGoal", "isOwn");
+            return IsTruthy(marker)
+                || IsOwnGoalType(GetValue(goalEvent, "type", "eventType", "goalType"))
+                || (marker != null
+                    && marker.Type == JTokenType.String
+                    && !IsTruthyText(marker.Value<string>())
+                    && !IsExplicitFalseText(marker.Value<string>()));
+        }
+
+        private static string GetTeamName(JObject team)
+        {
+            return GetName(GetValue(team, "color")) ?? GetName(GetValue(team, "name"));
+        }
+
+        private static void AddOutcome(
+            IDictionary<string, List<char>> outcomes,
+            string team,
+            int teamScore,
+            int opponentScore)
+        {
+            List<char> teamOutcomes;
+            if (!outcomes.TryGetValue(team, out teamOutcomes))
+            {
+                teamOutcomes = new List<char>();
+                outcomes[team] = teamOutcomes;
+            }
+
+            teamOutcomes.Add(teamScore > opponentScore
+                ? 'W'
+                : teamScore < opponentScore ? 'L' : 'D');
         }
 
         private static Dictionary<string, int> FindLossStreaks(IEnumerable<JObject> matches)
@@ -1016,6 +1628,20 @@ namespace TeamsGenerator.Ai
         {
             public string Player { get; set; }
             public string Team { get; set; }
+        }
+
+        private sealed class MatchScoreFact
+        {
+            public string TeamA { get; set; }
+            public string TeamB { get; set; }
+            public int TeamAScore { get; set; }
+            public int TeamBScore { get; set; }
+        }
+
+        private sealed class GoalEventFact
+        {
+            public string Team { get; set; }
+            public string Scorer { get; set; }
         }
 
         private sealed class PlayerRatingFact
