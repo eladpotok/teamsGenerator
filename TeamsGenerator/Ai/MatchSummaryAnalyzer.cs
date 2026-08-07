@@ -24,6 +24,12 @@ namespace TeamsGenerator.Ai
                 matches,
                 scorers,
                 assisters);
+            var dataQuality = AnalyzeDataQuality(
+                matches,
+                standings,
+                playerTeams,
+                scorers,
+                assisters);
 
             foreach (var name in scorers.Keys.Concat(assisters.Keys))
             {
@@ -63,8 +69,15 @@ namespace TeamsGenerator.Ai
                     playerTeams,
                     partnerships,
                     ownGoals,
-                    unexpectedContributors),
-                dataLimitations = CreateLimitations(matches, standings, scorers, assisters, players)
+                    unexpectedContributors,
+                    dataQuality),
+                dataLimitations = CreateLimitations(
+                    matches,
+                    standings,
+                    scorers,
+                    assisters,
+                    players,
+                    dataQuality)
             };
 
             return JsonConvert.SerializeObject(factSheet, Formatting.None);
@@ -555,14 +568,18 @@ namespace TeamsGenerator.Ai
             IDictionary<string, string> playerTeams,
             IEnumerable<PartnershipFact> partnerships,
             IEnumerable<OwnGoalFact> ownGoals,
-            IEnumerable<string> unexpectedContributors)
+            IEnumerable<string> unexpectedContributors,
+            SummaryDataQuality dataQuality)
         {
             var patterns = new List<object>();
             var maxGoals = scorers.Count == 0 ? 0 : scorers.Values.Max();
             var maxAssists = assisters.Count == 0 ? 0 : assisters.Values.Max();
             var ownGoalList = ownGoals.ToList();
 
-            foreach (var player in assisters.Where(entry => entry.Value >= 2))
+            foreach (var player in assisters.Where(entry =>
+                dataQuality.ScorerTotalsReliable
+                && dataQuality.AssistTotalsReliable
+                && entry.Value >= 2))
             {
                 if (GetValue(scorers, player.Key) == 0)
                 {
@@ -575,7 +592,10 @@ namespace TeamsGenerator.Ai
                 }
             }
 
-            if (standings.Count > 1 && maxGoals > 0)
+            if (dataQuality.StandingsReliable
+                && dataQuality.ScorerTotalsReliable
+                && standings.Count > 1
+                && maxGoals > 0)
             {
                 var lastTeam = standings.Last().Team;
                 foreach (var scorer in scorers.Where(entry => entry.Value == maxGoals))
@@ -621,7 +641,7 @@ namespace TeamsGenerator.Ai
                 });
             }
 
-            if (ownGoalList.Count >= 3)
+            if (dataQuality.CompleteGoalTimelines && ownGoalList.Count >= 3)
             {
                 patterns.Add(new
                 {
@@ -631,7 +651,8 @@ namespace TeamsGenerator.Ai
             }
 
             foreach (var team in ownGoalList
-                .Where(item => !string.IsNullOrWhiteSpace(item.Team))
+                .Where(item => dataQuality.CompleteGoalTimelines
+                    && !string.IsNullOrWhiteSpace(item.Team))
                 .GroupBy(item => item.Team, StringComparer.OrdinalIgnoreCase)
                 .Where(group => group.Count() >= 2))
             {
@@ -644,7 +665,8 @@ namespace TeamsGenerator.Ai
             }
 
             foreach (var player in ownGoalList
-                .Where(item => !string.IsNullOrWhiteSpace(item.Player))
+                .Where(item => dataQuality.CompleteGoalTimelines
+                    && !string.IsNullOrWhiteSpace(item.Player))
                 .GroupBy(item => item.Player, StringComparer.OrdinalIgnoreCase)
                 .Where(group => group.Count() >= 2))
             {
@@ -656,7 +678,10 @@ namespace TeamsGenerator.Ai
                 });
             }
 
-            if (maxGoals > 0 && maxAssists > 0)
+            if (dataQuality.ScorerTotalsReliable
+                && dataQuality.AssistTotalsReliable
+                && maxGoals > 0
+                && maxAssists > 0)
             {
                 foreach (var player in scorers
                     .Where(entry => entry.Value == maxGoals)
@@ -677,7 +702,10 @@ namespace TeamsGenerator.Ai
                 }
             }
 
-            foreach (var player in scorers.Where(entry => entry.Value >= 2))
+            foreach (var player in scorers.Where(entry =>
+                dataQuality.ScorerTotalsReliable
+                && dataQuality.AssistTotalsReliable
+                && entry.Value >= 2))
             {
                 var assists = GetValue(assisters, player.Key);
                 if (assists >= 2)
@@ -692,7 +720,7 @@ namespace TeamsGenerator.Ai
                 }
             }
 
-            if (standings.Count > 1)
+            if (dataQuality.StandingsReliable && standings.Count > 1)
             {
                 var highestGoalsFor = standings.Max(team => team.GoalsFor);
                 var highestGoalsAgainst = standings.Max(team => team.GoalsAgainst);
@@ -730,16 +758,56 @@ namespace TeamsGenerator.Ai
                 }
             }
 
-            AddPlayerDependencyPatterns(patterns, standings, scorers, assisters, playerTeams);
-            AddTeamEffortPatterns(patterns, scorers, playerTeams);
-            AddPowerDuoPatterns(patterns, partnerships, scorers, assisters);
-            AddMatchStoryPatterns(patterns, matches, standings, playerTeams);
-            AddTablePatterns(patterns, standings);
-            AddDefensiveEveningPattern(patterns, matches);
-            AddResiliencePatterns(patterns, matches, standings);
-            AddRunPatterns(patterns, standings);
+            if (dataQuality.StandingsReliable
+                && dataQuality.ScorerTotalsReliable
+                && dataQuality.AssistTotalsReliable)
+            {
+                AddPlayerDependencyPatterns(
+                    patterns,
+                    standings,
+                    scorers,
+                    assisters,
+                    playerTeams);
+            }
 
-            foreach (var streak in FindLossStreaks(matches).Where(item => item.Value >= 3))
+            if (dataQuality.CompleteGoalTimelines
+                && dataQuality.ScorerTotalsReliable)
+            {
+                AddTeamEffortPatterns(patterns, scorers, playerTeams);
+            }
+
+            AddPowerDuoPatterns(
+                patterns,
+                partnerships,
+                scorers,
+                assisters,
+                dataQuality.ScorerTotalsReliable
+                    && dataQuality.AssistTotalsReliable);
+            AddMatchStoryPatterns(
+                patterns,
+                matches,
+                standings,
+                playerTeams,
+                dataQuality.CompleteGoalTimelines,
+                dataQuality.StandingsReliable);
+
+            if (dataQuality.StandingsReliable)
+            {
+                AddTablePatterns(patterns, standings);
+                AddRunPatterns(patterns, standings);
+            }
+
+            if (dataQuality.AllMatchScoresAvailable)
+            {
+                AddDefensiveEveningPattern(patterns, matches);
+                if (dataQuality.StandingsReliable)
+                {
+                    AddResiliencePatterns(patterns, matches, standings);
+                }
+            }
+
+            foreach (var streak in FindLossStreaks(matches).Where(item =>
+                dataQuality.AllMatchScoresAvailable && item.Value >= 3))
             {
                 patterns.Add(new
                 {
@@ -829,7 +897,8 @@ namespace TeamsGenerator.Ai
             ICollection<object> patterns,
             IEnumerable<PartnershipFact> partnerships,
             IDictionary<string, int> scorers,
-            IDictionary<string, int> assisters)
+            IDictionary<string, int> assisters,
+            bool contributionTotalsReliable)
         {
             foreach (var partnership in partnerships)
             {
@@ -841,7 +910,9 @@ namespace TeamsGenerator.Ai
                     + GetValue(assisters, partnership.PlayerB);
 
                 if (directCombinations >= 3
-                    || (directCombinations >= 2 && combinedContributions >= 6))
+                    || (directCombinations >= 2
+                        && contributionTotalsReliable
+                        && combinedContributions >= 6))
                 {
                     patterns.Add(new
                     {
@@ -859,7 +930,9 @@ namespace TeamsGenerator.Ai
             ICollection<object> patterns,
             IList<JObject> matches,
             IList<StandingFact> standings,
-            IDictionary<string, string> playerTeams)
+            IDictionary<string, string> playerTeams,
+            bool completeGoalTimelines,
+            bool standingsReliable)
         {
             var winningGoals = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
@@ -952,7 +1025,7 @@ namespace TeamsGenerator.Ai
                 }
             }
 
-            if (winningGoals.Count > 0)
+            if (completeGoalTimelines && winningGoals.Count > 0)
             {
                 var maximum = winningGoals.Values.Max();
                 foreach (var player in winningGoals.Where(entry => entry.Value == maximum))
@@ -966,7 +1039,10 @@ namespace TeamsGenerator.Ai
                 }
             }
 
-            AddLastMatchLeadChangePattern(patterns, matches, standings);
+            if (completeGoalTimelines && standingsReliable)
+            {
+                AddLastMatchLeadChangePattern(patterns, matches, standings);
+            }
         }
 
         private static void AddLastMatchLeadChangePattern(
@@ -1311,7 +1387,13 @@ namespace TeamsGenerator.Ai
                 events.Add(new GoalEventFact
                 {
                     Team = team,
-                    Scorer = scorer
+                    Scorer = scorer,
+                    Assister = GetName(GetValue(
+                        item,
+                        "assist",
+                        "assister",
+                        "assistedBy")),
+                    IsOwnGoal = ownGoal
                 });
             }
 
@@ -1384,6 +1466,151 @@ namespace TeamsGenerator.Ai
             return longest;
         }
 
+        private static SummaryDataQuality AnalyzeDataQuality(
+            IList<JObject> matches,
+            IList<StandingFact> standings,
+            IDictionary<string, string> playerTeams,
+            IDictionary<string, int> scorers,
+            IDictionary<string, int> assisters)
+        {
+            var quality = new SummaryDataQuality
+            {
+                StandingsReliable = standings.Count > 0 && matches.Count == 0
+            };
+
+            if (matches.Count == 0)
+            {
+                return quality;
+            }
+
+            quality.AllMatchScoresAvailable = matches.All(match =>
+            {
+                MatchScoreFact score;
+                return TryGetMatchScore(match, out score);
+            });
+
+            quality.CompleteGoalTimelines = quality.AllMatchScoresAvailable
+                && matches.All(match =>
+                {
+                    MatchScoreFact score;
+                    if (!TryGetMatchScore(match, out score))
+                    {
+                        return false;
+                    }
+
+                    var events = FindOrderedGoalEvents(match, score, playerTeams);
+                    return GoalEventsMatchFinalScore(events, score);
+                });
+
+            if (quality.CompleteGoalTimelines)
+            {
+                var goalEvents = matches.SelectMany(match =>
+                {
+                    MatchScoreFact score;
+                    return TryGetMatchScore(match, out score)
+                        ? FindOrderedGoalEvents(match, score, playerTeams)
+                        : new List<GoalEventFact>();
+                }).ToList();
+                var completeScorerNames = goalEvents.All(goal =>
+                    goal.IsOwnGoal || !string.IsNullOrWhiteSpace(goal.Scorer));
+                var calculatedScorers = CountNames(goalEvents
+                    .Where(goal => !goal.IsOwnGoal)
+                    .Select(goal => goal.Scorer));
+                var calculatedAssisters = CountNames(goalEvents
+                    .Select(goal => goal.Assister));
+
+                quality.ScorerTotalsReliable = completeScorerNames
+                    && DictionariesEqual(calculatedScorers, scorers);
+                quality.AssistTotalsReliable = DictionariesEqual(
+                    calculatedAssisters,
+                    assisters);
+            }
+
+            quality.StandingsReliable = quality.AllMatchScoresAvailable
+                && StandingsMatchResults(matches, standings);
+            return quality;
+        }
+
+        private static bool StandingsMatchResults(
+            IEnumerable<JObject> matches,
+            IList<StandingFact> standings)
+        {
+            if (standings.Count == 0)
+            {
+                return false;
+            }
+
+            var calculated = new Dictionary<string, StandingFact>(
+                StringComparer.OrdinalIgnoreCase);
+            foreach (var match in matches)
+            {
+                MatchScoreFact score;
+                if (!TryGetMatchScore(match, out score))
+                {
+                    return false;
+                }
+
+                AddCalculatedResult(
+                    calculated,
+                    score.TeamA,
+                    score.TeamAScore,
+                    score.TeamBScore);
+                AddCalculatedResult(
+                    calculated,
+                    score.TeamB,
+                    score.TeamBScore,
+                    score.TeamAScore);
+            }
+
+            if (calculated.Count != standings.Count)
+            {
+                return false;
+            }
+
+            return standings.All(expected =>
+            {
+                StandingFact actual;
+                return calculated.TryGetValue(expected.Team, out actual)
+                    && actual.Wins == expected.Wins
+                    && actual.Draws == expected.Draws
+                    && actual.Losses == expected.Losses
+                    && actual.GoalsFor == expected.GoalsFor
+                    && actual.GoalsAgainst == expected.GoalsAgainst
+                    && actual.Points == expected.Points;
+            });
+        }
+
+        private static void AddCalculatedResult(
+            IDictionary<string, StandingFact> standings,
+            string team,
+            int goalsFor,
+            int goalsAgainst)
+        {
+            StandingFact result;
+            if (!standings.TryGetValue(team, out result))
+            {
+                result = new StandingFact { Team = team };
+                standings[team] = result;
+            }
+
+            result.GoalsFor += goalsFor;
+            result.GoalsAgainst += goalsAgainst;
+            if (goalsFor > goalsAgainst)
+            {
+                result.Wins++;
+                result.Points += 3;
+            }
+            else if (goalsFor < goalsAgainst)
+            {
+                result.Losses++;
+            }
+            else
+            {
+                result.Draws++;
+                result.Points++;
+            }
+        }
+
         private static void UpdateLossStreak(
             IDictionary<string, int> current,
             IDictionary<string, int> longest,
@@ -1427,7 +1654,8 @@ namespace TeamsGenerator.Ai
             ICollection<StandingFact> standings,
             ICollection<KeyValuePair<string, int>> scorers,
             ICollection<KeyValuePair<string, int>> assisters,
-            ICollection<string> players)
+            ICollection<string> players,
+            SummaryDataQuality dataQuality)
         {
             var limitations = new List<string>();
             if (matches.Count == 0)
@@ -1453,6 +1681,33 @@ namespace TeamsGenerator.Ai
             if (players.Count == 0)
             {
                 limitations.Add("No player roster was supplied.");
+            }
+
+            if (matches.Count > 0 && !dataQuality.AllMatchScoresAvailable)
+            {
+                limitations.Add(
+                    "Some match scores were incomplete; full-evening score patterns were suppressed.");
+            }
+
+            if (matches.Count > 0 && !dataQuality.CompleteGoalTimelines)
+            {
+                limitations.Add(
+                    "Some ordered goal events were incomplete; chronology-wide patterns were suppressed.");
+            }
+
+            if (standings.Count > 0 && !dataQuality.StandingsReliable)
+            {
+                limitations.Add(
+                    "The supplied standings conflicted with match results; table-based patterns were suppressed.");
+            }
+
+            if (matches.Count > 0
+                && dataQuality.CompleteGoalTimelines
+                && (!dataQuality.ScorerTotalsReliable
+                    || !dataQuality.AssistTotalsReliable))
+            {
+                limitations.Add(
+                    "Player aggregates conflicted with goal events; aggregate-dependent patterns were suppressed.");
             }
 
             return limitations;
@@ -1549,6 +1804,33 @@ namespace TeamsGenerator.Ai
         {
             int value;
             return values.TryGetValue(key, out value) ? value : 0;
+        }
+
+        private static Dictionary<string, int> CountNames(IEnumerable<string> names)
+        {
+            return names
+                .Where(name => !string.IsNullOrWhiteSpace(name))
+                .GroupBy(name => name, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group.Count(),
+                    StringComparer.OrdinalIgnoreCase);
+        }
+
+        private static bool DictionariesEqual(
+            IDictionary<string, int> expected,
+            IDictionary<string, int> actual)
+        {
+            var actualPositive = actual
+                .Where(entry => entry.Value > 0)
+                .ToDictionary(
+                    entry => entry.Key,
+                    entry => entry.Value,
+                    StringComparer.OrdinalIgnoreCase);
+            return expected.Count == actualPositive.Count
+                && expected.All(entry =>
+                    actualPositive.ContainsKey(entry.Key)
+                    && actualPositive[entry.Key] == entry.Value);
         }
 
         private static string FormatCount(int count, string singular, string plural)
@@ -1652,6 +1934,17 @@ namespace TeamsGenerator.Ai
         {
             public string Team { get; set; }
             public string Scorer { get; set; }
+            public string Assister { get; set; }
+            public bool IsOwnGoal { get; set; }
+        }
+
+        private sealed class SummaryDataQuality
+        {
+            public bool AllMatchScoresAvailable { get; set; }
+            public bool CompleteGoalTimelines { get; set; }
+            public bool StandingsReliable { get; set; }
+            public bool ScorerTotalsReliable { get; set; }
+            public bool AssistTotalsReliable { get; set; }
         }
 
         private sealed class PlayerRatingFact
