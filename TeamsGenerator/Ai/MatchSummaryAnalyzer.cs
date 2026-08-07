@@ -696,6 +696,10 @@ namespace TeamsGenerator.Ai
             {
                 var highestGoalsFor = standings.Max(team => team.GoalsFor);
                 var highestGoalsAgainst = standings.Max(team => team.GoalsAgainst);
+                var highestScoringTeamCount = standings.Count(
+                    team => team.GoalsFor == highestGoalsFor);
+                var mostConcedingTeamCount = standings.Count(
+                    team => team.GoalsAgainst == highestGoalsAgainst);
                 foreach (var team in standings.Where(team =>
                     team.GoalsFor == highestGoalsFor
                     && team.GoalsAgainst == highestGoalsAgainst
@@ -707,7 +711,9 @@ namespace TeamsGenerator.Ai
                         type = "all_action_team",
                         team = team.Team,
                         goalsFor = team.GoalsFor,
-                        goalsAgainst = team.GoalsAgainst
+                        goalsAgainst = team.GoalsAgainst,
+                        jointHighestGoalsFor = highestScoringTeamCount > 1,
+                        jointHighestGoalsAgainst = mostConcedingTeamCount > 1
                     });
                 }
 
@@ -718,7 +724,8 @@ namespace TeamsGenerator.Ai
                     {
                         type = "highest_scoring_last_place_team",
                         team = lastTeam.Team,
-                        goalsFor = lastTeam.GoalsFor
+                        goalsFor = lastTeam.GoalsFor,
+                        jointHighestScoring = highestScoringTeamCount > 1
                     });
                 }
             }
@@ -1071,6 +1078,8 @@ namespace TeamsGenerator.Ai
             }
 
             var highestGoalsFor = standings.Max(team => team.GoalsFor);
+            var highestScoringTeamCount = standings.Count(
+                team => team.GoalsFor == highestGoalsFor);
             var lowPositionStart = (standings.Count + 1) / 2 + 1;
             foreach (var entry in standings
                 .Select((team, index) => new { Team = team, Position = index + 1 })
@@ -1084,7 +1093,8 @@ namespace TeamsGenerator.Ai
                     type = "attack_without_reward",
                     team = entry.Team.Team,
                     goalsFor = entry.Team.GoalsFor,
-                    finalPosition = entry.Position
+                    finalPosition = entry.Position,
+                    jointHighestScoring = highestScoringTeamCount > 1
                 });
             }
         }
