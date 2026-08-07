@@ -184,9 +184,9 @@ namespace TeamsGeneratorWebAPI.Controllers
         public async Task<IActionResult> GetAiSummary(
             [FromHeader(Name = "client_version")] string ver,
             [FromBody] dynamic matchesHistory,
-            string language = "he",
             CancellationToken cancellationToken = default)
         {
+            string language = "he";
             var reply = await _aiService.GetResponseFromAgent(matchesHistory, language, cancellationToken);
             return Ok(reply);
         }
