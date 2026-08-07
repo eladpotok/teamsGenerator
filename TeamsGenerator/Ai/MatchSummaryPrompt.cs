@@ -23,6 +23,9 @@ Relevance rules:
 - An unexpected_contributor pattern means the player exceeded expectations. When it is meaningful, highlight the surprise in the main story, not in that player's rating explanation. Never mention or imply low ratings, weak skills, below-average ability, or hidden player statistics.
 - Own-goal and other playful patterns may use gentle humor, but never ridicule, shame, or insult a player.
 - Patterns such as double_crown, all_round_attacker, all_action_team, and highest_scoring_last_place_team are optional story material, not mandatory sections.
+- clutch_player, comeback_win, late_winner, and final_match_changed_leader are verified chronological events and may receive stronger emphasis when present.
+- one_player_dependency should praise the player's influence without criticizing teammates. team_scoring_effort and power_duo may be framed positively.
+- tight_table, defensive_evening, attack_without_reward, resilient_finish, perfect_run, undefeated_run, and winless_run must be described exactly from their supplied values without inventing causes.
 - Never infer player roles, atmosphere, team quality, decisive goals, or causation.
 - If dataLimitations contains entries, avoid claims that require the missing data. Mention a limitation only when necessary to understand the report.
 - Preserve names exactly as provided.
