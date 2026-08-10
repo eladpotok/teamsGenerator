@@ -23,6 +23,7 @@ namespace TeamsGenerator.API
         public IEnumerable<string> Strength { get; set; }
         public string Description { get; set; }
         public string PlayStyle { get; set; }
+        public Dictionary<string, double> SkillAverages { get; set; }
 
 
         public double GetAvarage()

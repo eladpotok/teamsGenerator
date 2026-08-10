@@ -67,6 +67,7 @@ Integrity rules:
 The user message contains:
 - players: numeric attributes and stable player keys.
 - lockedTeams: player keys that must remain assigned to a specific teamIndex.
+- preferences: preferredWithKeys are soft requests; avoidWithKeys are mandatory separation constraints.
 
 Create exactly {teamsCount} teams.
 
@@ -76,17 +77,19 @@ Hard constraints:
 3. Preserve every lockedTeams assignment.
 4. Team-size difference must be at most one player.
 5. Distribute explicit goalkeepers as evenly as mathematically possible. When there are at least {teamsCount} goalkeepers, every team must receive one before any team receives a second.
+6. Never place a player on the same team as any key in their avoidWithKeys list. Treat the constraint as mutual even when only one player requested it.
 
 Balance objective, in priority order:
 1. Minimize the largest difference between team averages for attack, defence, stamina, leadership, and passing.
 2. Minimize the difference between overall team averages, where overall is the average of all five attributes.
 3. Avoid concentrating the strongest attackers, defenders, passers, leaders, or high-stamina players on one team.
 4. Prefer complementary lineups: each team should have attacking threat, defensive ability, passing, leadership, and stamina where the available pool permits it.
+5. Satisfy preferredWithKeys requests when doing so does not materially worsen balance or violate any hard constraint.
 
 Evaluation:
 - Compare averages rather than totals so uneven team sizes remain comparable.
 - Check all five attributes separately; similar overall averages are not enough if one team dominates a specific attribute.
-- Before returning, verify player coverage, locked assignments, team sizes, goalkeeper distribution, and attribute spreads.
+- Before returning, verify player coverage, locked assignments, avoid constraints, team sizes, goalkeeper distribution, and attribute spreads.
 
 Return only this valid JSON structure:
 [

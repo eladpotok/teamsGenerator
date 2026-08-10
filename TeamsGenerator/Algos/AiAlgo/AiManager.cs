@@ -15,6 +15,8 @@ namespace TeamsGenerator.Algos.AiAlgo
         public List<string> Description { get; set; }
         public string Key { get; set; }
         public string ModifiedTime { get; set; }
+        public List<string> PreferredWithKeys { get; set; }
+        public List<string> AvoidWithKeys { get; set; }
     }
 
     public class TeamsAiJsonOutput
@@ -45,12 +47,16 @@ namespace TeamsGenerator.Algos.AiAlgo
             List<IPlayer> players,
             List<Team> generatedTeamWithLockedPlayers)
         {
+            var inputPlayers = players.Cast<AiPlayer>().ToList();
+            var lockedTeamList = generatedTeamWithLockedPlayers ?? new List<Team>();
+            ValidateGenerationInput(inputPlayers, lockedTeamList);
+
             Exception lastError = null;
             for (var attempt = 0; attempt < MaxAttempts; attempt++)
             {
                 try
                 {
-                    return Generate(players, generatedTeamWithLockedPlayers);
+                    return Generate(inputPlayers, lockedTeamList);
                 }
                 catch (Exception exception)
                 {
@@ -64,30 +70,40 @@ namespace TeamsGenerator.Algos.AiAlgo
         }
 
         private List<Team> Generate(
-            IEnumerable<IPlayer> players,
+            IEnumerable<AiPlayer> players,
             IEnumerable<Team> generatedTeamWithLockedPlayers)
         {
-            var inputPlayers = players.Cast<AiPlayer>().ToList();
-            if (inputPlayers.Count < _config.TeamsCount)
-            {
-                throw new InvalidOperationException(
-                    "The number of players must be at least the number of teams.");
-            }
+            var inputPlayers = players.ToList();
 
             var playersForAssessment = inputPlayers.Select(player => new PlayerJsonToAi
             {
                 Name = player.Name,
                 Description = SplitDescription(player.Description),
                 Key = player.Key,
-                ModifiedTime = player.ModifyTime
+                ModifiedTime = player.ModifyTime,
+                PreferredWithKeys = player.PreferredWithKeys ?? new List<string>(),
+                AvoidWithKeys = player.AvoidWithKeys ?? new List<string>()
             }).ToList();
 
             var assessedPlayers = AssessPlayers(playersForAssessment);
             var lockedTeams = CreateLockedTeamInput(generatedTeamWithLockedPlayers);
-            ValidateLockedTeams(lockedTeams, assessedPlayers);
-            var generatedTeams = GenerateBalancedTeams(assessedPlayers, lockedTeams);
+            ValidateLockedTeams(
+                lockedTeams,
+                assessedPlayers.Select(player => player.Key));
+            var preferences = CreatePreferenceInput(inputPlayers);
+            ValidatePreferences(
+                preferences,
+                assessedPlayers.Select(player => player.Key));
+            var generatedTeams = GenerateBalancedTeams(
+                assessedPlayers,
+                lockedTeams,
+                preferences);
 
-            ValidateGeneratedTeams(generatedTeams, assessedPlayers, lockedTeams);
+            ValidateGeneratedTeams(
+                generatedTeams,
+                assessedPlayers,
+                lockedTeams,
+                preferences);
             return MapTeams(generatedTeams, playersForAssessment);
         }
 
@@ -120,12 +136,14 @@ namespace TeamsGenerator.Algos.AiAlgo
 
         private List<AiTeam> GenerateBalancedTeams(
             IList<SkillWisePlayer> assessedPlayers,
-            IList<LockedTeamInput> lockedTeams)
+            IList<LockedTeamInput> lockedTeams,
+            IList<PlayerPreferenceInput> preferences)
         {
             var payload = new
             {
                 players = assessedPlayers,
-                lockedTeams
+                lockedTeams,
+                preferences
             };
             var response = GetAiResponse(
                 AiTeamPrompts.CreateTeamGenerationPrompt(
@@ -183,7 +201,8 @@ namespace TeamsGenerator.Algos.AiAlgo
         private void ValidateGeneratedTeams(
             IList<AiTeam> teams,
             IList<SkillWisePlayer> players,
-            IList<LockedTeamInput> lockedTeams)
+            IList<LockedTeamInput> lockedTeams,
+            IList<PlayerPreferenceInput> preferences)
         {
             if (teams == null || teams.Count != _config.TeamsCount)
             {
@@ -225,6 +244,7 @@ namespace TeamsGenerator.Algos.AiAlgo
             }
 
             ValidateTeamAverages(teams, players);
+            ValidateAvoidPreferences(teams, preferences);
             if (lockedTeams.Count == 0)
             {
                 ValidateGoalkeeperDistribution(teams, players);
@@ -298,10 +318,10 @@ namespace TeamsGenerator.Algos.AiAlgo
 
         private void ValidateLockedTeams(
             IEnumerable<LockedTeamInput> lockedTeams,
-            IEnumerable<SkillWisePlayer> players)
+            IEnumerable<string> playerKeys)
         {
             var validPlayerKeys = new HashSet<string>(
-                players.Select(player => player.Key),
+                playerKeys,
                 StringComparer.OrdinalIgnoreCase);
             var lockedPlayerKeys = new HashSet<string>(
                 StringComparer.OrdinalIgnoreCase);
@@ -349,6 +369,14 @@ namespace TeamsGenerator.Algos.AiAlgo
                     PlayStyle = team.PlayStyle,
                     Strength = team.Strength,
                     Weakness = team.Weakness,
+                    SkillAverages = new Dictionary<string, double>
+                    {
+                        ["attack"] = team.Attack,
+                        ["defence"] = team.Defence,
+                        ["stamina"] = team.Stamina,
+                        ["leadership"] = team.Leadership,
+                        ["passing"] = team.Passing
+                    },
                     Players = team.Players.Select(key =>
                     {
                         var player = playersByKey[key];
@@ -359,7 +387,9 @@ namespace TeamsGenerator.Algos.AiAlgo
                             Id = player.Key,
                             ModifyTime = player.ModifiedTime,
                             Name = player.Name,
-                            IsArrived = true
+                            IsArrived = true,
+                            PreferredWithKeys = player.PreferredWithKeys,
+                            AvoidWithKeys = player.AvoidWithKeys
                         };
                     }).ToList()
                 })
@@ -376,6 +406,136 @@ namespace TeamsGenerator.Algos.AiAlgo
                     TeamIndex = team.Index,
                     PlayerKeys = team.Players.Select(player => player.Key).ToList()
                 }).ToList();
+        }
+
+        private static List<PlayerPreferenceInput> CreatePreferenceInput(
+            IEnumerable<AiPlayer> players)
+        {
+            var playerList = players.ToList();
+            var selectedKeys = new HashSet<string>(
+                playerList.Select(player => player.Key),
+                StringComparer.OrdinalIgnoreCase);
+
+            return playerList.Select(player => new PlayerPreferenceInput
+            {
+                PlayerKey = player.Key,
+                PreferredWithKeys = (player.PreferredWithKeys ?? new List<string>())
+                    .Where(selectedKeys.Contains)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList(),
+                AvoidWithKeys = (player.AvoidWithKeys ?? new List<string>())
+                    .Where(selectedKeys.Contains)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList()
+            }).ToList();
+        }
+
+        private static void ValidatePreferences(
+            IEnumerable<PlayerPreferenceInput> preferences,
+            IEnumerable<string> playerKeys)
+        {
+            var validKeys = new HashSet<string>(
+                playerKeys,
+                StringComparer.OrdinalIgnoreCase);
+
+            foreach (var preference in preferences)
+            {
+                var relatedKeys = preference.PreferredWithKeys
+                    .Concat(preference.AvoidWithKeys)
+                    .ToList();
+
+                if (relatedKeys.Any(key =>
+                    !validKeys.Contains(key) ||
+                    string.Equals(key, preference.PlayerKey, StringComparison.OrdinalIgnoreCase)))
+                {
+                    throw new InvalidOperationException(
+                        "A player preference references an invalid player.");
+                }
+
+                var preferred = new HashSet<string>(
+                    preference.PreferredWithKeys,
+                    StringComparer.OrdinalIgnoreCase);
+                if (preference.AvoidWithKeys.Any(preferred.Contains))
+                {
+                    throw new InvalidOperationException(
+                        "A player cannot both prefer and avoid the same player.");
+                }
+            }
+        }
+
+        private void ValidateGenerationInput(
+            IList<AiPlayer> players,
+            IList<Team> generatedTeamWithLockedPlayers)
+        {
+            if (players.Count < _config.TeamsCount)
+            {
+                throw new InvalidOperationException(
+                    "The number of players must be at least the number of teams.");
+            }
+
+            var playerKeys = players.Select(player => player.Key).ToList();
+            var preferences = CreatePreferenceInput(players);
+            ValidatePreferences(preferences, playerKeys);
+
+            var lockedTeams = CreateLockedTeamInput(generatedTeamWithLockedPlayers);
+            ValidateLockedTeams(lockedTeams, playerKeys);
+
+            var maximumTeamSize =
+                (int)Math.Ceiling((double)players.Count / _config.TeamsCount);
+            if (lockedTeams.Any(team => team.PlayerKeys.Count > maximumTeamSize))
+            {
+                throw new InvalidOperationException(
+                    "A locked team contains more players than a balanced team can hold.");
+            }
+
+            if (_config.TeamsCount == 1
+                && preferences.Any(preference => preference.AvoidWithKeys.Count > 0))
+            {
+                throw new InvalidOperationException(
+                    "Avoid preferences require at least two teams.");
+            }
+
+            var preferenceByPlayer = preferences.ToDictionary(
+                preference => preference.PlayerKey,
+                StringComparer.OrdinalIgnoreCase);
+            foreach (var lockedTeam in lockedTeams)
+            {
+                var lockedKeys = new HashSet<string>(
+                    lockedTeam.PlayerKeys,
+                    StringComparer.OrdinalIgnoreCase);
+                if (lockedTeam.PlayerKeys.Any(playerKey =>
+                    preferenceByPlayer[playerKey].AvoidWithKeys.Any(lockedKeys.Contains)))
+                {
+                    throw new InvalidOperationException(
+                        "Players with an avoid preference cannot be locked to the same team.");
+                }
+            }
+        }
+
+        private static void ValidateAvoidPreferences(
+            IEnumerable<AiTeam> teams,
+            IEnumerable<PlayerPreferenceInput> preferences)
+        {
+            var teamByPlayer = teams
+                .SelectMany(team => team.Players.Select(playerKey => new
+                {
+                    playerKey,
+                    team.TeamIndex
+                }))
+                .ToDictionary(
+                    item => item.playerKey,
+                    item => item.TeamIndex,
+                    StringComparer.OrdinalIgnoreCase);
+
+            foreach (var preference in preferences)
+            {
+                if (preference.AvoidWithKeys.Any(avoidedKey =>
+                    teamByPlayer[avoidedKey] == teamByPlayer[preference.PlayerKey]))
+                {
+                    throw new InvalidOperationException(
+                        "The AI placed players together despite an avoid preference.");
+                }
+            }
         }
 
         private static List<string> SplitDescription(string description)
@@ -405,6 +565,18 @@ namespace TeamsGenerator.Algos.AiAlgo
 
             [JsonProperty("playerKeys")]
             public List<string> PlayerKeys { get; set; }
+        }
+
+        private sealed class PlayerPreferenceInput
+        {
+            [JsonProperty("playerKey")]
+            public string PlayerKey { get; set; }
+
+            [JsonProperty("preferredWithKeys")]
+            public List<string> PreferredWithKeys { get; set; }
+
+            [JsonProperty("avoidWithKeys")]
+            public List<string> AvoidWithKeys { get; set; }
         }
     }
 }

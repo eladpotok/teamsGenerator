@@ -20,6 +20,8 @@ namespace TeamsGenerator.Algos.AiAlgo
         [EditableInClient(Show = false)]
         public bool IsArrived { get; set; }
         public string Description { get; set; }
+        public List<string> PreferredWithKeys { get; set; } = new List<string>();
+        public List<string> AvoidWithKeys { get; set; } = new List<string>();
     }
 
     public class AiTeam

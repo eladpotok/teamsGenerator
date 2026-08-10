@@ -153,7 +153,8 @@ namespace TeamsGenerator.API
                     Description = team.Description,
                     PlayStyle = team.PlayStyle,
                     Strength = team.Strength,
-                    Weakness = team.Weakness
+                    Weakness = team.Weakness,
+                    SkillAverages = team.SkillAverages
                 });
                 index++;
                 selectedShirts.RemoveAt(0);

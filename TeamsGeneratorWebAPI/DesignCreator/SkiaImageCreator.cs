@@ -155,7 +155,9 @@ namespace TeamsDesignCreator
                         Typeface = SKTypeface.FromFamilyName("Berlin Sans FB Demi", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright)
                     };
 
-                    var scorers = (IEnumerable<dynamic>)topScorers;
+                    var scorers = topScorers == null
+                        ? Enumerable.Empty<dynamic>()
+                        : (IEnumerable<dynamic>)topScorers;
                     if (scorers.Any())
                     {
                         DrawText(186, 441, topScorerName, canvas, Helpers.ReverseIfNeeded(topScorers[0].name.ToString()));
@@ -171,8 +173,10 @@ namespace TeamsDesignCreator
                         }
                     }
 
-                    var assists = (IEnumerable<dynamic>)topAssists;
-                    if (scorers.Any())
+                    var assists = topAssists == null
+                        ? Enumerable.Empty<dynamic>()
+                        : (IEnumerable<dynamic>)topAssists;
+                    if (assists.Any())
                     {
                         DrawText(489, 441, topScorerName, canvas, Helpers.ReverseIfNeeded(topAssists[0].name.ToString()));
                         DrawText(489, 474, topScorerValue, canvas, topAssists[0].scores.ToString());

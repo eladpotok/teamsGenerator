@@ -14,10 +14,12 @@ namespace TeamsGenerator.Algos
         public IEnumerable<string> Strength { get; set; }
         public string Description { get; set; }
         public string PlayStyle { get; set; }
+        public Dictionary<string, double> SkillAverages { get; set; }
 
         public Team()
         {
             Players = new List<IPlayer>();
+            SkillAverages = new Dictionary<string, double>();
         }
 
         public Team(int index) : this()
