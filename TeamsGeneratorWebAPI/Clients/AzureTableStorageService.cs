@@ -96,7 +96,50 @@ namespace TeamsGeneratorWebAPI.Clients
 
         internal async Task DoneMatch(MatchdayMetadataEntity match)
         {
-            await _tableClient.AddEntityAsync(match);
+            await _tableClient.UpsertEntityAsync(match, TableUpdateMode.Replace);
+        }
+
+        internal async Task StoreChemistryMatchday(
+            string ownerId,
+            string matchdayId,
+            IEnumerable<MatchEntity> matches)
+        {
+            if (string.IsNullOrWhiteSpace(ownerId)
+                || string.IsNullOrWhiteSpace(matchdayId))
+            {
+                throw new ArgumentException(
+                    "Owner and matchday identifiers are required.");
+            }
+
+            var entity = ChemistryHistory.CreateMatchdayEntity(
+                ownerId,
+                matchdayId,
+                matches);
+            await _tableClient.UpsertEntityAsync(
+                entity,
+                TableUpdateMode.Replace);
+        }
+
+        internal async Task<IReadOnlyDictionary<string, double>>
+            GetChemistryScores(string ownerId)
+        {
+            if (string.IsNullOrWhiteSpace(ownerId))
+            {
+                return new Dictionary<string, double>();
+            }
+
+            var partitionKey = ChemistryHistory.GetPartitionKey(ownerId);
+            var matchdays = new List<ChemistryMatchdayEntity>();
+            await foreach (var entity in _tableClient
+                .QueryAsync<ChemistryMatchdayEntity>(
+                    item => item.PartitionKey == partitionKey))
+            {
+                matchdays.Add(entity);
+            }
+
+            return ChemistryHistory.CalculateScores(
+                matchdays,
+                DateTimeOffset.UtcNow);
         }
 
         internal async Task<bool> IsClosed(string partitionKey)

@@ -58,7 +58,10 @@ namespace TeamsGenerator.API
             return textAsResult;
         }
 
-        public static GetTeamsResponse GetTeams(dynamic json, int algoKey)
+        public static GetTeamsResponse GetTeams(
+            dynamic json,
+            int algoKey,
+            IReadOnlyDictionary<string, double> chemistryScores = null)
         {
             var configSerializedObject = JsonConvert.SerializeObject(json.config);
             UserConfigResponse config = JsonConvert.DeserializeObject<UserConfigResponse>(configSerializedObject);
@@ -83,7 +86,13 @@ namespace TeamsGenerator.API
                 }
             }
 
-            var algoConfig = new AlgoConfig() { TeamsCount = config.NumberOfTeams, Language = config.Language };
+            var algoConfig = new AlgoConfig()
+            {
+                TeamsCount = config.NumberOfTeams,
+                Language = config.Language,
+                UseChemistry = config.UseChemistry,
+                ChemistryScores = chemistryScores
+            };
             var teams = AlgoRunner.Run(algoKeyEnum, playersCollection.ToList(), algoConfig, alreadyGeneratedTeams);
             var teamsResponse = GetDisplayTeams(config.ShirtsColors, teams, config.ShowWhoBegins);
 

@@ -33,6 +33,7 @@ namespace TeamsGenerator.API
                 { typeof(double), "number" },
                 { typeof(bool), "boolean" },
                 { typeof(List<Position>), "list" },
+                { typeof(List<string>), "list" },
             };
 
             var playerInterface = Type.GetType($"TeamsGenerator.Algos.{AlgoName}Algo.{AlgoName}Player");

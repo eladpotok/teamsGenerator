@@ -35,11 +35,19 @@ namespace TeamsGeneratorWebAPI.Controllers
         }
 
         [HttpPost()]
-        public GetTeamsResponse Post([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic dicJson, int algoKey)
+        public async Task<GetTeamsResponse> Post(
+            [FromHeader(Name = "client_version")] string ver,
+            [FromBody] dynamic dicJson,
+            int algoKey,
+            string? ownerId = null)
         {
             _telemetryClient.TrackEvent("GetTeams");
             _telemetryClient.TrackMetric("GetTeams", 1);
-            return WebAppAPI.GetTeams(dicJson, algoKey);
+            IReadOnlyDictionary<string, double>? chemistryScores =
+                string.IsNullOrWhiteSpace(ownerId)
+                ? null
+                : await _matchService.GetChemistryScores(ownerId);
+            return WebAppAPI.GetTeams(dicJson, algoKey, chemistryScores);
         }
 
         [HttpPost("[action]")]
@@ -149,35 +157,73 @@ namespace TeamsGeneratorWebAPI.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> DoneAndReadMatches(string partitionKey)
+        public async Task<IActionResult> DoneAndReadMatches(
+            string partitionKey,
+            string? ownerId = null)
         {
             var matches = await _matchService.GetAllMatchesAsync(partitionKey);
+            if (!string.IsNullOrWhiteSpace(ownerId) && matches?.Count > 0)
+            {
+                await _matchService.StoreChemistryMatchday(
+                    ownerId,
+                    partitionKey,
+                    matches);
+            }
             await _matchService.DoneMatch(new MatchdayMetadataEntity() { PartitionKey = partitionKey, RowKey = AzureTableStorageService.RowKeyForCloseStatus, IsClosed = true  });
             return Ok(matches);
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> EditMatch([FromBody] MatchEntity match)
+        public async Task<IActionResult> EditMatch(
+            [FromBody] MatchEntity match,
+            string? ownerId = null)
         {
             var succeeded = await _matchService.EditMatch(match);
             if(succeeded)
             {
                 var matches = await _matchService.GetAllMatchesAsync(match.PartitionKey);
+                await RefreshChemistryIfClosed(
+                    ownerId,
+                    match.PartitionKey,
+                    matches);
                 return Ok(matches);
             }
             return NotFound();
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> DeleteMatch([FromBody] MatchEntity match)
+        public async Task<IActionResult> DeleteMatch(
+            [FromBody] MatchEntity match,
+            string? ownerId = null)
         {
             var succeeded = await _matchService.DeleteEntity(match);
             if (succeeded)
             {
                 var matches = await _matchService.GetAllMatchesAsync(match.PartitionKey);
+                await RefreshChemistryIfClosed(
+                    ownerId,
+                    match.PartitionKey,
+                    matches);
                 return Ok(matches);
             }
             return NotFound();
+        }
+
+        private async Task RefreshChemistryIfClosed(
+            string? ownerId,
+            string matchdayId,
+            List<MatchEntity> matches)
+        {
+            if (string.IsNullOrWhiteSpace(ownerId)
+                || !await _matchService.IsClosed(matchdayId))
+            {
+                return;
+            }
+
+            await _matchService.StoreChemistryMatchday(
+                ownerId,
+                matchdayId,
+                matches);
         }
 
         [HttpPost("[action]")]

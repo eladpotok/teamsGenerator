@@ -26,6 +26,16 @@ namespace TeamsGeneratorWebAPI.Clients
 
     }
 
+    public class ChemistryMatchdayEntity : ITableEntity
+    {
+        public string PartitionKey { get; set; }
+        public string RowKey { get; set; }
+        public string PairEvidenceJson { get; set; }
+        public DateTimeOffset CompletedAt { get; set; }
+        public ETag ETag { get; set; }
+        public DateTimeOffset? Timestamp { get; set; }
+    }
+
     public class UpdateEntity : ITableEntity
     {
         public string PartitionKey { get; set; }

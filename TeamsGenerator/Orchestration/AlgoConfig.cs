@@ -11,5 +11,7 @@ namespace TeamsGenerator.Orchestration
     {
         public int TeamsCount { get; set; }
         public string Language { get; internal set; }
+        public bool UseChemistry { get; set; }
+        public IReadOnlyDictionary<string, double> ChemistryScores { get; set; }
     }
 }

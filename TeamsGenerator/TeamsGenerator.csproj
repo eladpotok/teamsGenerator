@@ -89,6 +89,8 @@
     <Compile Include="Orchestration\AlgoRunner.cs" />
     <Compile Include="Orchestration\AlgoType.cs" />
     <Compile Include="Orchestration\AlgoConfig.cs" />
+    <Compile Include="Orchestration\ChemistryPairKey.cs" />
+    <Compile Include="Orchestration\ChemistryTeamBalancer.cs" />
     <Compile Include="Orchestration\Configuration\ConfigurationManager.cs" />
     <Compile Include="Orchestration\Contracts\IAlgoManager.cs" />
     <Compile Include="Orchestration\Contracts\IDisplayTeam.cs" />

@@ -28,6 +28,10 @@ namespace TeamsGenerator.Orchestration
         {
             var algo = _algoTypeToTeamsGeneratorMapper[algoType];
             var teams = algo.Invoke(config).GenerateTeams(players, generatedTeamsWithLockedPlayers) ?? null;
+            if (config.UseChemistry)
+            {
+                ChemistryTeamBalancer.Apply(teams, algoType, config.ChemistryScores);
+            }
             return teams;
         }
 

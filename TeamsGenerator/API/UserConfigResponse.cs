@@ -30,6 +30,7 @@ namespace TeamsGenerator.API
         public string RepeatDay { get; set; }
         public string RepeatTime { get; set; }
         public string Language { get; set; }
+        public bool UseChemistry { get; set; }
         public List<Lang> AvailableLanguages { get; set; }
 
 
@@ -56,6 +57,7 @@ namespace TeamsGenerator.API
                 new Lang() { Value ="he", Label="עברית (Hebrew)" }
             };
             Language = AvailableLanguages[0].Value;
+            UseChemistry = false;
         }
     }
 }
