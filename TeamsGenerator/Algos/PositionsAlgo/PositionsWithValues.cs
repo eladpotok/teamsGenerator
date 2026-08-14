@@ -62,11 +62,13 @@ namespace TeamsGenerator.Algos.PositionsAlgo
 
             while (positionsPlayers.Any())
             {
+                var playersCountBeforePass = positionsPlayers.Count;
+
                 for (int i = 0; i < numberOfPositions; i++)
                 {
                     var position = (Position)i;
                     var playersOfCurrentPosition = positionsPlayers
-                        .Where(p => p.Positions.Contains(position))
+                        .Where(p => HasPosition(p, position))
                         .ToList();
 
                     playersOfCurrentPosition = _positionToOrderMapper[position](playersOfCurrentPosition);
@@ -75,7 +77,9 @@ namespace TeamsGenerator.Algos.PositionsAlgo
                     var teamPositionCounts = teamsResult
                         .Select(t => new {
                             Team = t,
-                            Count = t.Players.Count(p => ((PositionsPlayer)p).Positions.Contains(position))
+                            Count = t.Players
+                                .Cast<PositionsPlayer>()
+                                .Count(p => HasPosition(p, position))
                         })
                         .ToList();
 
@@ -98,6 +102,20 @@ namespace TeamsGenerator.Algos.PositionsAlgo
                         teamsToFill[teamIndex].AddPlayer(player);
                         positionsPlayers.Remove(player);
                     }
+                }
+
+                if (positionsPlayers.Count == playersCountBeforePass)
+                {
+                    var fallbackPlayer = positionsPlayers
+                        .OrderByDescending(player => player.Rank)
+                        .First();
+                    var fallbackTeam = teamsResult
+                        .OrderBy(team => team.Players.Count)
+                        .ThenBy(team => team.TotalRank)
+                        .First();
+
+                    fallbackTeam.AddPlayer(fallbackPlayer);
+                    positionsPlayers.Remove(fallbackPlayer);
                 }
             }
 
@@ -126,6 +144,13 @@ namespace TeamsGenerator.Algos.PositionsAlgo
             return ordered.ToList();
         }
 
+        private static bool HasPosition(
+            PositionsPlayer player,
+            Position position)
+        {
+            return player?.Positions != null
+                && player.Positions.Contains(position);
+        }
 
     }
 

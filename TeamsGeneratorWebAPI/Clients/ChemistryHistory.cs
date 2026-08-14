@@ -21,7 +21,8 @@ namespace TeamsGeneratorWebAPI.Clients
         internal static ChemistryMatchdayEntity CreateMatchdayEntity(
             string ownerId,
             string matchdayId,
-            IEnumerable<MatchEntity> matches)
+            IEnumerable<MatchEntity> matches,
+            DateTimeOffset completedAt)
         {
             var evidenceByPair = new Dictionary<string, PairAccumulator>(
                 StringComparer.OrdinalIgnoreCase);
@@ -54,12 +55,7 @@ namespace TeamsGeneratorWebAPI.Clients
                 PartitionKey = GetPartitionKey(ownerId),
                 RowKey = matchdayId,
                 PairEvidenceJson = JsonConvert.SerializeObject(pairEvidence),
-                CompletedAt = matchList.Count == 0
-                    ? DateTimeOffset.UtcNow
-                    : new DateTimeOffset(
-                        DateTime.SpecifyKind(
-                            matchList.Max(match => match.CreatedAt),
-                            DateTimeKind.Utc))
+                CompletedAt = completedAt.ToUniversalTime()
             };
         }
 

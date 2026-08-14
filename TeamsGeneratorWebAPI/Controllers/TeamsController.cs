@@ -134,17 +134,16 @@ namespace TeamsGeneratorWebAPI.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> AddMatch([FromBody] MatchEntity match)
         {
-            var isClosed = await _matchService.IsClosed(match.PartitionKey);
-            if (isClosed)
+            var result = await _matchService.AddMatchAsync(match);
+            if (result == MatchMutationResult.Closed)
             {
-                return Ok(new
-                {
-                    IsClosed = true,
-                    Message = "Matchday is closed. No further matches can be added."
-                });
+                return ClosedMatchdayResponse();
+            }
+            if (result == MatchMutationResult.Conflict)
+            {
+                return Conflict();
             }
 
-            await _matchService.AddMatchAsync(match);
             var matches = await _matchService.GetAllMatchesAsync(match.PartitionKey);
             return Ok(matches);
         }
@@ -161,16 +160,17 @@ namespace TeamsGeneratorWebAPI.Controllers
             string partitionKey,
             string? ownerId = null)
         {
-            var matches = await _matchService.GetAllMatchesAsync(partitionKey);
-            if (!string.IsNullOrWhiteSpace(ownerId) && matches?.Count > 0)
+            try
             {
-                await _matchService.StoreChemistryMatchday(
-                    ownerId,
+                var matches = await _matchService.FinalizeMatchday(
                     partitionKey,
-                    matches);
+                    ownerId);
+                return Ok(matches);
             }
-            await _matchService.DoneMatch(new MatchdayMetadataEntity() { PartitionKey = partitionKey, RowKey = AzureTableStorageService.RowKeyForCloseStatus, IsClosed = true  });
-            return Ok(matches);
+            catch (MatchdayConcurrencyException)
+            {
+                return Conflict();
+            }
         }
 
         [HttpPost("[action]")]
@@ -178,17 +178,19 @@ namespace TeamsGeneratorWebAPI.Controllers
             [FromBody] MatchEntity match,
             string? ownerId = null)
         {
-            var succeeded = await _matchService.EditMatch(match);
-            if(succeeded)
+            var result = await _matchService.EditMatch(match);
+            if (result == MatchMutationResult.Closed)
+            {
+                return ClosedMatchdayResponse();
+            }
+            if (result == MatchMutationResult.Succeeded)
             {
                 var matches = await _matchService.GetAllMatchesAsync(match.PartitionKey);
-                await RefreshChemistryIfClosed(
-                    ownerId,
-                    match.PartitionKey,
-                    matches);
                 return Ok(matches);
             }
-            return NotFound();
+            return result == MatchMutationResult.NotFound
+                ? NotFound()
+                : Conflict();
         }
 
         [HttpPost("[action]")]
@@ -196,34 +198,19 @@ namespace TeamsGeneratorWebAPI.Controllers
             [FromBody] MatchEntity match,
             string? ownerId = null)
         {
-            var succeeded = await _matchService.DeleteEntity(match);
-            if (succeeded)
+            var result = await _matchService.DeleteMatch(match);
+            if (result == MatchMutationResult.Closed)
+            {
+                return ClosedMatchdayResponse();
+            }
+            if (result == MatchMutationResult.Succeeded)
             {
                 var matches = await _matchService.GetAllMatchesAsync(match.PartitionKey);
-                await RefreshChemistryIfClosed(
-                    ownerId,
-                    match.PartitionKey,
-                    matches);
                 return Ok(matches);
             }
-            return NotFound();
-        }
-
-        private async Task RefreshChemistryIfClosed(
-            string? ownerId,
-            string matchdayId,
-            List<MatchEntity> matches)
-        {
-            if (string.IsNullOrWhiteSpace(ownerId)
-                || !await _matchService.IsClosed(matchdayId))
-            {
-                return;
-            }
-
-            await _matchService.StoreChemistryMatchday(
-                ownerId,
-                matchdayId,
-                matches);
+            return result == MatchMutationResult.NotFound
+                ? NotFound()
+                : Conflict();
         }
 
         [HttpPost("[action]")]
@@ -252,17 +239,19 @@ namespace TeamsGeneratorWebAPI.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> StartScoreboard([FromHeader(Name = "client_version")] string ver, string partitionKey)
         {
-            try
-            {
-                var matchdayMetadata = new MatchdayMetadataEntity() { PartitionKey = partitionKey, RowKey = AzureTableStorageService.RowKeyForStartStatus, IsClosed = false };
-                await _matchService.AddEntity<MatchdayMetadataEntity>(matchdayMetadata);
-                return Ok();
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
+            return await _matchService.StartMatchday(partitionKey)
+                ? Ok()
+                : BadRequest();
 
+        }
+
+        private IActionResult ClosedMatchdayResponse()
+        {
+            return Ok(new
+            {
+                IsClosed = true,
+                Message = "Matchday is closed. No further matches can be added."
+            });
         }
 
         [HttpPost("[action]")]
