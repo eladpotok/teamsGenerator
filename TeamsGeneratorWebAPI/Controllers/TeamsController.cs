@@ -8,6 +8,7 @@ using TeamsGenerator.Algos.SkillWiseAlgo;
 using TeamsGenerator.API;
 using TeamsGenerator.Utilities;
 using TeamsGeneratorWebAPI.Clients;
+using TeamsGeneratorWebAPI.Authentication;
 using TeamsGeneratorWebAPI.Debugging;
 using TeamsGeneratorWebAPI.DesignCreator;
 using TeamsGeneratorWebAPI.PlayersBlob;
@@ -41,12 +42,14 @@ namespace TeamsGeneratorWebAPI.Controllers
             int algoKey,
             string? ownerId = null)
         {
+            var effectiveOwnerId =
+                RequestUserId.ResolveOptional(User, ownerId);
             _telemetryClient.TrackEvent("GetTeams");
             _telemetryClient.TrackMetric("GetTeams", 1);
             IReadOnlyDictionary<string, double>? chemistryScores =
-                string.IsNullOrWhiteSpace(ownerId)
+                string.IsNullOrWhiteSpace(effectiveOwnerId)
                 ? null
-                : await _matchService.GetChemistryScores(ownerId);
+                : await _matchService.GetChemistryScores(effectiveOwnerId);
             return WebAppAPI.GetTeams(dicJson, algoKey, chemistryScores);
         }
 
@@ -108,9 +111,10 @@ namespace TeamsGeneratorWebAPI.Controllers
         [HttpPost("[action]")]
         public async Task<IResponse> SaveToStorage([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic teams, string uid)
         {
+            var userId = RequestUserId.Resolve(User, uid);
             _telemetryClient.TrackEvent("SaveTeamsToStorage");
             _telemetryClient.TrackMetric("SaveTeamsToStorage", 1);
-            return await _azureStorage.UploadAsync(teams, new TeamsBlobConfig() { UId = uid });
+            return await _azureStorage.UploadAsync(teams, new TeamsBlobConfig() { UId = userId });
         }
 
         [HttpPost("[action]")]
@@ -162,9 +166,11 @@ namespace TeamsGeneratorWebAPI.Controllers
         {
             try
             {
+                var effectiveOwnerId =
+                    RequestUserId.ResolveOptional(User, ownerId);
                 var matches = await _matchService.FinalizeMatchday(
                     partitionKey,
-                    ownerId);
+                    effectiveOwnerId);
                 return Ok(matches);
             }
             catch (MatchdayConcurrencyException)

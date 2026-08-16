@@ -33,9 +33,7 @@ namespace TeamsGeneratorWebAPI
             {
                 buffer4 = bytes.GetBytes(0x20);
             }
-            var onlyFirst = buffer3.Except(buffer4);
-            var onlySecond = buffer4.Except(buffer3);
-            return !onlyFirst.Any() && !onlySecond.Any();
+            return CryptographicOperations.FixedTimeEquals(buffer3, buffer4);
         }
 
         public static string HashPassword(string password)
@@ -119,5 +117,4 @@ namespace TeamsGeneratorWebAPI
         }
     }
 }
-
 

@@ -66,6 +66,7 @@ namespace TeamsGenerator.Ai
                     standings,
                     scorers,
                     assisters,
+                    ratings,
                     playerTeams,
                     partnerships,
                     ownGoals,
@@ -565,6 +566,7 @@ namespace TeamsGenerator.Ai
             IList<StandingFact> standings,
             IDictionary<string, int> scorers,
             IDictionary<string, int> assisters,
+            IEnumerable<PlayerRatingFact> ratings,
             IDictionary<string, string> playerTeams,
             IEnumerable<PartnershipFact> partnerships,
             IEnumerable<OwnGoalFact> ownGoals,
@@ -575,6 +577,9 @@ namespace TeamsGenerator.Ai
             var maxGoals = scorers.Count == 0 ? 0 : scorers.Values.Max();
             var maxAssists = assisters.Count == 0 ? 0 : assisters.Values.Max();
             var ownGoalList = ownGoals.ToList();
+            var ratingsByPlayer = ratings.ToDictionary(
+                rating => rating.Name,
+                StringComparer.OrdinalIgnoreCase);
 
             foreach (var player in assisters.Where(entry =>
                 dataQuality.ScorerTotalsReliable
@@ -620,24 +625,35 @@ namespace TeamsGenerator.Ai
                 && item.BToA > 0
                 && item.AToB + item.BToA >= 2))
             {
+                var directCombinations = partnership.AToB + partnership.BToA;
                 patterns.Add(new
                 {
                     type = "mutual_assist_partnership",
                     playerA = partnership.PlayerA,
                     playerB = partnership.PlayerB,
                     playerAToPlayerB = partnership.AToB,
-                    playerBToPlayerA = partnership.BToA
+                    playerBToPlayerA = partnership.BToA,
+                    directGoalCombinations = directCombinations,
+                    highFrequency = directCombinations >= 3
                 });
             }
 
             foreach (var player in unexpectedContributors)
             {
+                PlayerRatingFact rating;
+                if (!ratingsByPlayer.TryGetValue(player, out rating)
+                    || rating.Rating < 8.0)
+                {
+                    continue;
+                }
+
                 patterns.Add(new
                 {
                     type = "unexpected_contributor",
                     player,
-                    goals = GetValue(scorers, player),
-                    assists = GetValue(assisters, player)
+                    goals = rating.Goals,
+                    assists = rating.Assists,
+                    rating = rating.Rating
                 });
             }
 
@@ -1122,11 +1138,29 @@ namespace TeamsGenerator.Ai
 
             if (!string.Equals(previousLeader, winner, StringComparison.OrdinalIgnoreCase))
             {
+                var previousLeaderFinalPosition = standings
+                    .Select((team, index) => new { team.Team, Position = index + 1 })
+                    .Where(entry => string.Equals(
+                        entry.Team,
+                        previousLeader,
+                        StringComparison.OrdinalIgnoreCase))
+                    .Select(entry => entry.Position)
+                    .FirstOrDefault();
+
                 patterns.Add(new
                 {
                     type = "final_match_changed_leader",
                     team = winner,
-                    previousLeader
+                    previousLeader,
+                    opponent = string.Equals(
+                        winner,
+                        score.TeamA,
+                        StringComparison.OrdinalIgnoreCase)
+                        ? score.TeamB
+                        : score.TeamA,
+                    finalScore = score.TeamAScore + "-" + score.TeamBScore,
+                    winnerFinalPosition = 1,
+                    previousLeaderFinalPosition
                 });
             }
         }
