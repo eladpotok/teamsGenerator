@@ -1,5 +1,5 @@
-# teamsGenerator
-This repo is about genberator of teams in soccer (or other sports) with a multiple open source algorithms.
+# Teamify
+Teamify creates balanced teams for soccer and other sports using multiple team-generation algorithms.
 
 
 # Algorithms Explanation

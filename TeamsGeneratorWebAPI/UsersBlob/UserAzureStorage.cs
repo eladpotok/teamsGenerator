@@ -71,9 +71,9 @@ namespace TeamsGeneratorWebAPI.UsersBlob
                 
                 return LoginResponse.Failure("1");
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                return LoginResponse.Failure(e.Message);
+                return LoginResponse.Failure("3");
             }
 
             return LoginResponse.Failure("3");

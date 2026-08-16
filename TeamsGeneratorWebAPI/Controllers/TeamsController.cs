@@ -8,6 +8,8 @@ using TeamsGenerator.Algos.SkillWiseAlgo;
 using TeamsGenerator.API;
 using TeamsGenerator.Utilities;
 using TeamsGeneratorWebAPI.Clients;
+using TeamsGeneratorWebAPI.Authentication;
+using TeamsGeneratorWebAPI.Debugging;
 using TeamsGeneratorWebAPI.DesignCreator;
 using TeamsGeneratorWebAPI.PlayersBlob;
 
@@ -40,12 +42,14 @@ namespace TeamsGeneratorWebAPI.Controllers
             int algoKey,
             string? ownerId = null)
         {
+            var effectiveOwnerId =
+                RequestUserId.ResolveOptional(User, ownerId);
             _telemetryClient.TrackEvent("GetTeams");
             _telemetryClient.TrackMetric("GetTeams", 1);
             IReadOnlyDictionary<string, double>? chemistryScores =
-                string.IsNullOrWhiteSpace(ownerId)
+                string.IsNullOrWhiteSpace(effectiveOwnerId)
                 ? null
-                : await _matchService.GetChemistryScores(ownerId);
+                : await _matchService.GetChemistryScores(effectiveOwnerId);
             return WebAppAPI.GetTeams(dicJson, algoKey, chemistryScores);
         }
 
@@ -107,9 +111,10 @@ namespace TeamsGeneratorWebAPI.Controllers
         [HttpPost("[action]")]
         public async Task<IResponse> SaveToStorage([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic teams, string uid)
         {
+            var userId = RequestUserId.Resolve(User, uid);
             _telemetryClient.TrackEvent("SaveTeamsToStorage");
             _telemetryClient.TrackMetric("SaveTeamsToStorage", 1);
-            return await _azureStorage.UploadAsync(teams, new TeamsBlobConfig() { UId = uid });
+            return await _azureStorage.UploadAsync(teams, new TeamsBlobConfig() { UId = userId });
         }
 
         [HttpPost("[action]")]
@@ -133,17 +138,16 @@ namespace TeamsGeneratorWebAPI.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> AddMatch([FromBody] MatchEntity match)
         {
-            var isClosed = await _matchService.IsClosed(match.PartitionKey);
-            if (isClosed)
+            var result = await _matchService.AddMatchAsync(match);
+            if (result == MatchMutationResult.Closed)
             {
-                return Ok(new
-                {
-                    IsClosed = true,
-                    Message = "Matchday is closed. No further matches can be added."
-                });
+                return ClosedMatchdayResponse();
+            }
+            if (result == MatchMutationResult.Conflict)
+            {
+                return Conflict();
             }
 
-            await _matchService.AddMatchAsync(match);
             var matches = await _matchService.GetAllMatchesAsync(match.PartitionKey);
             return Ok(matches);
         }
@@ -160,16 +164,19 @@ namespace TeamsGeneratorWebAPI.Controllers
             string partitionKey,
             string? ownerId = null)
         {
-            var matches = await _matchService.GetAllMatchesAsync(partitionKey);
-            if (!string.IsNullOrWhiteSpace(ownerId) && matches?.Count > 0)
+            try
             {
-                await _matchService.StoreChemistryMatchday(
-                    ownerId,
+                var effectiveOwnerId =
+                    RequestUserId.ResolveOptional(User, ownerId);
+                var matches = await _matchService.FinalizeMatchday(
                     partitionKey,
-                    matches);
+                    effectiveOwnerId);
+                return Ok(matches);
             }
-            await _matchService.DoneMatch(new MatchdayMetadataEntity() { PartitionKey = partitionKey, RowKey = AzureTableStorageService.RowKeyForCloseStatus, IsClosed = true  });
-            return Ok(matches);
+            catch (MatchdayConcurrencyException)
+            {
+                return Conflict();
+            }
         }
 
         [HttpPost("[action]")]
@@ -177,17 +184,19 @@ namespace TeamsGeneratorWebAPI.Controllers
             [FromBody] MatchEntity match,
             string? ownerId = null)
         {
-            var succeeded = await _matchService.EditMatch(match);
-            if(succeeded)
+            var result = await _matchService.EditMatch(match);
+            if (result == MatchMutationResult.Closed)
+            {
+                return ClosedMatchdayResponse();
+            }
+            if (result == MatchMutationResult.Succeeded)
             {
                 var matches = await _matchService.GetAllMatchesAsync(match.PartitionKey);
-                await RefreshChemistryIfClosed(
-                    ownerId,
-                    match.PartitionKey,
-                    matches);
                 return Ok(matches);
             }
-            return NotFound();
+            return result == MatchMutationResult.NotFound
+                ? NotFound()
+                : Conflict();
         }
 
         [HttpPost("[action]")]
@@ -195,34 +204,19 @@ namespace TeamsGeneratorWebAPI.Controllers
             [FromBody] MatchEntity match,
             string? ownerId = null)
         {
-            var succeeded = await _matchService.DeleteEntity(match);
-            if (succeeded)
+            var result = await _matchService.DeleteMatch(match);
+            if (result == MatchMutationResult.Closed)
+            {
+                return ClosedMatchdayResponse();
+            }
+            if (result == MatchMutationResult.Succeeded)
             {
                 var matches = await _matchService.GetAllMatchesAsync(match.PartitionKey);
-                await RefreshChemistryIfClosed(
-                    ownerId,
-                    match.PartitionKey,
-                    matches);
                 return Ok(matches);
             }
-            return NotFound();
-        }
-
-        private async Task RefreshChemistryIfClosed(
-            string? ownerId,
-            string matchdayId,
-            List<MatchEntity> matches)
-        {
-            if (string.IsNullOrWhiteSpace(ownerId)
-                || !await _matchService.IsClosed(matchdayId))
-            {
-                return;
-            }
-
-            await _matchService.StoreChemistryMatchday(
-                ownerId,
-                matchdayId,
-                matches);
+            return result == MatchMutationResult.NotFound
+                ? NotFound()
+                : Conflict();
         }
 
         [HttpPost("[action]")]
@@ -251,11 +245,41 @@ namespace TeamsGeneratorWebAPI.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> StartScoreboard([FromHeader(Name = "client_version")] string ver, string partitionKey)
         {
+            return await _matchService.StartMatchday(partitionKey)
+                ? Ok()
+                : BadRequest();
+
+        }
+
+        private IActionResult ClosedMatchdayResponse()
+        {
+            return Ok(new
+            {
+                IsClosed = true,
+                Message = "Matchday is closed. No further matches can be added."
+            });
+        }
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> GetHistory([FromHeader(Name = "client_version")] string ver)
+        {
             try
             {
-                var matchdayMetadata = new MatchdayMetadataEntity() { PartitionKey = partitionKey, RowKey = AzureTableStorageService.RowKeyForStartStatus, IsClosed = false };
-                await _matchService.AddEntity<MatchdayMetadataEntity>(matchdayMetadata);
-                return Ok();
+                var matches = await _matchService.GetAllMatchesAsync("0b1b47fc-21b5-4335-8992-a6767839a524");
+                var matchesResult = new List<Match>();
+                foreach (var match in matches)
+                {
+                    var serializedMatch = match.SerializedMatch;
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+
+                    var deserializedMatch = System.Text.Json.JsonSerializer.Deserialize<Match>(serializedMatch, options);
+                    matchesResult.Add(deserializedMatch);
+                }
+                DebuggingHelpers.WriteMatchToCsv(matchesResult, $"{Environment.CurrentDirectory}/matches.csv");
+                return Ok(matches);
             }
             catch (Exception)
             {

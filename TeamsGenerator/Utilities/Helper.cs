@@ -71,6 +71,11 @@ namespace TeamsGenerator.Utilities
         /// <returns></returns>
         public static List<IPlayer> SortPlayersByRank(List<IPlayer> players)
         {
+            if (players == null || players.Count == 0)
+            {
+                return new List<IPlayer>();
+            }
+
             var result = new List<IPlayer>();
             var orederedPlayers = players.OrderBy(p => p.Rank).ToList();
             var currPlayer = orederedPlayers[0];
@@ -116,7 +121,11 @@ namespace TeamsGenerator.Utilities
                 teams[teamIndices++].AddPlayer((IPlayer)gk);
             }
 
-            players.RemoveAll((p) => playersToRemove.Select(t=>t.Key).Contains(p.Key) );
+            foreach (var player in playersToRemove)
+            {
+                players.Remove((IPlayer)player);
+            }
+
             return players;
         }
     }

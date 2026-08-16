@@ -6,6 +6,7 @@ using TeamsGenerator.Algos.SkillWiseAlgo;
 using TeamsGenerator.API;
 using TeamsGenerator.Orchestration.Contracts;
 using TeamsGeneratorWebAPI.DesignCreator;
+using TeamsGeneratorWebAPI.Authentication;
 using TeamsGeneratorWebAPI.PlayersBlob;
 using TeamsGeneratorWebAPI.Storage;
 
@@ -29,7 +30,8 @@ namespace TeamsGeneratorWebAPI.Controllers
         [HttpPost("Upload")]
         public async Task<SavePlayersResponse> Post([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic players, string uid, int algoKey)
         {
-            var config = new PlayersBlobConfig() { UId = uid, AlgoType = algoKey };
+            var userId = RequestUserId.Resolve(User, uid);
+            var config = new PlayersBlobConfig() { UId = userId, AlgoType = algoKey };
             _telemetryClient.TrackMetric("PlayerAdded", 1);
             return await  _azureStorage.UploadAsync(players, config);
         }

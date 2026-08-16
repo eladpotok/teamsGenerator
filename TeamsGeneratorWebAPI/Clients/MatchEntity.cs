@@ -19,7 +19,7 @@ namespace TeamsGeneratorWebAPI.Clients
     {
         public string PartitionKey { get; set; } // matchdayId
         public string RowKey { get; set; } // matchId
-        public DateTime CreatedAt => DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public ETag ETag { get; set; }
         public DateTimeOffset? Timestamp { get; set; }
         public bool IsClosed { get; set; }

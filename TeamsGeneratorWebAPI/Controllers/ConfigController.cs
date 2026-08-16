@@ -2,6 +2,7 @@
 using TeamsGenerator;
 using TeamsGenerator.API;
 using TeamsGeneratorWebAPI.ConfigBlob;
+using TeamsGeneratorWebAPI.Authentication;
 using TeamsGeneratorWebAPI.PlayersBlob;
 using TeamsGeneratorWebAPI.Storage;
 
@@ -24,7 +25,8 @@ namespace TeamsGeneratorWebAPI.Controllers
         [HttpPost("Upload")]
         public async Task<SaveConfigResponse> Post([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic players, string uid)
         {
-            var config = new UserConfigBlobConfig() { UId = uid };
+            var userId = RequestUserId.Resolve(User, uid);
+            var config = new UserConfigBlobConfig() { UId = userId };
             return await _azureStorage.UploadAsync(players, config);
         }
 
