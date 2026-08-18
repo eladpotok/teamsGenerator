@@ -25,6 +25,7 @@
     <None Remove="templates\playersListTemplate.png" />
     <None Remove="templates\playersListTemplate1.png" />
     <None Remove="templates\playersListTemplate2.png" />
+    <None Remove="templates\playersListTemplate3.png" />
     <None Remove="templates\plyaerShirt.png" />
     <None Remove="templates\purple.png" />
     <None Remove="templates\red.png" />
@@ -78,6 +79,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="templates\playersListTemplate2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="templates\playersListTemplate3.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="templates\plyaerShirt.png">

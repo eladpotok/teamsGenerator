@@ -71,13 +71,6 @@ namespace TeamsGenerator.Ai
                     partnerships,
                     ownGoals,
                     unexpectedContributors,
-                    dataQuality),
-                dataLimitations = CreateLimitations(
-                    matches,
-                    standings,
-                    scorers,
-                    assisters,
-                    players,
                     dataQuality)
             };
 
@@ -1681,70 +1674,6 @@ namespace TeamsGenerator.Ai
                 .Where(entry => entry.Value == maximum)
                 .Select(entry => (object)new { player = entry.Key, total = entry.Value })
                 .ToList();
-        }
-
-        private static List<string> CreateLimitations(
-            ICollection<JObject> matches,
-            ICollection<StandingFact> standings,
-            ICollection<KeyValuePair<string, int>> scorers,
-            ICollection<KeyValuePair<string, int>> assisters,
-            ICollection<string> players,
-            SummaryDataQuality dataQuality)
-        {
-            var limitations = new List<string>();
-            if (matches.Count == 0)
-            {
-                limitations.Add("No parseable individual matches were supplied.");
-            }
-
-            if (standings.Count == 0)
-            {
-                limitations.Add("No parseable final standings were supplied.");
-            }
-
-            if (scorers.Count == 0)
-            {
-                limitations.Add("No topScorers aggregate was supplied.");
-            }
-
-            if (assisters.Count == 0)
-            {
-                limitations.Add("No topAssists aggregate was supplied.");
-            }
-
-            if (players.Count == 0)
-            {
-                limitations.Add("No player roster was supplied.");
-            }
-
-            if (matches.Count > 0 && !dataQuality.AllMatchScoresAvailable)
-            {
-                limitations.Add(
-                    "Some match scores were incomplete; full-evening score patterns were suppressed.");
-            }
-
-            if (matches.Count > 0 && !dataQuality.CompleteGoalTimelines)
-            {
-                limitations.Add(
-                    "Some ordered goal events were incomplete; chronology-wide patterns were suppressed.");
-            }
-
-            if (standings.Count > 0 && !dataQuality.StandingsReliable)
-            {
-                limitations.Add(
-                    "The supplied standings conflicted with match results; table-based patterns were suppressed.");
-            }
-
-            if (matches.Count > 0
-                && dataQuality.CompleteGoalTimelines
-                && (!dataQuality.ScorerTotalsReliable
-                    || !dataQuality.AssistTotalsReliable))
-            {
-                limitations.Add(
-                    "Player aggregates conflicted with goal events; aggregate-dependent patterns were suppressed.");
-            }
-
-            return limitations;
         }
 
         private static JToken GetValue(JObject value, params string[] names)

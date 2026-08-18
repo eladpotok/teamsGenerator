@@ -7,6 +7,13 @@ using TeamsDesignCreator;
 
 namespace TeamsGeneratorWebAPI.DesignCreator
 {
+    public sealed class TeamShareItem
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Color { get; set; } = string.Empty;
+        public List<string> Players { get; set; } = new List<string>();
+    }
+
     public class ImageCreator
     {
         public static MemoryStream CreateTeams(List<string> players, string color)
@@ -14,9 +21,26 @@ namespace TeamsGeneratorWebAPI.DesignCreator
             return SkiaImageCreator.GenerateTeamsImage(players, color);
         }
 
-        internal static object CreatePlayersList(List<string> players, string teamName, string location, string date, string dayInWeek, string currentCulture)
+        internal static MemoryStream CreatePlayersList(List<string> players, string teamName, string location, string date, string dayInWeek, string currentCulture)
         {
-            return SkiaImageCreator.GeneratePlayersListImageTemplate2(players, teamName.ToUpper(), location.ToUpper(), date, dayInWeek.ToUpper(), currentCulture);
+            return SkiaImageCreator.GeneratePlayersListImageTemplate3(players, teamName, location, date, dayInWeek, currentCulture);
+        }
+
+        internal static MemoryStream CreateTeamsOverview(
+            List<TeamShareItem> teams,
+            string matchName,
+            string location,
+            string date,
+            string dayInWeek,
+            string currentCulture)
+        {
+            return SkiaImageCreator.GenerateTeamsOverviewImage(
+                teams,
+                matchName,
+                location,
+                date,
+                dayInWeek,
+                currentCulture);
         }
 
         internal static MemoryStream CreateTable(dynamic stats, dynamic topScorers, string ver)

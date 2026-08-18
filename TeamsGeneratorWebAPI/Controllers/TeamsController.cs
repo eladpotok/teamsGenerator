@@ -1,6 +1,7 @@
 ﻿using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Text.Json;
 using TeamsGenerator.Ai;
 using TeamsGenerator.Algos.BackAndForthAlgo;
@@ -74,6 +75,40 @@ namespace TeamsGeneratorWebAPI.Controllers
 
             _telemetryClient.TrackMetric("ShareWithImage", 1);
             return File(imageBytes, "image/png");
+        }
+
+        [HttpPost("[action]")]
+        public IActionResult GetAllTeamsDesign([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic config)
+        {
+            JObject request = config as JObject ?? JObject.FromObject(config);
+            var teamInfo = request["teamInfo"] as JObject ?? new JObject();
+            var teams = request["teams"]?
+                .Children<JObject>()
+                .Select((team, index) => new TeamShareItem
+                {
+                    Name = GetString(team, "name", "teamName"),
+                    Color = GetString(team, "color"),
+                    Players = team["players"]?
+                        .Select(player => player.Type == JTokenType.String
+                            ? player.ToString()
+                            : GetString(player as JObject ?? new JObject(), "name"))
+                        .Where(name => !string.IsNullOrWhiteSpace(name))
+                        .Select(name => name.Trim())
+                        .ToList() ?? new List<string>()
+                })
+                .ToList() ?? new List<TeamShareItem>();
+
+            var culture = GetString(teamInfo, "currentCulture", "culture");
+            using var image = ImageCreator.CreateTeamsOverview(
+                teams,
+                GetString(teamInfo, "teamName", "matchName"),
+                GetString(teamInfo, "location", "venue"),
+                GetString(teamInfo, "date", "eventDate"),
+                GetString(teamInfo, "dayInWeek"),
+                string.IsNullOrWhiteSpace(culture) ? "en-US" : culture);
+
+            _telemetryClient.TrackMetric("ShareAllTeamsWithImage", 1);
+            return File(image.ToArray(), "image/png");
         }
 
         [HttpPost("[action]")]
@@ -258,6 +293,22 @@ namespace TeamsGeneratorWebAPI.Controllers
                 IsClosed = true,
                 Message = "Matchday is closed. No further matches can be added."
             });
+        }
+
+        private static string GetString(JObject source, params string[] names)
+        {
+            foreach (var name in names)
+            {
+                var property = source.Properties()
+                    .FirstOrDefault(item => string.Equals(item.Name, name, StringComparison.OrdinalIgnoreCase));
+                var value = property?.Value?.ToString();
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    return value;
+                }
+            }
+
+            return string.Empty;
         }
 
         [HttpPost("[action]")]
