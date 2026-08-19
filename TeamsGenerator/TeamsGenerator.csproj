@@ -1,13 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <Nullable>disable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <RootNamespace>TeamsGenerator</RootNamespace>
     <AssemblyName>TeamsGenerator</AssemblyName>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Compile Remove="CLI\CopyAndExit.cs" />
     <Compile Remove="ConsolePlayground.cs" />
