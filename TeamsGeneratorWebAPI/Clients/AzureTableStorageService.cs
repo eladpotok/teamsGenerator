@@ -10,6 +10,7 @@ namespace TeamsGeneratorWebAPI.Clients
 
         public static string RowKeyForCloseStatus = "ReservedToStatus";
         public static string RowKeyForStartStatus = "ReservedToStatusStart";
+        public const string PlayerSwapRowKeyPrefix = "PlayerSwap_";
 
         public static HashSet<string> MatchesForStatusKeys = new HashSet<string>() 
         {
@@ -72,6 +73,68 @@ namespace TeamsGeneratorWebAPI.Clients
             return MatchMutationResult.Conflict;
         }
 
+        internal async Task<MatchMutationResult> AddPlayerSwapAsync(
+            PlayerSwapEntity playerSwap)
+        {
+            ArgumentNullException.ThrowIfNull(playerSwap);
+            if (string.IsNullOrWhiteSpace(playerSwap.PartitionKey)
+                || string.IsNullOrWhiteSpace(playerSwap.RowKey)
+                || string.IsNullOrWhiteSpace(playerSwap.SerializedSwap))
+            {
+                throw new ArgumentException(
+                    "Matchday, swap identity, and swap details are required.");
+            }
+
+            if (!playerSwap.RowKey.StartsWith(
+                PlayerSwapRowKeyPrefix,
+                StringComparison.Ordinal))
+            {
+                playerSwap.RowKey =
+                    PlayerSwapRowKeyPrefix + playerSwap.RowKey;
+            }
+
+            playerSwap.CreatedAt = DateTime.UtcNow;
+            playerSwap.ETag = default;
+            playerSwap.Timestamp = null;
+
+            for (var attempt = 0; attempt < MaximumLifecycleAttempts; attempt++)
+            {
+                var status = await GetOrCreateMatchdayStatus(
+                    playerSwap.PartitionKey);
+                if (status.IsClosed)
+                {
+                    return MatchMutationResult.Closed;
+                }
+
+                try
+                {
+                    await _tableClient.SubmitTransactionAsync(new[]
+                    {
+                        CreateStatusGuardAction(status),
+                        new TableTransactionAction(
+                            TableTransactionActionType.Add,
+                            playerSwap)
+                    });
+                    return MatchMutationResult.Succeeded;
+                }
+                catch (RequestFailedException exception)
+                    when (exception.Status == 412
+                        || exception.Status == 404)
+                {
+                    continue;
+                }
+                catch (RequestFailedException exception)
+                    when (exception.Status == 409)
+                {
+                    return await IsClosed(playerSwap.PartitionKey)
+                        ? MatchMutationResult.Closed
+                        : MatchMutationResult.Conflict;
+                }
+            }
+
+            return MatchMutationResult.Conflict;
+        }
+
         public async Task AddUpdate(UpdateEntity update)
         {
             await _tableClient.AddEntityAsync(update);
@@ -99,8 +162,35 @@ namespace TeamsGeneratorWebAPI.Clients
             }
 
             return matches
-                .Where(row => !MatchesForStatusKeys.Contains(row.RowKey))
+                .Where(row =>
+                    !MatchesForStatusKeys.Contains(row.RowKey)
+                    && !row.RowKey.StartsWith(
+                        PlayerSwapRowKeyPrefix,
+                        StringComparison.Ordinal))
                 .OrderBy(match => match.CreatedAt)
+                .ToList();
+        }
+
+        internal async Task<List<PlayerSwapEntity>> GetAllPlayerSwapsAsync(
+            string partitionKey)
+        {
+            var playerSwaps = new List<PlayerSwapEntity>();
+            await foreach (var entity in _tableClient
+                .QueryAsync<PlayerSwapEntity>(
+                    item => item.PartitionKey == partitionKey))
+            {
+                if (entity.RowKey.StartsWith(
+                    PlayerSwapRowKeyPrefix,
+                    StringComparison.Ordinal)
+                    && !string.IsNullOrWhiteSpace(entity.SerializedSwap))
+                {
+                    playerSwaps.Add(entity);
+                }
+            }
+
+            return playerSwaps
+                .OrderBy(playerSwap => playerSwap.CreatedAt)
+                .ThenBy(playerSwap => playerSwap.RowKey)
                 .ToList();
         }
 

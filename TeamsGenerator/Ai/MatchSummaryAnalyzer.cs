@@ -19,11 +19,13 @@ namespace TeamsGenerator.Ai
             var playerTeams = FindPlayerTeams(matches);
             var partnerships = FindAssistPartnerships(matches);
             var ownGoals = FindOwnGoals(matches, playerTeams);
+            var penaltyGoals = FindPenaltyGoals(matches);
             var unexpectedContributors = FindUnexpectedContributors(
                 source,
                 matches,
                 scorers,
                 assisters);
+            var playerSwaps = FindPlayerSwaps(source);
             var dataQuality = AnalyzeDataQuality(
                 matches,
                 standings,
@@ -60,6 +62,23 @@ namespace TeamsGenerator.Ai
                     topScorers = FindLeaders(scorers),
                     topAssisters = FindLeaders(assisters)
                 },
+                playerSwaps = playerSwaps.Select(playerSwap => new
+                {
+                    playerSwap.PlayerA,
+                    playerSwap.PlayerB,
+                    playerSwap.FromTeam,
+                    playerSwap.ToTeam,
+                    playerSwap.CompletedMatches
+                }),
+                penaltyGoals = penaltyGoals.Select(penaltyGoal => new
+                {
+                    player = penaltyGoal.Player,
+                    team = penaltyGoal.Team,
+                    opponent = penaltyGoal.Opponent,
+                    teamScore = penaltyGoal.TeamScore,
+                    opponentScore = penaltyGoal.OpponentScore,
+                    matchNumber = penaltyGoal.MatchNumber
+                }),
                 players = ratings,
                 verifiedPatterns = CreatePatterns(
                     matches,
@@ -71,6 +90,7 @@ namespace TeamsGenerator.Ai
                     partnerships,
                     ownGoals,
                     unexpectedContributors,
+                    playerSwaps,
                     dataQuality)
             };
 
@@ -99,6 +119,55 @@ namespace TeamsGenerator.Ai
             return matches
                 .GroupBy(match => match.ToString(Formatting.None))
                 .Select(group => group.First())
+                .ToList();
+        }
+
+        private static List<PlayerSwapFact> FindPlayerSwaps(JToken source)
+        {
+            return GetTokens(source)
+                .OfType<JProperty>()
+                .Where(property => string.Equals(
+                    property.Name,
+                    "playerSwaps",
+                    StringComparison.OrdinalIgnoreCase))
+                .SelectMany(property =>
+                    (property.Value as JArray ?? new JArray())
+                        .OfType<JObject>())
+                .Select(playerSwap => new PlayerSwapFact
+                {
+                    SwapKey = GetName(GetValue(playerSwap, "swapKey", "rowKey")),
+                    PlayerA = GetName(GetValue(playerSwap, "playerA")),
+                    PlayerB = GetName(GetValue(playerSwap, "playerB")),
+                    FromTeam = GetName(GetValue(
+                        playerSwap,
+                        "fromTeamColor",
+                        "fromTeam")),
+                    ToTeam = GetName(GetValue(
+                        playerSwap,
+                        "toTeamColor",
+                        "toTeam")),
+                    CompletedMatches = Math.Max(
+                        0,
+                        GetInt(playerSwap, "completedMatches"))
+                })
+                .Where(playerSwap =>
+                    !string.IsNullOrWhiteSpace(playerSwap.PlayerA)
+                    && !string.IsNullOrWhiteSpace(playerSwap.PlayerB)
+                    && !string.IsNullOrWhiteSpace(playerSwap.FromTeam)
+                    && !string.IsNullOrWhiteSpace(playerSwap.ToTeam))
+                .GroupBy(
+                    playerSwap => string.IsNullOrWhiteSpace(playerSwap.SwapKey)
+                        ? string.Join(
+                            "|",
+                            playerSwap.PlayerA,
+                            playerSwap.PlayerB,
+                            playerSwap.FromTeam,
+                            playerSwap.ToTeam,
+                            playerSwap.CompletedMatches)
+                        : playerSwap.SwapKey,
+                    StringComparer.OrdinalIgnoreCase)
+                .Select(group => group.First())
+                .OrderBy(playerSwap => playerSwap.CompletedMatches)
                 .ToList();
         }
 
@@ -419,6 +488,79 @@ namespace TeamsGenerator.Ai
             return ownGoals;
         }
 
+        private static List<PenaltyGoalFact> FindPenaltyGoals(
+            IEnumerable<JObject> matches)
+        {
+            var penaltyGoals = new List<PenaltyGoalFact>();
+            var matchNumber = 0;
+
+            foreach (var match in matches)
+            {
+                matchNumber++;
+                var teamA = GetValue(match, "teamA") as JObject;
+                var teamB = GetValue(match, "teamB") as JObject;
+                int teamAScore;
+                int teamBScore;
+                var teamAName = GetTeamName(teamA);
+                var teamBName = GetTeamName(teamB);
+                if (string.IsNullOrWhiteSpace(teamAName)
+                    || string.IsNullOrWhiteSpace(teamBName)
+                    || !TryGetInt(teamA, out teamAScore, "score", "goals")
+                    || !TryGetInt(teamB, out teamBScore, "score", "goals"))
+                {
+                    continue;
+                }
+
+                AddPenaltyGoals(
+                    penaltyGoals,
+                    teamA,
+                    teamAName,
+                    teamBName,
+                    teamAScore,
+                    teamBScore,
+                    matchNumber);
+                AddPenaltyGoals(
+                    penaltyGoals,
+                    teamB,
+                    teamBName,
+                    teamAName,
+                    teamBScore,
+                    teamAScore,
+                    matchNumber);
+            }
+
+            return penaltyGoals;
+        }
+
+        private static void AddPenaltyGoals(
+            ICollection<PenaltyGoalFact> penaltyGoals,
+            JObject team,
+            string teamName,
+            string opponent,
+            int teamScore,
+            int opponentScore,
+            int matchNumber)
+        {
+            var goals = GetValue(team, "goals") as JArray;
+            if (goals == null)
+            {
+                return;
+            }
+
+            foreach (var goal in goals.OfType<JObject>().Where(IsPenaltyGoal))
+            {
+                penaltyGoals.Add(new PenaltyGoalFact
+                {
+                    Player = GetName(GetValue(goal, "scorer", "goalScorer", "scoredBy")),
+                    Team = teamName,
+                    Opponent = opponent,
+                    TeamScore = teamScore,
+                    OpponentScore = opponentScore,
+                    MatchNumber = matchNumber
+                });
+            }
+        }
+
         private static HashSet<string> FindUnexpectedContributors(
             JToken source,
             IEnumerable<JObject> matches,
@@ -564,6 +706,7 @@ namespace TeamsGenerator.Ai
             IEnumerable<PartnershipFact> partnerships,
             IEnumerable<OwnGoalFact> ownGoals,
             IEnumerable<string> unexpectedContributors,
+            IEnumerable<PlayerSwapFact> playerSwaps,
             SummaryDataQuality dataQuality)
         {
             var patterns = new List<object>();
@@ -808,6 +951,10 @@ namespace TeamsGenerator.Ai
 
             if (dataQuality.AllMatchScoresAvailable)
             {
+                AddPlayerSwapMomentumPatterns(
+                    patterns,
+                    matches,
+                    playerSwaps);
                 AddDefensiveEveningPattern(patterns, matches);
                 if (dataQuality.StandingsReliable)
                 {
@@ -835,6 +982,117 @@ namespace TeamsGenerator.Ai
             }
 
             return patterns;
+        }
+
+        private static void AddPlayerSwapMomentumPatterns(
+            ICollection<object> patterns,
+            IList<JObject> matches,
+            IEnumerable<PlayerSwapFact> playerSwaps)
+        {
+            foreach (var playerSwap in playerSwaps)
+            {
+                var splitIndex = Math.Min(
+                    playerSwap.CompletedMatches,
+                    matches.Count);
+                AddPlayerSwapMomentumPattern(
+                    patterns,
+                    matches,
+                    playerSwap,
+                    playerSwap.FromTeam,
+                    playerSwap.PlayerB,
+                    playerSwap.PlayerA,
+                    splitIndex);
+                AddPlayerSwapMomentumPattern(
+                    patterns,
+                    matches,
+                    playerSwap,
+                    playerSwap.ToTeam,
+                    playerSwap.PlayerA,
+                    playerSwap.PlayerB,
+                    splitIndex);
+            }
+        }
+
+        private static void AddPlayerSwapMomentumPattern(
+            ICollection<object> patterns,
+            IList<JObject> matches,
+            PlayerSwapFact playerSwap,
+            string team,
+            string playerJoined,
+            string playerLeft,
+            int splitIndex)
+        {
+            var allPreviousOutcomes = GetTeamOutcomes(
+                    matches.Take(splitIndex),
+                    team)
+                .ToList();
+            var previousOutcomes = allPreviousOutcomes
+                .Skip(Math.Max(0, allPreviousOutcomes.Count - 2))
+                .ToList();
+            if (previousOutcomes.Count == 0
+                || previousOutcomes.Any(outcome => outcome == 'W'))
+            {
+                return;
+            }
+
+            var followingOutcomes = GetTeamOutcomes(
+                    matches.Skip(splitIndex),
+                    team)
+                .ToList();
+            var consecutiveWins = followingOutcomes
+                .TakeWhile(outcome => outcome == 'W')
+                .Count();
+            if (consecutiveWins < 2)
+            {
+                return;
+            }
+
+            patterns.Add(new
+            {
+                type = "post_swap_momentum",
+                team,
+                playerJoined,
+                playerLeft,
+                swappedWith = playerSwap.PlayerA == playerJoined
+                    ? playerSwap.PlayerB
+                    : playerSwap.PlayerA,
+                previousResults = new string(previousOutcomes.ToArray()),
+                consecutiveWinsAfterSwap = consecutiveWins,
+                timingOnly = true
+            });
+        }
+
+        private static IEnumerable<char> GetTeamOutcomes(
+            IEnumerable<JObject> matches,
+            string team)
+        {
+            foreach (var match in matches)
+            {
+                MatchScoreFact score;
+                if (!TryGetMatchScore(match, out score))
+                {
+                    continue;
+                }
+
+                if (string.Equals(
+                    score.TeamA,
+                    team,
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    yield return score.TeamAScore > score.TeamBScore
+                        ? 'W'
+                        : score.TeamAScore < score.TeamBScore ? 'L' : 'D';
+                }
+                else if (string.Equals(
+                    score.TeamB,
+                    team,
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    yield return score.TeamBScore > score.TeamAScore
+                        ? 'W'
+                        : score.TeamBScore < score.TeamAScore ? 'L' : 'D';
+                }
+            }
         }
 
         private static void AddPlayerDependencyPatterns(
@@ -1420,7 +1678,8 @@ namespace TeamsGenerator.Ai
                         "assist",
                         "assister",
                         "assistedBy")),
-                    IsOwnGoal = ownGoal
+                    IsOwnGoal = ownGoal,
+                    IsPenalty = IsPenaltyGoal(item)
                 });
             }
 
@@ -1452,6 +1711,19 @@ namespace TeamsGenerator.Ai
                     && marker.Type == JTokenType.String
                     && !IsTruthyText(marker.Value<string>())
                     && !IsExplicitFalseText(marker.Value<string>()));
+        }
+
+        private static bool IsPenaltyGoal(JObject goalEvent)
+        {
+            var marker = GetValue(goalEvent, "isPenalty", "penalty");
+            var eventType = GetName(GetValue(
+                goalEvent,
+                "type",
+                "eventType",
+                "goalType"));
+            return IsTruthy(marker)
+                || string.Equals(eventType, "penalty", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(eventType, "penalty_goal", StringComparison.OrdinalIgnoreCase);
         }
 
         private static string GetTeamName(JObject team)
@@ -1860,6 +2132,16 @@ namespace TeamsGenerator.Ai
                     StringComparison.OrdinalIgnoreCase);
         }
 
+        private sealed class PlayerSwapFact
+        {
+            internal string SwapKey { get; set; }
+            internal string PlayerA { get; set; }
+            internal string PlayerB { get; set; }
+            internal string FromTeam { get; set; }
+            internal string ToTeam { get; set; }
+            internal int CompletedMatches { get; set; }
+        }
+
         private sealed class StandingFact
         {
             public string Team { get; set; }
@@ -1885,6 +2167,16 @@ namespace TeamsGenerator.Ai
             public string Team { get; set; }
         }
 
+        private sealed class PenaltyGoalFact
+        {
+            public string Player { get; set; }
+            public string Team { get; set; }
+            public string Opponent { get; set; }
+            public int TeamScore { get; set; }
+            public int OpponentScore { get; set; }
+            public int MatchNumber { get; set; }
+        }
+
         private sealed class MatchScoreFact
         {
             public string TeamA { get; set; }
@@ -1899,6 +2191,7 @@ namespace TeamsGenerator.Ai
             public string Scorer { get; set; }
             public string Assister { get; set; }
             public bool IsOwnGoal { get; set; }
+            public bool IsPenalty { get; set; }
         }
 
         private sealed class SummaryDataQuality

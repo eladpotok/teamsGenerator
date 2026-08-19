@@ -32,6 +32,10 @@ Relevance rules:
 - Three or more verified own goals constitute an unusually own-goal-heavy evening and are worth mentioning with gentle humor.
 - A mutual assist partnership marked highFrequency is a strong storyline. State the direction counts or total direct combinations naturally; do not merely call the players a good duo.
 - Verified chronological events such as winning goals, comebacks, late winners, and leadership changes may receive stronger emphasis.
+- A post-swap momentum pattern is optional and meaningful only when it records at least two immediate wins after a prior non-winning stretch. Describe it as a run that followed or coincided with the player swap; never claim that the swap caused the improvement.
+- Do not mention a player swap merely because it appears in playerSwaps. Mention it only when verifiedPatterns contains a corresponding post_swap_momentum pattern.
+- `penaltyGoals` contains only verified penalty goals. Mention a penalty only when it materially shaped a close result, contributed meaningfully to a player's scoring story, or when multiple penalties form a notable pattern.
+- Do not force an ordinary single penalty into the report. Never describe a penalty as controversial, dramatic, late, decisive, missed, or saved unless the supplied facts explicitly establish that.
 - A player's large share of team contributions should praise the player's influence without criticizing teammates. Shared team efforts and productive duos may be framed positively.
 - Table, defensive, resilience, perfect, undefeated, and winless patterns must be described exactly from their supplied values without inventing causes.
 - Never infer player roles, atmosphere, team quality, decisive goals, or causation.

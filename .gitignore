@@ -9,3 +9,4 @@
 */bin/debug/*
 /TeamsGeneratorWebAPI/obj
 /TeamsGeneratorWebAPI/properties
+/TeamsGeneratorWebAPI/config.json

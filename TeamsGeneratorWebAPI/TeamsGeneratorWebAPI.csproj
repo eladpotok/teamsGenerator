@@ -18,7 +18,6 @@
     <None Remove="templates\black.png" />
     <None Remove="templates\blue.png" />
     <None Remove="templates\field.png" />
-    <None Remove="templates\generatedTeams2.png" />
     <None Remove="templates\green.png" />
     <None Remove="templates\namePlaceHolder.png" />
     <None Remove="templates\orange.png" />
@@ -37,11 +36,7 @@
     <None Remove="templates\shirtRed.png" />
     <None Remove="templates\shirtWhite.png" />
     <None Remove="templates\shirtYellow.png" />
-    <None Remove="templates\standings.png" />
-    <None Remove="templates\standingsWithAssists.png" />
     <None Remove="templates\table.png" />
-    <None Remove="templates\table.psd" />
-    <None Remove="templates\teamPlaceHolder.png" />
     <None Remove="templates\template.psd" />
     <None Remove="templates\white.png" />
     <None Remove="templates\yellow.png" />
@@ -58,9 +53,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="templates\field.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="templates\generatedTeams2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="templates\green.png">
@@ -115,18 +107,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="templates\shirtYellow.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="templates\standings.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="templates\standingsWithAssists.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="templates\table.psd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="templates\teamPlaceHolder.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Resource Include="templates\table.png" />

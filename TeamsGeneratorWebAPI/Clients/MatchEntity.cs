@@ -15,6 +15,16 @@ namespace TeamsGeneratorWebAPI.Clients
         //public ETag ETag { get; set; } consider use it for editing matches
     }
 
+    public class PlayerSwapEntity : ITableEntity
+    {
+        public string PartitionKey { get; set; }
+        public string RowKey { get; set; }
+        public string SerializedSwap { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public ETag ETag { get; set; }
+        public DateTimeOffset? Timestamp { get; set; }
+    }
+
     public class MatchdayMetadataEntity : ITableEntity
     {
         public string PartitionKey { get; set; } // matchdayId
