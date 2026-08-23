@@ -127,8 +127,7 @@ namespace TeamsDesignCreator
                 : location;
             var displayDate = matchDate.HasValue ? FormatRosterDate(matchDate.Value, culture) : dayInWeek;
 
-            using (var templateStream = System.IO.File.OpenRead(@"templates/playersListTemplate3.png"))
-            using (var templateBitmap = SKBitmap.Decode(templateStream))
+            using (var templateBitmap = LoadRosterTemplate())
             using (var surface = SKSurface.Create(new SKImageInfo(templateBitmap.Width, templateBitmap.Height)))
             using (var accentPaint = new SKPaint { Color = SKColor.Parse("#50F3AA"), IsAntialias = true })
             using (var subtlePaint = new SKPaint { Color = new SKColor(255, 255, 255, 20), IsAntialias = true })
@@ -786,10 +785,14 @@ namespace TeamsDesignCreator
 
 
 
-        internal static MemoryStream GeneratePlayersListImageTemplate3(List<string> players, string teamName, string location, string date, string dayInWeek, string currentCulture)
+        internal static MemoryStream GeneratePlayersListImageTemplate3(List<PlayerShareItem> players, string teamName, string location, string date, string dayInWeek, string currentCulture)
         {
             var culture = GetCulture(currentCulture);
-            var content = string.Join(" ", players.Prepend(teamName).Prepend(location));
+            var content = string.Join(
+                " ",
+                players.Select(player => player.Name)
+                    .Prepend(teamName)
+                    .Prepend(location));
             var hasHebrewContent = content.Any(character => character >= '\u0590' && character <= '\u05FF');
             var hasArabicContent = content.Any(character => character >= '\u0600' && character <= '\u08FF');
             var isRtlLayout = culture.TextInfo.IsRightToLeft || hasHebrewContent || hasArabicContent;
@@ -805,6 +808,8 @@ namespace TeamsDesignCreator
             var matchDate = ParseMatchDate(date);
             var matchdayLabel = GetLocalizedLabel(culture, "MATCHDAY SQUAD", "סגל המשחק", "قائمة المباراة");
             var playersLabel = GetLocalizedLabel(culture, "PLAYERS", "שחקנים", "اللاعبون");
+            var waitingLabel = GetLocalizedLabel(culture, "WAITING", "בהמתנה", "انتظار");
+            var nextLabel = GetLocalizedLabel(culture, "NEXT", "הבא", "التالي");
             var locationLabel = GetLocalizedLabel(culture, "VENUE", "מיקום", "المكان");
             var displayTeamName = string.IsNullOrWhiteSpace(teamName) ? "TEAMIFY MATCH" : teamName.Trim();
             var displayLocation = string.IsNullOrWhiteSpace(location)
@@ -814,8 +819,7 @@ namespace TeamsDesignCreator
                 ? FormatRosterDate(matchDate.Value, culture)
                 : dayInWeek;
 
-            using (var templateStream = System.IO.File.OpenRead(@"templates/playersListTemplate3.png"))
-            using (var templateBitmap = SKBitmap.Decode(templateStream))
+            using (var templateBitmap = LoadRosterTemplate())
             using (var surface = SKSurface.Create(new SKImageInfo(templateBitmap.Width, templateBitmap.Height)))
             using (var accentPaint = new SKPaint { Color = SKColor.Parse("#50F3AA"), IsAntialias = true })
             using (var subtlePaint = new SKPaint { Color = new SKColor(255, 255, 255, 20), IsAntialias = true })
@@ -826,6 +830,9 @@ namespace TeamsDesignCreator
             using (var playerPaint = CreateRosterTextPaint(SKColors.White, 34, true))
             using (var numberPaint = CreateRosterTextPaint(SKColor.Parse("#071A2E"), 23, true))
             using (var footerPaint = CreateRosterTextPaint(new SKColor(218, 245, 233, 185), 20, false))
+            using (var waitingPlayerPaint = CreateRosterTextPaint(new SKColor(218, 245, 233, 165), 34, true))
+            using (var nextWaitingPlayerPaint = CreateRosterTextPaint(SKColor.Parse("#FFD66B"), 34, true))
+            using (var waitingAccentPaint = new SKPaint { Color = SKColor.Parse("#E9A91A"), IsAntialias = true })
             {
                 var canvas = surface.Canvas;
                 canvas.DrawBitmap(templateBitmap, SKPoint.Empty);
@@ -842,7 +849,11 @@ namespace TeamsDesignCreator
                 DrawMetadataCard(canvas, firstMetadataRect, displayDate, subtlePaint, borderPaint, metadataPaint, isRtlLayout);
                 DrawMetadataCard(canvas, secondMetadataRect, $"{locationLabel}  ·  {displayLocation}", subtlePaint, borderPaint, metadataPaint, isRtlLayout);
 
-                var countText = $"{players.Count} {playersLabel}";
+                var confirmedCount = players.Count(player => !player.IsWaiting);
+                var waitingCount = players.Count(player => player.IsWaiting);
+                var countText = waitingCount == 0
+                    ? $"{confirmedCount} {playersLabel}"
+                    : $"{confirmedCount} {playersLabel}  ·  {waitingCount} {waitingLabel}";
                 DrawFittedRosterText(
                     canvas,
                     countText,
@@ -852,7 +863,19 @@ namespace TeamsDesignCreator
                     isRtlLayout ? SKTextAlign.Right : SKTextAlign.Left,
                     20);
 
-                DrawRosterPlayers(canvas, players, isRtlLayout, playerPaint, numberPaint, subtlePaint, borderPaint, accentPaint);
+                DrawRosterPlayers(
+                    canvas,
+                    players,
+                    isRtlLayout,
+                    playerPaint,
+                    waitingPlayerPaint,
+                    nextWaitingPlayerPaint,
+                    numberPaint,
+                    subtlePaint,
+                    borderPaint,
+                    accentPaint,
+                    waitingAccentPaint,
+                    nextLabel);
 
                 var rights = $"TEAMIFY  ·  © {DateTime.UtcNow.Year} ALL RIGHTS RESERVED";
                 DrawFittedRosterText(canvas, rights, new SKRect(70, 1268, 1010, 1296), 1290, footerPaint, SKTextAlign.Center, 15);
@@ -869,13 +892,17 @@ namespace TeamsDesignCreator
 
         private static void DrawRosterPlayers(
             SKCanvas canvas,
-            IReadOnlyList<string> players,
+            IReadOnlyList<PlayerShareItem> players,
             bool isRtlLayout,
             SKPaint playerPaint,
+            SKPaint waitingPlayerPaint,
+            SKPaint nextWaitingPlayerPaint,
             SKPaint numberPaint,
             SKPaint cardPaint,
             SKPaint borderPaint,
-            SKPaint accentPaint)
+            SKPaint accentPaint,
+            SKPaint waitingAccentPaint,
+            string nextLabel)
         {
             const float areaLeft = 70;
             const float areaRight = 1010;
@@ -905,19 +932,41 @@ namespace TeamsDesignCreator
 
                 var numberCenterX = isRtlLayout ? cardRect.Right - 34 : cardRect.Left + 34;
                 var numberCenterY = cardRect.MidY;
-                canvas.DrawCircle(numberCenterX, numberCenterY, Math.Min(22, rowHeight * 0.34f), accentPaint);
+                var player = players[index];
+                var isNextWaiting =
+                    player.IsWaiting
+                    && (player.WaitingListOrder ?? 0) == 0;
+                canvas.DrawCircle(
+                    numberCenterX,
+                    numberCenterY,
+                    Math.Min(22, rowHeight * 0.34f),
+                    player.IsWaiting ? waitingAccentPaint : accentPaint);
                 numberPaint.TextAlign = SKTextAlign.Center;
-                canvas.DrawText((index + 1).ToString(CultureInfo.InvariantCulture), numberCenterX, numberCenterY + 8, numberPaint);
+                var positionText = player.IsWaiting
+                    ? $"W{(player.WaitingListOrder ?? 0) + 1}"
+                    : (index + 1).ToString(CultureInfo.InvariantCulture);
+                canvas.DrawText(
+                    positionText,
+                    numberCenterX,
+                    numberCenterY + 8,
+                    numberPaint);
 
                 var textRect = isRtlLayout
                     ? new SKRect(cardRect.Left + 18, cardRect.Top, cardRect.Right - 70, cardRect.Bottom)
                     : new SKRect(cardRect.Left + 70, cardRect.Top, cardRect.Right - 18, cardRect.Bottom);
+                var displayName = isNextWaiting
+                    ? $"{nextLabel} · {player.Name}"
+                    : player.Name;
                 DrawFittedRosterText(
                     canvas,
-                    players[index],
+                    displayName,
                     textRect,
                     cardRect.MidY + textSize * 0.34f,
-                    playerPaint,
+                    isNextWaiting
+                        ? nextWaitingPlayerPaint
+                        : player.IsWaiting
+                            ? waitingPlayerPaint
+                            : playerPaint,
                     isRtlLayout ? SKTextAlign.Right : SKTextAlign.Left,
                     20);
             }
@@ -959,6 +1008,82 @@ namespace TeamsDesignCreator
                 textPaint,
                 isRtl ? SKTextAlign.Right : SKTextAlign.Left,
                 20);
+        }
+
+        private static SKBitmap LoadRosterTemplate()
+        {
+            var assembly = typeof(SkiaImageCreator).Assembly;
+            using var embeddedTemplate = assembly.GetManifestResourceStream(
+                "TeamsGeneratorWebAPI.templates.playersListTemplate3.png");
+            var embeddedBitmap = embeddedTemplate == null
+                ? null
+                : SKBitmap.Decode(embeddedTemplate);
+            if (embeddedBitmap != null)
+            {
+                return embeddedBitmap;
+            }
+
+            var templatePaths = new[]
+            {
+                Path.Combine(
+                    AppContext.BaseDirectory,
+                    "templates",
+                    "playersListTemplate3.png"),
+                Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    "templates",
+                    "playersListTemplate3.png")
+            };
+            foreach (var templatePath in templatePaths.Distinct())
+            {
+                if (!File.Exists(templatePath))
+                {
+                    continue;
+                }
+
+                var fileBitmap = SKBitmap.Decode(templatePath);
+                if (fileBitmap != null)
+                {
+                    return fileBitmap;
+                }
+            }
+
+            return CreateFallbackRosterTemplate();
+        }
+
+        private static SKBitmap CreateFallbackRosterTemplate()
+        {
+            var bitmap = new SKBitmap(1080, 1350);
+            using var canvas = new SKCanvas(bitmap);
+            using var backgroundPaint = new SKPaint
+            {
+                Color = SKColor.Parse("#001827"),
+                IsAntialias = true
+            };
+            using var sidePaint = new SKPaint
+            {
+                Color = SKColor.Parse("#0B3B44"),
+                IsAntialias = true
+            };
+            using var linePaint = new SKPaint
+            {
+                Color = SKColor.Parse("#85FFCB"),
+                IsAntialias = true,
+                Style = SKPaintStyle.Stroke,
+                StrokeWidth = 2
+            };
+
+            canvas.DrawRect(new SKRect(0, 0, 1080, 1350), backgroundPaint);
+            canvas.DrawRect(new SKRect(0, 0, 22, 1350), sidePaint);
+            canvas.DrawRect(new SKRect(1058, 0, 1080, 1350), sidePaint);
+            canvas.DrawRoundRect(
+                new SKRect(48, 40, 1032, 1297),
+                32,
+                32,
+                linePaint);
+            canvas.DrawLine(70, 1266, 1010, 1266, linePaint);
+            canvas.Flush();
+            return bitmap;
         }
 
         private static SKPaint CreateRosterTextPaint(SKColor color, float size, bool bold)
@@ -1194,8 +1319,7 @@ namespace TeamsDesignCreator
                 : location.Trim();
             var displayDate = matchDate.HasValue ? FormatRosterDate(matchDate.Value, culture) : dayInWeek;
 
-            using (var templateStream = System.IO.File.OpenRead(@"templates/playersListTemplate3.png"))
-            using (var templateBitmap = SKBitmap.Decode(templateStream))
+            using (var templateBitmap = LoadRosterTemplate())
             using (var surface = SKSurface.Create(new SKImageInfo(templateBitmap.Width, templateBitmap.Height)))
             using (var accentPaint = new SKPaint { Color = SKColor.Parse("#50F3AA"), IsAntialias = true })
             using (var subtlePaint = new SKPaint { Color = new SKColor(255, 255, 255, 20), IsAntialias = true })

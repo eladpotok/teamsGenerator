@@ -26,11 +26,31 @@ namespace TeamsGenerator.Orchestration
 
         public static List<Algos.Team> Run(AlgoType algoType, List<IPlayer> players, AlgoConfig config, List<Team> generatedTeamsWithLockedPlayers)
         {
+            return Run(
+                algoType,
+                players,
+                config,
+                generatedTeamsWithLockedPlayers,
+                out _);
+        }
+
+        internal static List<Algos.Team> Run(
+            AlgoType algoType,
+            List<IPlayer> players,
+            AlgoConfig config,
+            List<Team> generatedTeamsWithLockedPlayers,
+            out ChemistryOptimizationResult chemistryResult)
+        {
             var algo = _algoTypeToTeamsGeneratorMapper[algoType];
             var teams = algo.Invoke(config).GenerateTeams(players, generatedTeamsWithLockedPlayers) ?? null;
+            chemistryResult = new ChemistryOptimizationResult();
             if (config.UseChemistry)
             {
-                ChemistryTeamBalancer.Apply(teams, algoType, config.ChemistryScores);
+                chemistryResult = ChemistryTeamBalancer.Apply(
+                    teams,
+                    algoType,
+                    config.ChemistryScores,
+                    config.SkillDefinitions);
             }
             return teams;
         }

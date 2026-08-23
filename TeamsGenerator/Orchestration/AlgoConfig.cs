@@ -13,5 +13,7 @@ namespace TeamsGenerator.Orchestration
         public string Language { get; internal set; }
         public bool UseChemistry { get; set; }
         public IReadOnlyDictionary<string, double> ChemistryScores { get; set; }
+        public IReadOnlyList<SkillDefinition> SkillDefinitions { get; set; } =
+            SkillDefinition.CreateDefaults();
     }
 }

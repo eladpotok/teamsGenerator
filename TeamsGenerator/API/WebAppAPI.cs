@@ -61,15 +61,21 @@ namespace TeamsGenerator.API
         public static GetTeamsResponse GetTeams(
             dynamic json,
             int algoKey,
-            IReadOnlyDictionary<string, double> chemistryScores = null)
+            IReadOnlyDictionary<string, double> chemistryScores = null,
+            int chemistryMatchdayCount = 0)
         {
             var configSerializedObject = JsonConvert.SerializeObject(json.config);
             UserConfigResponse config = JsonConvert.DeserializeObject<UserConfigResponse>(configSerializedObject);
+            config.SkillDefinitions = SkillDefinition.Normalize(
+                config.SkillDefinitions);
 
 
             var algoKeyEnum = (AlgoType)algoKey;
             var playersSerializedObject = JsonConvert.SerializeObject(json.players, Newtonsoft.Json.Formatting.Indented);
             IEnumerable<IPlayer> playersCollection = AlgoTypeToPlayerSerializerMapper[algoKeyEnum].Invoke(playersSerializedObject);
+            SetActiveSkills(
+                playersCollection,
+                config.SkillDefinitions);
 
             List<Team> alreadyGeneratedTeams = null;
             if(json.teams != null)
@@ -80,6 +86,9 @@ namespace TeamsGenerator.API
                 {
                     var playersInTeamJson = JsonConvert.SerializeObject(team.players, Newtonsoft.Json.Formatting.Indented);
                     IEnumerable<IPlayer> playersInTeam = AlgoTypeToPlayerSerializerMapper[algoKeyEnum].Invoke(playersInTeamJson);
+                    SetActiveSkills(
+                        playersInTeam,
+                        config.SkillDefinitions);
                     var createdTeam = new Team(indexTeam++);
                     playersInTeam.ToList().ForEach(p => createdTeam.AddPlayer(p));
                     alreadyGeneratedTeams.Add(createdTeam);
@@ -91,26 +100,67 @@ namespace TeamsGenerator.API
                 TeamsCount = config.NumberOfTeams,
                 Language = config.Language,
                 UseChemistry = config.UseChemistry,
-                ChemistryScores = chemistryScores
+                ChemistryScores = chemistryScores,
+                SkillDefinitions = config.SkillDefinitions
             };
-            var teams = AlgoRunner.Run(algoKeyEnum, playersCollection.ToList(), algoConfig, alreadyGeneratedTeams);
-            var teamsResponse = GetDisplayTeams(config.ShirtsColors, teams, config.ShowWhoBegins);
+            var teams = AlgoRunner.Run(
+                algoKeyEnum,
+                playersCollection.ToList(),
+                algoConfig,
+                alreadyGeneratedTeams,
+                out var chemistryResult);
+            var teamsResponse = GetDisplayTeams(
+                config.ShirtsColors,
+                teams,
+                config.ShowWhoBegins,
+                config.SkillDefinitions);
 
-            return new GetTeamsResponse() { Teams = teamsResponse };
+            var chemistrySupported =
+                algoKeyEnum == AlgoType.SkillWise
+                || algoKeyEnum == AlgoType.Positions;
+            return new GetTeamsResponse()
+            {
+                Teams = teamsResponse,
+                Chemistry = new ChemistryGenerationDiagnostics
+                {
+                    Requested = config.UseChemistry && chemistrySupported,
+                    Applied = chemistryResult.WasEvaluated,
+                    HistoryMatchdayCount = chemistryMatchdayCount,
+                    PartnershipCount =
+                        chemistryResult.PartnershipCount,
+                    SwapCount = chemistryResult.SwapCount,
+                    BalanceImprovementPercent =
+                        chemistryResult.BalanceImprovementPercent,
+                    NotablePartnerships =
+                        chemistryResult.NotablePartnerships,
+                    TeamRatings = chemistryResult.TeamRatings
+                }
+            };
         }
 
-        public static GetAppSetupResponse GetAppSetup(string version)
+        public static GetAppSetupResponse GetAppSetup(
+            string version,
+            UserConfigResponse userConfig = null)
         {
             var shirtsColors = ConfigurationManager.ShirtsColorNameToSymbolMapper;
             var numberOfTeams = ConfigurationManager.NumberOfTeams;
 
-            var algos = _algoTypeToInformationMapper.Values.ToList();
+            var skillDefinitions = SkillDefinition.Normalize(
+                userConfig?.SkillDefinitions);
+            var algos = _algoTypeToInformationMapper.Values
+                .Select(algo => algo.ForSkills(skillDefinitions))
+                .ToList();
             //foreach (var algo in algos)
             //{
             //    algo.PlayerProperties = algo.PlayerProperties.Where(p => CompareVersion(p.MinVersion, version)).ToList();
             //}
 
-            var config = new UserConfigResponse() { ShirtsColors = shirtsColors, NumberOfTeams = numberOfTeams };
+            var config = userConfig ?? new UserConfigResponse();
+            config.ShirtsColors ??= shirtsColors;
+            config.NumberOfTeams = config.NumberOfTeams <= 0
+                ? numberOfTeams
+                : config.NumberOfTeams;
+            config.SkillDefinitions = skillDefinitions;
 
             return new GetAppSetupResponse() { Algos = algos, Config = config };
         }
@@ -142,7 +192,11 @@ namespace TeamsGenerator.API
             return true;
         }
 
-        private static List<WebAppTeam> GetDisplayTeams(List<PlayerShirt> shirtsColorNames, List<Algos.Team> teams, bool showWhoBegins)
+        private static List<WebAppTeam> GetDisplayTeams(
+            List<PlayerShirt> shirtsColorNames,
+            List<Algos.Team> teams,
+            bool showWhoBegins,
+            IReadOnlyList<SkillDefinition> skillDefinitions)
         {
             var results = new List<WebAppTeam>();
             var selectedShirts = Helper.Shuffle(shirtsColorNames.Where(s=>s.IsMarked).ToList());
@@ -163,7 +217,9 @@ namespace TeamsGenerator.API
                     PlayStyle = team.PlayStyle,
                     Strength = team.Strength,
                     Weakness = team.Weakness,
-                    SkillAverages = team.SkillAverages
+                    SkillAverages = GetSkillAverages(
+                        team,
+                        skillDefinitions)
                 });
                 index++;
                 selectedShirts.RemoveAt(0);
@@ -175,6 +231,36 @@ namespace TeamsGenerator.API
             }
 
             return results;
+        }
+
+        private static void SetActiveSkills(
+            IEnumerable<IPlayer> players,
+            IEnumerable<SkillDefinition> skillDefinitions)
+        {
+            foreach (var player in players
+                .OfType<IConfigurableSkillsPlayer>())
+            {
+                player.SetActiveSkills(skillDefinitions);
+            }
+        }
+
+        private static Dictionary<string, double> GetSkillAverages(
+            Algos.Team team,
+            IReadOnlyList<SkillDefinition> skillDefinitions)
+        {
+            if (team.Players.Count == 0
+                || !team.Players.All(player =>
+                    player is IConfigurableSkillsPlayer))
+            {
+                return team.SkillAverages;
+            }
+
+            return skillDefinitions.ToDictionary(
+                skill => skill.Id,
+                skill => team.Players
+                    .Cast<IConfigurableSkillsPlayer>()
+                    .Average(player =>
+                        player.GetSkillValue(skill.Id)));
         }
 
 

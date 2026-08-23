@@ -23,11 +23,49 @@ namespace TeamsGeneratorWebAPI.Controllers
         }
 
         [HttpPost("Upload")]
-        public async Task<SaveConfigResponse> Post([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic players, string uid)
+        public async Task<IResponse> Post(
+            [FromHeader(Name = "client_version")] string ver,
+            [FromBody] UserConfigResponse userConfig,
+            string uid)
         {
+            if (userConfig.SkillDefinitions == null
+                || userConfig.SkillDefinitions.Count == 0)
+            {
+                userConfig.SkillDefinitions =
+                    SkillDefinition.CreateDefaults();
+            }
+
+            var suppliedSkills = userConfig.SkillDefinitions?
+                .Where(skill =>
+                    skill != null
+                    && !string.IsNullOrWhiteSpace(skill.Id)
+                    && !string.IsNullOrWhiteSpace(skill.Name))
+                .ToList();
+            if (suppliedSkills.Count < SkillDefinition.MinimumCount
+                || suppliedSkills.Count > SkillDefinition.MaximumCount
+                || suppliedSkills.Select(skill => skill.Id.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .Count() != suppliedSkills.Count
+                || suppliedSkills.Select(skill => skill.Name.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .Count() != suppliedSkills.Count
+                || suppliedSkills.Any(skill =>
+                    !SkillDefinition.IsValidId(skill.Id)
+                    || !SkillDefinition.IsValidName(skill.Name)))
+            {
+                return SaveConfigResponse.Failure(
+                    "Choose between 3 and 8 uniquely named skills.");
+            }
+
+            userConfig.SkillDefinitions =
+                SkillDefinition.Normalize(suppliedSkills);
+            userConfig.ArchivedSkillDefinitions =
+                SkillDefinition.NormalizeArchived(
+                    userConfig.ArchivedSkillDefinitions,
+                    userConfig.SkillDefinitions);
             var userId = RequestUserId.Resolve(User, uid);
             var config = new UserConfigBlobConfig() { UId = userId };
-            return await _azureStorage.UploadAsync(players, config);
+            return await _azureStorage.UploadAsync(userConfig, config);
         }
 
 

@@ -4,6 +4,7 @@ using System.Linq;
 using TeamsGenerator.Algos;
 using TeamsGenerator.Algos.PositionsAlgo;
 using TeamsGenerator.Algos.SkillWiseAlgo;
+using TeamsGenerator.API;
 using TeamsGenerator.Orchestration.Contracts;
 
 namespace TeamsGenerator.Orchestration
@@ -11,25 +12,47 @@ namespace TeamsGenerator.Orchestration
     internal static class ChemistryTeamBalancer
     {
         private const double ChemistryWeight = 0.75;
+        private const double GoodChemistryThreshold = 0.05;
         private const double ImprovementThreshold = 0.001;
         private const int MaximumIterations = 100;
 
-        internal static void Apply(
+        internal static ChemistryOptimizationResult Apply(
             IList<Team> teams,
             AlgoType algoType,
-            IReadOnlyDictionary<string, double> chemistryScores)
+            IReadOnlyDictionary<string, double> chemistryScores,
+            IReadOnlyList<SkillDefinition> skillDefinitions)
         {
             if (teams == null
+                || teams.Count < 2
                 || chemistryScores == null
                 || chemistryScores.Count == 0
                 || (algoType != AlgoType.SkillWise && algoType != AlgoType.Positions))
             {
-                return;
+                return new ChemistryOptimizationResult();
             }
+
+            var relevantPartnershipCount = CountRelevantPartnerships(
+                teams,
+                chemistryScores);
+            if (relevantPartnershipCount == 0)
+            {
+                return new ChemistryOptimizationResult();
+            }
+
+            var initialScore = CalculateObjective(
+                teams,
+                algoType,
+                chemistryScores,
+                skillDefinitions);
+            var swapCount = 0;
 
             for (var iteration = 0; iteration < MaximumIterations; iteration++)
             {
-                var currentScore = CalculateObjective(teams, algoType, chemistryScores);
+                var currentScore = CalculateObjective(
+                    teams,
+                    algoType,
+                    chemistryScores,
+                    skillDefinitions);
                 SwapCandidate bestSwap = null;
                 var bestScore = currentScore;
 
@@ -68,7 +91,8 @@ namespace TeamsGenerator.Orchestration
                                 var candidateScore = CalculateObjective(
                                     teams,
                                     algoType,
-                                    chemistryScores);
+                                    chemistryScores,
+                                    skillDefinitions);
                                 SwapPlayers(
                                     firstTeam,
                                     firstPlayerIndex,
@@ -101,13 +125,42 @@ namespace TeamsGenerator.Orchestration
                     bestSwap.FirstPlayerIndex,
                     bestSwap.SecondTeam,
                     bestSwap.SecondPlayerIndex);
+                swapCount++;
             }
+
+            var finalScore = CalculateObjective(
+                teams,
+                algoType,
+                chemistryScores,
+                skillDefinitions);
+            var improvementPercent = initialScore <= 0
+                ? 0
+                : Math.Max(0, (initialScore - finalScore) / initialScore * 100);
+
+            return new ChemistryOptimizationResult
+            {
+                WasEvaluated = true,
+                PartnershipCount = relevantPartnershipCount,
+                SwapCount = swapCount,
+                InitialScore = initialScore,
+                FinalScore = finalScore,
+                BalanceImprovementPercent = Math.Round(
+                    improvementPercent,
+                    1),
+                NotablePartnerships = GetNotablePartnerships(
+                    teams,
+                    chemistryScores),
+                TeamRatings = GetTeamRatings(
+                    teams,
+                    chemistryScores)
+            };
         }
 
         private static double CalculateObjective(
             IEnumerable<Team> teams,
             AlgoType algoType,
-            IReadOnlyDictionary<string, double> chemistryScores)
+            IReadOnlyDictionary<string, double> chemistryScores,
+            IReadOnlyList<SkillDefinition> skillDefinitions)
         {
             var teamList = teams.ToList();
             var effectiveStrengths = teamList
@@ -115,7 +168,9 @@ namespace TeamsGenerator.Orchestration
                     + ChemistryWeight * GetTeamChemistry(team, chemistryScores))
                 .ToList();
             var effectiveSpread = effectiveStrengths.Max() - effectiveStrengths.Min();
-            var skillSpread = GetSkillSpread(teamList);
+            var skillSpread = GetSkillSpread(
+                teamList,
+                skillDefinitions);
             var positionPenalty = algoType == AlgoType.Positions
                 ? GetPositionPenalty(teamList)
                 : 0;
@@ -159,13 +214,16 @@ namespace TeamsGenerator.Orchestration
             return scores.Count == 0 ? 0 : scores.Average();
         }
 
-        private static double GetSkillSpread(IList<Team> teams)
+        private static double GetSkillSpread(
+            IList<Team> teams,
+            IReadOnlyList<SkillDefinition> skillDefinitions)
         {
-            return GetSpread(teams, player => GetSkills(player).Attack)
-                + GetSpread(teams, player => GetSkills(player).Defence)
-                + GetSpread(teams, player => GetSkills(player).Stamina)
-                + GetSpread(teams, player => GetSkills(player).Leadership)
-                + GetSpread(teams, player => GetSkills(player).Passing);
+            return SkillDefinition.Normalize(skillDefinitions)
+                .Sum(skill => GetSpread(
+                    teams,
+                    player => GetSkillValue(
+                        player,
+                        skill.Id)));
         }
 
         private static double GetSpread(
@@ -180,29 +238,13 @@ namespace TeamsGenerator.Orchestration
             return values.Max() - values.Min();
         }
 
-        private static SkillValues GetSkills(IPlayer player)
+        private static double GetSkillValue(
+            IPlayer player,
+            string skillId)
         {
-            if (player is SkillWisePlayer skillWisePlayer)
-            {
-                return new SkillValues
-                {
-                    Attack = skillWisePlayer.Attack,
-                    Defence = skillWisePlayer.Defence,
-                    Stamina = skillWisePlayer.Stamina,
-                    Leadership = skillWisePlayer.Leadership,
-                    Passing = skillWisePlayer.Passing
-                };
-            }
-
-            var positionsPlayer = (PositionsPlayer)player;
-            return new SkillValues
-            {
-                Attack = positionsPlayer.Attack,
-                Defence = positionsPlayer.Defence,
-                Stamina = positionsPlayer.Stamina,
-                Leadership = positionsPlayer.Leadership,
-                Passing = positionsPlayer.Passing
-            };
+            return player is IConfigurableSkillsPlayer configurablePlayer
+                ? configurablePlayer.GetSkillValue(skillId)
+                : SkillDefinition.DefaultValue;
         }
 
         private static double GetPositionPenalty(IEnumerable<Team> teams)
@@ -259,6 +301,176 @@ namespace TeamsGenerator.Orchestration
             secondTeam.TotalRank = secondTeam.Players.Sum(player => player.Rank);
         }
 
+        private static List<ChemistryPartnership> GetNotablePartnerships(
+            IEnumerable<Team> teams,
+            IReadOnlyDictionary<string, double> chemistryScores)
+        {
+            return teams
+                .SelectMany(team => GetTeamPartnerships(
+                    team,
+                    chemistryScores))
+                .OrderByDescending(partnership => partnership.Score)
+                .Take(2)
+                .Select(partnership => new ChemistryPartnership
+                {
+                    FirstPlayerName = partnership.FirstPlayerName,
+                    SecondPlayerName = partnership.SecondPlayerName
+                })
+                .ToList();
+        }
+
+        private static List<ChemistryTeamRating> GetTeamRatings(
+            IEnumerable<Team> teams,
+            IReadOnlyDictionary<string, double> chemistryScores)
+        {
+            return teams
+                .Select(team => CreateTeamRating(
+                    team,
+                    chemistryScores))
+                .Where(rating => rating.EvidenceCount > 0)
+                .ToList();
+        }
+
+        private static ChemistryTeamRating CreateTeamRating(
+            Team team,
+            IReadOnlyDictionary<string, double> chemistryScores)
+        {
+            var partnerships = GetTeamPartnerships(
+                    team,
+                    chemistryScores)
+                .ToList();
+            var allPairScores = GetTeamPairScores(
+                    team,
+                    chemistryScores)
+                .ToList();
+            var links = partnerships
+                .SelectMany(partnership => new[]
+                {
+                    new
+                    {
+                        PlayerKey = partnership.FirstPlayerKey,
+                        PartnerName = partnership.SecondPlayerName
+                    },
+                    new
+                    {
+                        PlayerKey = partnership.SecondPlayerKey,
+                        PartnerName = partnership.FirstPlayerName
+                    }
+                })
+                .GroupBy(link =>
+                    link.PlayerKey,
+                    StringComparer.OrdinalIgnoreCase)
+                .Select(group => new ChemistryPlayerLink
+                {
+                    PlayerKey = group.Key,
+                    PartnerNames = group
+                        .Select(link => link.PartnerName)
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .OrderBy(name => name)
+                        .ToList()
+                })
+                .ToList();
+            var averageScore = allPairScores.Count == 0
+                ? 0
+                : allPairScores.Average();
+
+            return new ChemistryTeamRating
+            {
+                TeamIndex = team.Index,
+                Score = (int)Math.Round(
+                    Math.Clamp((averageScore + 1) * 50, 0, 100)),
+                EvidenceCount = allPairScores.Count,
+                PlayerLinks = links
+            };
+        }
+
+        private static IEnumerable<double> GetTeamPairScores(
+            Team team,
+            IReadOnlyDictionary<string, double> chemistryScores)
+        {
+            for (var first = 0; first < team.Players.Count; first++)
+            {
+                for (var second = first + 1;
+                     second < team.Players.Count;
+                     second++)
+                {
+                    var pairKey = ChemistryPairKey.Create(
+                        team.Players[first].Key,
+                        team.Players[second].Key);
+                    if (pairKey != null
+                        && chemistryScores.TryGetValue(
+                            pairKey,
+                            out var score))
+                    {
+                        yield return score;
+                    }
+                }
+            }
+        }
+
+        private static int CountRelevantPartnerships(
+            IEnumerable<Team> teams,
+            IReadOnlyDictionary<string, double> chemistryScores)
+        {
+            var players = teams
+                .SelectMany(team => team.Players)
+                .GroupBy(player => player.Key, StringComparer.OrdinalIgnoreCase)
+                .Select(group => group.First())
+                .ToList();
+            var count = 0;
+
+            for (var first = 0; first < players.Count; first++)
+            {
+                for (var second = first + 1;
+                     second < players.Count;
+                     second++)
+                {
+                    var pairKey = ChemistryPairKey.Create(
+                        players[first].Key,
+                        players[second].Key);
+                    if (pairKey != null
+                        && chemistryScores.ContainsKey(pairKey))
+                    {
+                        count++;
+                    }
+                }
+            }
+
+            return count;
+        }
+
+        private static IEnumerable<ScoredPartnership> GetTeamPartnerships(
+            Team team,
+            IReadOnlyDictionary<string, double> chemistryScores)
+        {
+            for (var first = 0; first < team.Players.Count; first++)
+            {
+                for (var second = first + 1;
+                     second < team.Players.Count;
+                     second++)
+                {
+                    var pairKey = ChemistryPairKey.Create(
+                        team.Players[first].Key,
+                        team.Players[second].Key);
+                    if (pairKey != null
+                        && chemistryScores.TryGetValue(
+                            pairKey,
+                            out var score)
+                        && score >= GoodChemistryThreshold)
+                    {
+                        yield return new ScoredPartnership
+                        {
+                            FirstPlayerKey = team.Players[first].Key,
+                            FirstPlayerName = team.Players[first].Name,
+                            SecondPlayerKey = team.Players[second].Key,
+                            SecondPlayerName = team.Players[second].Name,
+                            Score = score
+                        };
+                    }
+                }
+            }
+        }
+
         private sealed class SwapCandidate
         {
             public Team FirstTeam { get; set; }
@@ -267,13 +479,27 @@ namespace TeamsGenerator.Orchestration
             public int SecondPlayerIndex { get; set; }
         }
 
-        private sealed class SkillValues
+        private sealed class ScoredPartnership
         {
-            public double Attack { get; set; }
-            public double Defence { get; set; }
-            public double Stamina { get; set; }
-            public double Leadership { get; set; }
-            public double Passing { get; set; }
+            public string FirstPlayerKey { get; set; }
+            public string FirstPlayerName { get; set; }
+            public string SecondPlayerKey { get; set; }
+            public string SecondPlayerName { get; set; }
+            public double Score { get; set; }
         }
+    }
+
+    internal class ChemistryOptimizationResult
+    {
+        internal bool WasEvaluated { get; set; }
+        internal int PartnershipCount { get; set; }
+        internal int SwapCount { get; set; }
+        internal double InitialScore { get; set; }
+        internal double FinalScore { get; set; }
+        internal double BalanceImprovementPercent { get; set; }
+        internal List<ChemistryPartnership> NotablePartnerships { get; set; } =
+            new List<ChemistryPartnership>();
+        internal List<ChemistryTeamRating> TeamRatings { get; set; } =
+            new List<ChemistryTeamRating>();
     }
 }

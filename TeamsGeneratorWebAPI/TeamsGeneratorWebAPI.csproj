@@ -76,6 +76,9 @@
     <Content Include="templates\playersListTemplate3.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <EmbeddedResource Include="templates\playersListTemplate3.png">
+      <LogicalName>TeamsGeneratorWebAPI.templates.playersListTemplate3.png</LogicalName>
+    </EmbeddedResource>
     <Content Include="templates\plyaerShirt.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

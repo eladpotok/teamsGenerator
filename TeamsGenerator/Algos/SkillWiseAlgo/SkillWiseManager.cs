@@ -1,132 +1,253 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using TeamsGenerator.Algos;
+using TeamsGenerator.API;
 using TeamsGenerator.Orchestration;
 using TeamsGenerator.Orchestration.Contracts;
-using TeamsGenerator.Utilities;
 
 namespace TeamsGenerator.Algos.SkillWiseAlgo
 {
     public class SkillWiseManager : AlgoManagerBase, IAlgoManager
     {
-        private List<SkillWisePlayer> _players;
+        private const int MinimumCandidateCount = 24;
+        private const int MaximumCandidateCount = 96;
+        private const int CandidatesToOptimize = 6;
+
+        private readonly Random _random = new Random();
 
         public SkillWiseManager(AlgoConfig config) : base(config)
         {
         }
 
-        public List<Team> GenerateTeams(List<IPlayer> players, List<Team> generatedTeamWithLockedPlayers)
+        public List<Team> GenerateTeams(
+            List<IPlayer> players,
+            List<Team> generatedTeamWithLockedPlayers)
         {
-            _players = new List<SkillWisePlayer>(players.Cast<SkillWisePlayer>());
-
-            var teams = new List<Team>();
-
-            for (int i = 0; i < _config.TeamsCount; i++)
+            if (players == null)
             {
-                teams.Add(new Team());
-
+                throw new ArgumentNullException(nameof(players));
             }
 
-            if (generatedTeamWithLockedPlayers != null)
+            if (_config.TeamsCount <= 0)
             {
-                var teamIndex = 0;
-                foreach (var team in generatedTeamWithLockedPlayers)
+                throw new ArgumentOutOfRangeException(
+                    nameof(_config.TeamsCount),
+                    "Teams count must be greater than zero.");
+            }
+
+            var skillDefinitions = SkillDefinition.Normalize(
+                _config.SkillDefinitions);
+            var skillWisePlayers = players.Cast<SkillWisePlayer>().ToList();
+            var lockedPlayerKeys = new HashSet<string>(
+                StringComparer.OrdinalIgnoreCase);
+            var lockedPlayers = new HashSet<IPlayer>();
+            var baseTeams = CreateBaseTeams(
+                generatedTeamWithLockedPlayers,
+                lockedPlayerKeys,
+                lockedPlayers);
+            var unlockedPlayers = skillWisePlayers
+                .Where(player => !IsPreassigned(
+                    player,
+                    lockedPlayerKeys,
+                    lockedPlayers))
+                .ToList();
+            var candidateCount = Math.Min(
+                MaximumCandidateCount,
+                Math.Max(MinimumCandidateCount, unlockedPlayers.Count * 2));
+            var candidates = new List<Candidate>(candidateCount);
+
+            for (var candidateIndex = 0;
+                 candidateIndex < candidateCount;
+                 candidateIndex++)
+            {
+                var teams = CloneTeams(baseTeams);
+                FillTeams(
+                    teams,
+                    unlockedPlayers,
+                    skillDefinitions,
+                    candidateIndex > 0);
+                candidates.Add(new Candidate
                 {
-                    foreach(var player in team.Players)
-                    {
-                        teams[teamIndex].AddPlayer(player);
-                    }
-                    players = players.Where(pl => !team.Players.Select(t => t.Key).Contains(pl.Key)).ToList();
-                    teamIndex++;
-                }
-
-                teams = teams.OrderBy(t => t.Players.Count).ThenBy(t => t.TotalRank).ToList();
+                    Teams = teams,
+                    Score = SkillWiseTeamOptimizer.CalculateScore(
+                        teams,
+                        skillDefinitions)
+                });
             }
 
-            return RunAlgo(ref teams, players.Cast<SkillWisePlayer>().ToList());
+            var finalists = candidates
+                .OrderBy(candidate => candidate.Score)
+                .Take(CandidatesToOptimize)
+                .ToList();
+
+            foreach (var finalist in finalists)
+            {
+                SkillWiseTeamOptimizer.Optimize(
+                    finalist.Teams,
+                    skillDefinitions,
+                    lockedPlayerKeys,
+                    lockedPlayers);
+                finalist.Score = SkillWiseTeamOptimizer.CalculateScore(
+                    finalist.Teams,
+                    skillDefinitions);
+            }
+
+            return finalists
+                .OrderBy(candidate => candidate.Score)
+                .First()
+                .Teams;
         }
 
-        private List<Team> RunAlgo(ref List<Team> teams, List<SkillWisePlayer> players)
+        private List<Team> CreateBaseTeams(
+            IEnumerable<Team> lockedTeams,
+            ISet<string> lockedPlayerKeys,
+            ISet<IPlayer> lockedPlayers)
         {
-            var allTypesOfSkills = GetSkillsRandomOrder();
-       
-            for (int i = 0; i < _players.Count; i++)
+            var teams = Enumerable.Range(0, _config.TeamsCount)
+                .Select(index => new Team(index))
+                .ToList();
+
+            if (lockedTeams == null)
             {
-                if (!allTypesOfSkills.Any())
+                return teams;
+            }
+
+            var teamIndex = 0;
+            foreach (var lockedTeam in lockedTeams.Take(_config.TeamsCount))
+            {
+                foreach (var player in lockedTeam.Players)
                 {
-                    allTypesOfSkills = GetSkillsRandomOrder();
+                    teams[teamIndex].AddPlayer(player);
+                    lockedPlayers.Add(player);
+                    if (!string.IsNullOrWhiteSpace(player.Key))
+                    {
+                        lockedPlayerKeys.Add(player.Key);
+                    }
                 }
 
-                //players = Helper.SpreadGoalKeepersInDifferentTeams(teams, players.Cast<IPlayer>().ToList()).Cast<SkillWisePlayer>().ToList();
-                AddSkillPlayerToTeam(ref teams, players, TakeRandomSkill(allTypesOfSkills));
+                teamIndex++;
             }
-            
+
             return teams;
         }
 
-        private static List<OrderBy> GetSkillsRandomOrder()
+        private void FillTeams(
+            IList<Team> teams,
+            IEnumerable<SkillWisePlayer> players,
+            IReadOnlyList<SkillDefinition> skillDefinitions,
+            bool allowCandidateVariation)
         {
-            var allTypesOfSkills = new List<OrderBy>()
+            var playersLeft = players.ToList();
+            var skills = skillDefinitions.ToList();
+            var totalPlayerCount =
+                teams.Sum(team => team.Players.Count) + playersLeft.Count;
+            var maximumTeamSize = (int)Math.Ceiling(
+                (double)totalPlayerCount / teams.Count);
+            var skillIndex = skills.Count;
+
+            while (playersLeft.Count > 0)
             {
-                new OrderBy() { Name="Leadership", Invoker = t => t.Leadership },
-                new OrderBy() { Name="Attack", Invoker = t => t.Attack },
-                new OrderBy() { Name="Defence", Invoker = t => t.Defence },
-                new OrderBy() { Name="Stamina", Invoker = t => t.Stamina },
-                new OrderBy() { Name="Passing", Invoker = t => t.Passing },
-            };
+                if (skillIndex >= skills.Count)
+                {
+                    skills = Shuffle(skills);
+                    skillIndex = 0;
+                }
 
-            allTypesOfSkills = Helper.Shuffle(allTypesOfSkills);
-            return allTypesOfSkills;
-        }
+                var skill = skills[skillIndex++];
+                var eligibleTeams = teams
+                    .Where(team => team.Players.Count < maximumTeamSize)
+                    .ToList();
+                if (eligibleTeams.Count == 0)
+                {
+                    eligibleTeams = teams
+                        .Where(team => team.Players.Count
+                            == teams.Min(candidate => candidate.Players.Count))
+                        .ToList();
+                }
 
-        private Func<SkillWisePlayer, double> TakeRandomSkill(List<OrderBy> skills)
-        {
-            var random = new Random();
-            var index = random.Next(0, skills.Count);
-            var skill = skills[index];
-            Log($"Using skill {skill.Name}");
-            skills.RemoveAt(index);
-            return skill.Invoker;
-        }
+                var minimumPlayerCount = eligibleTeams
+                    .Min(team => team.Players.Count);
+                var team = eligibleTeams
+                    .Where(candidate =>
+                        candidate.Players.Count == minimumPlayerCount)
+                    .OrderBy(candidate => GetSkillAverage(candidate, skill.Id))
+                    .ThenBy(GetRankAverage)
+                    .ThenBy(candidate => _random.Next())
+                    .First();
+                var orderedPlayers = playersLeft
+                    .OrderByDescending(player =>
+                        player.GetSkillValue(skill.Id))
+                    .ThenByDescending(player => player.Rank)
+                    .ThenBy(player => _random.Next())
+                    .ToList();
+                var selectionWindow = allowCandidateVariation
+                    ? Math.Min(3, orderedPlayers.Count)
+                    : 1;
+                var player = orderedPlayers[
+                    _random.Next(selectionWindow)];
 
-        private void AddSkillPlayerToTeam(ref List<Team> teams, List<SkillWisePlayer> playersLeft, Func<SkillWisePlayer, double> orderBy)
-        {
-            var orderedPlayers = OrderByAndShuffleSequence(playersLeft, orderBy);
-            for (int i = 0; i < _config.TeamsCount; i++)
-            {
-                if (!playersLeft.Any()) return;
-                
-                // if not all teams has the same players count, and this team has reached the limit. we skip for padding all other teams.
-                if (teams[i].Players.Count == Math.Ceiling((double)_players.Count / _config.TeamsCount)) continue;
-
-                teams[i].AddPlayer(TakePlayer(orderedPlayers.Count - 1, orderedPlayers, playersLeft));
+                team.AddPlayer(player);
+                playersLeft.Remove(player);
             }
-            teams = teams.OrderBy(t => t.Players.Count).OrderBy(t => t.TotalRank).ToList();
         }
 
-        private SkillWisePlayer TakePlayer(int playerIndex, List<SkillWisePlayer> orderedPlayers, List<SkillWisePlayer> originalPlayers)
+        private List<SkillDefinition> Shuffle(
+            IEnumerable<SkillDefinition> skills)
         {
-            var player = orderedPlayers[playerIndex];
-            Log($"Using plauers {player.Name}");
-            orderedPlayers.RemoveAt(playerIndex);
-            originalPlayers.Remove(player);
-            return player;
+            return skills
+                .OrderBy(skill => _random.Next())
+                .ToList();
         }
 
-        private List<SkillWisePlayer> OrderByAndShuffleSequence(List<SkillWisePlayer> players, Func<SkillWisePlayer, double> orderBy)
+        private static List<Team> CloneTeams(IEnumerable<Team> source)
         {
-            var random = new Random();
-            var orderedPlayers = players.OrderBy(orderBy).ThenBy((p) => p.Rank).ThenBy((p) => random.Next(0, 10));
-            return orderedPlayers.ToList();
+            return source
+                .Select(team =>
+                {
+                    var clone = new Team(team.Index);
+                    foreach (var player in team.Players)
+                    {
+                        clone.AddPlayer(player);
+                    }
+
+                    return clone;
+                })
+                .ToList();
         }
 
-        private static void Log(string logMsg)
+        private static double GetSkillAverage(
+            Team team,
+            string skillId)
         {
-            if (!GlobalParameters.IsLogEnabled) return;
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine(logMsg);
-            Console.ForegroundColor = ConsoleColor.White;
+            return team.Players.Count == 0
+                ? 0
+                : team.Players
+                    .Cast<SkillWisePlayer>()
+                    .Average(player => player.GetSkillValue(skillId));
         }
 
+        private static double GetRankAverage(Team team)
+        {
+            return team.Players.Count == 0
+                ? 0
+                : team.Players.Average(player => player.Rank);
+        }
+
+        private static bool IsPreassigned(
+            SkillWisePlayer player,
+            ISet<string> lockedPlayerKeys,
+            ISet<IPlayer> lockedPlayers)
+        {
+            return lockedPlayers.Contains(player)
+                || (!string.IsNullOrWhiteSpace(player.Key)
+                    && lockedPlayerKeys.Contains(player.Key));
+        }
+
+        private sealed class Candidate
+        {
+            public List<Team> Teams { get; set; }
+            public double Score { get; set; }
+        }
     }
 }

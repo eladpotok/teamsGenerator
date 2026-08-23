@@ -7,5 +7,6 @@
         public string DisplayText { get; set; }
         public bool ShowInClient { get; set; }
         public string MinVersion { get; set; }
+        public double? DefaultValue { get; set; }
     }
 }

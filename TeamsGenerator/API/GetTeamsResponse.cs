@@ -10,5 +10,6 @@ namespace TeamsGenerator.API
     {
         public List<WebAppTeam> Teams { get; set; }
         public string TeamsResultAsCopyText { get; set; }
+        public ChemistryGenerationDiagnostics Chemistry { get; set; }
     }
 }

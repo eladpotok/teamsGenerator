@@ -41,10 +41,39 @@ namespace TeamsGeneratorWebAPI.Controllers
         public async Task<IActionResult> PostSharePlayers([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic config, string uid)
         {
             JObject request = config as JObject ?? JObject.FromObject(config);
-            var playersList = request["players"]?.ToObject<List<string>>()?
-                .Where(name => !string.IsNullOrWhiteSpace(name))
-                .Select(name => name.Trim())
-                .ToList() ?? new List<string>();
+            var playersList = request["players"]?
+                .Children()
+                .Select((player, index) =>
+                {
+                    if (player.Type == JTokenType.String)
+                    {
+                        return new PlayerShareItem
+                        {
+                            Name = player.ToString()
+                        };
+                    }
+
+                    var playerObject = player as JObject ?? new JObject();
+                    return new PlayerShareItem
+                    {
+                        Name = GetString(playerObject, "name"),
+                        IsWaiting =
+                            playerObject["isWaiting"]?.Value<bool>() == true,
+                        WaitingListOrder =
+                            playerObject["waitingListOrder"]?.Value<int?>()
+                    };
+                })
+                .Where(player => !string.IsNullOrWhiteSpace(player.Name))
+                .Select(player =>
+                {
+                    player.Name = player.Name.Trim();
+                    return player;
+                })
+                .OrderBy(player => player.IsWaiting)
+                .ThenBy(player => player.IsWaiting
+                    ? player.WaitingListOrder ?? int.MaxValue
+                    : 0)
+                .ToList() ?? new List<PlayerShareItem>();
             var teamInfo = request["teamInfo"] as JObject ?? new JObject();
 
             var teamName = GetString(teamInfo, "teamName", "matchName");

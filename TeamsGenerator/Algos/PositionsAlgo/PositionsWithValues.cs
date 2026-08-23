@@ -12,19 +12,6 @@ namespace TeamsGenerator.Algos.PositionsAlgo
         private static readonly Random _random = new Random();
 
 
-        private Dictionary<Position, Func<List<PositionsPlayer>, List<PositionsPlayer>>> _positionToOrderMapper =
-               new Dictionary<Position, Func<List<PositionsPlayer>, List<PositionsPlayer>>>()
-            {
-            { Position.GK, players => OrderWithRandomMiddle(players, p => p.Defence, p => p.Attack, new Func<PositionsPlayer, object>[] { p => p.Stamina, p => p.Passing, p => p.Leadership }) },
-            { Position.DC, players => OrderWithRandomMiddle(players, p => p.Defence, p => p.Attack, new Func<PositionsPlayer, object>[] { p => p.Leadership, p => p.Passing, p => p.Stamina }) },
-            { Position.WB, players => OrderWithRandomMiddle(players, p => p.Defence, p => p.Leadership, new Func<PositionsPlayer, object>[] { p => p.Stamina, p => p.Passing, p => p.Attack }) },
-            { Position.MC, players => OrderWithRandomMiddle(players, p => p.Passing, p => p.Stamina, new Func<PositionsPlayer, object>[] { p => p.Leadership, p => p.Attack, p => p.Defence }) },
-            { Position.AMC, players => OrderWithRandomMiddle(players, p => p.Attack, p => p.Defence, new Func<PositionsPlayer, object>[] { p => p.Passing, p => p.Stamina, p => p.Leadership }) },
-            { Position.ST, players => OrderWithRandomMiddle(players, p => p.Attack, p => p.Defence, new Func<PositionsPlayer, object>[] { p => p.Stamina, p => p.Passing, p => p.Leadership }) },
-            };
-
-
-
         public PositionsWithValues(AlgoConfig config) : base(config)
         {
         }
@@ -71,7 +58,9 @@ namespace TeamsGenerator.Algos.PositionsAlgo
                         .Where(p => HasPosition(p, position))
                         .ToList();
 
-                    playersOfCurrentPosition = _positionToOrderMapper[position](playersOfCurrentPosition);
+                    playersOfCurrentPosition = OrderForPosition(
+                        playersOfCurrentPosition,
+                        position);
 
                     // Count how many players per team already play in this position
                     var teamPositionCounts = teamsResult
@@ -125,23 +114,75 @@ namespace TeamsGenerator.Algos.PositionsAlgo
 
 
 
-        private static List<PositionsPlayer> OrderWithRandomMiddle(List<PositionsPlayer> players,
-                                                                  Func<PositionsPlayer, object> first,
-                                                                  Func<PositionsPlayer, object> last,
-                                                                  Func<PositionsPlayer, object>[] middle)
+        private List<PositionsPlayer> OrderForPosition(
+            List<PositionsPlayer> players,
+            Position position)
         {
-            // Shuffle the middle properties
-            var shuffledMiddle = middle.OrderBy(_ => _random.Next()).ToList();
+            var activeSkillIds = _config.SkillDefinitions
+                .Select(skill => skill.Id)
+                .ToList();
+            var preferredSkillIds = GetPreferredSkillIds(position)
+                .Where(skillId => activeSkillIds.Contains(
+                    skillId,
+                    StringComparer.OrdinalIgnoreCase))
+                .ToList();
+            var remainingSkillIds = activeSkillIds
+                .Where(skillId => !preferredSkillIds.Contains(
+                    skillId,
+                    StringComparer.OrdinalIgnoreCase))
+                .OrderBy(_ => _random.Next())
+                .ToList();
+            var orderedSkillIds = preferredSkillIds
+                .Concat(remainingSkillIds)
+                .ToList();
 
-            // Apply ordering step by step
-            IOrderedEnumerable<PositionsPlayer> ordered = players.OrderByDescending(first);
-            foreach (var prop in shuffledMiddle)
+            if (orderedSkillIds.Count == 0)
             {
-                ordered = ordered.ThenByDescending(prop);
+                return players
+                    .OrderByDescending(player => player.Rank)
+                    .ToList();
             }
-            ordered = ordered.ThenByDescending(last);
+
+            IOrderedEnumerable<PositionsPlayer> ordered =
+                players.OrderByDescending(player =>
+                    player.GetSkillValue(orderedSkillIds[0]));
+            foreach (var skillId in orderedSkillIds.Skip(1))
+            {
+                ordered = ordered.ThenByDescending(player =>
+                    player.GetSkillValue(skillId));
+            }
 
             return ordered.ToList();
+        }
+
+        private static IEnumerable<string> GetPreferredSkillIds(
+            Position position)
+        {
+            var firstAndLast = position switch
+            {
+                Position.GK => new[] { "defence", "attack" },
+                Position.DC => new[] { "defence", "attack" },
+                Position.WB => new[] { "defence", "leadership" },
+                Position.MC => new[] { "passing", "stamina" },
+                Position.AMC => new[] { "attack", "defence" },
+                Position.ST => new[] { "attack", "defence" },
+                _ => Array.Empty<string>()
+            };
+            var middle = new[]
+                {
+                    "attack",
+                    "defence",
+                    "stamina",
+                    "leadership",
+                    "passing"
+                }
+                .Where(skillId =>
+                    !firstAndLast.Contains(skillId))
+                .OrderBy(_ => _random.Next());
+
+            return firstAndLast.Take(1)
+                .Concat(middle)
+                .Concat(firstAndLast.Skip(1));
         }
 
         private static bool HasPosition(

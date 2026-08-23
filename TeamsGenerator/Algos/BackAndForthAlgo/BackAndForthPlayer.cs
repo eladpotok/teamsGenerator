@@ -24,6 +24,8 @@ namespace TeamsGenerator.Algos.BackAndForthAlgo
         
         [EditableInClientAttribute(Show = false)]
         public bool IsArrived { get; set; }
+        [EditableInClientAttribute(Show = false)]
+        public int? WaitingListOrder { get; set; }
 
         [VersionAttribute(MinVersion = "8.0.1")]
         [DisplayTextAttribute(Text = "Goal Keeper")]

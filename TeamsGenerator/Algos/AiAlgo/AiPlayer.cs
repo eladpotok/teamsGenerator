@@ -19,6 +19,8 @@ namespace TeamsGenerator.Algos.AiAlgo
         public string Id { get; set; }
         [EditableInClient(Show = false)]
         public bool IsArrived { get; set; }
+        [EditableInClient(Show = false)]
+        public int? WaitingListOrder { get; set; }
         public string Description { get; set; }
         public List<string> PreferredWithKeys { get; set; } = new List<string>();
         public List<string> AvoidWithKeys { get; set; } = new List<string>();

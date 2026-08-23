@@ -46,11 +46,15 @@ namespace TeamsGeneratorWebAPI.Controllers
                 RequestUserId.ResolveOptional(User, ownerId);
             _telemetryClient.TrackEvent("GetTeams");
             _telemetryClient.TrackMetric("GetTeams", 1);
-            IReadOnlyDictionary<string, double>? chemistryScores =
+            ChemistryHistorySnapshot chemistryHistory =
                 string.IsNullOrWhiteSpace(effectiveOwnerId)
-                ? null
-                : await _matchService.GetChemistryScores(effectiveOwnerId);
-            return WebAppAPI.GetTeams(dicJson, algoKey, chemistryScores);
+                ? new ChemistryHistorySnapshot()
+                : await _matchService.GetChemistryHistory(effectiveOwnerId);
+            return WebAppAPI.GetTeams(
+                dicJson,
+                algoKey,
+                chemistryHistory.Scores,
+                chemistryHistory.MatchdayCount);
         }
 
         [HttpPost("[action]")]

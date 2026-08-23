@@ -1,9 +1,123 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using TeamsGenerator.Orchestration;
 
 namespace TeamsGenerator.API
 {
+    public class SkillDefinition
+    {
+        public const int MinimumCount = 3;
+        public const int MaximumCount = 8;
+        public const float DefaultValue = 5;
+
+        public string Id { get; set; }
+        public string Name { get; set; }
+
+        public static List<SkillDefinition> CreateDefaults()
+        {
+            return new List<SkillDefinition>
+            {
+                new SkillDefinition { Id = "leadership", Name = "Leadership" },
+                new SkillDefinition { Id = "attack", Name = "Attack" },
+                new SkillDefinition { Id = "defence", Name = "Defence" },
+                new SkillDefinition { Id = "stamina", Name = "Stamina" },
+                new SkillDefinition { Id = "passing", Name = "Passing" }
+            };
+        }
+
+        public static List<SkillDefinition> Normalize(
+            IEnumerable<SkillDefinition> definitions)
+        {
+            var normalized = definitions?
+                .Where(definition =>
+                    definition != null
+                    && IsValidId(definition.Id)
+                    && IsValidName(definition.Name))
+                .Select(definition => new SkillDefinition
+                {
+                    Id = definition.Id.Trim().ToLowerInvariant(),
+                    Name = definition.Name.Trim()
+                })
+                .GroupBy(definition => definition.Id)
+                .Select(group => group.First())
+                .ToList();
+
+            return normalized is { Count: >= MinimumCount and <= MaximumCount }
+                && normalized.Select(definition => definition.Name)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .Count() == normalized.Count
+                ? normalized
+                : CreateDefaults();
+        }
+
+        public static List<SkillDefinition> NormalizeArchived(
+            IEnumerable<SkillDefinition> definitions,
+            IEnumerable<SkillDefinition> activeDefinitions)
+        {
+            var activeIds = new HashSet<string>(
+                Normalize(activeDefinitions).Select(skill => skill.Id),
+                StringComparer.OrdinalIgnoreCase);
+            var seenIds = new HashSet<string>(
+                StringComparer.OrdinalIgnoreCase);
+
+            return definitions?
+                .Where(definition =>
+                    definition != null
+                    && IsValidId(definition.Id)
+                    && IsValidName(definition.Name))
+                .Select(definition => new SkillDefinition
+                {
+                    Id = definition.Id.Trim().ToLowerInvariant(),
+                    Name = definition.Name.Trim()
+                })
+                .Where(definition =>
+                    !activeIds.Contains(definition.Id)
+                    && seenIds.Add(definition.Id))
+                .ToList()
+                ?? new List<SkillDefinition>();
+        }
+
+        public static bool IsValidId(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return false;
+            }
+
+            var normalized = id.Trim();
+            var reservedIds = new HashSet<string>(
+                new[]
+                {
+                    "name",
+                    "key",
+                    "id",
+                    "rank",
+                    "modifytime",
+                    "isarrived",
+                    "waitinglistorder",
+                    "islocked",
+                    "isgoalkeeper",
+                    "positions",
+                    "description",
+                    "preferredwithkeys",
+                    "avoidwithkeys"
+                },
+                StringComparer.OrdinalIgnoreCase);
+            return normalized.Length <= 64
+                && !reservedIds.Contains(normalized)
+                && normalized.All(character =>
+                    char.IsLetterOrDigit(character)
+                    || character == '_');
+        }
+
+        public static bool IsValidName(string name)
+        {
+            return !string.IsNullOrWhiteSpace(name)
+                && name.Trim().Length <= 24;
+        }
+    }
+
     public class Lang
     {
         public string Value { get; set; }
@@ -31,6 +145,11 @@ namespace TeamsGenerator.API
         public string RepeatTime { get; set; }
         public string Language { get; set; }
         public bool UseChemistry { get; set; }
+        public int MaxMatchdayPlayers { get; set; }
+        [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+        public List<SkillDefinition> SkillDefinitions { get; set; }
+        [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+        public List<SkillDefinition> ArchivedSkillDefinitions { get; set; }
         public List<Lang> AvailableLanguages { get; set; }
 
 
@@ -58,6 +177,9 @@ namespace TeamsGenerator.API
             };
             Language = AvailableLanguages[0].Value;
             UseChemistry = false;
+            MaxMatchdayPlayers = 15;
+            SkillDefinitions = SkillDefinition.CreateDefaults();
+            ArchivedSkillDefinitions = new List<SkillDefinition>();
         }
     }
 }

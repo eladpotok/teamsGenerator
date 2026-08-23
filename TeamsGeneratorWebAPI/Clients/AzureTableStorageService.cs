@@ -345,12 +345,12 @@ namespace TeamsGeneratorWebAPI.Clients
                 "The chemistry history changed while it was being stored.");
         }
 
-        internal async Task<IReadOnlyDictionary<string, double>>
-            GetChemistryScores(string ownerId)
+        internal async Task<ChemistryHistorySnapshot>
+            GetChemistryHistory(string ownerId)
         {
             if (string.IsNullOrWhiteSpace(ownerId))
             {
-                return new Dictionary<string, double>();
+                return new ChemistryHistorySnapshot();
             }
 
             var partitionKey = ChemistryHistory.GetPartitionKey(ownerId);
@@ -362,9 +362,13 @@ namespace TeamsGeneratorWebAPI.Clients
                 matchdays.Add(entity);
             }
 
-            return ChemistryHistory.CalculateScores(
-                matchdays,
-                DateTimeOffset.UtcNow);
+            return new ChemistryHistorySnapshot
+            {
+                MatchdayCount = matchdays.Count,
+                Scores = ChemistryHistory.CalculateScores(
+                    matchdays,
+                    DateTimeOffset.UtcNow)
+            };
         }
 
         internal async Task<bool> IsClosed(string partitionKey)

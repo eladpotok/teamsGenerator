@@ -54,6 +54,17 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
                     var value = content.Value;
                     var json = value.Content;
                     var serializedConfig = JsonConvert.DeserializeObject<UserConfigResponse>(json.ToString());
+                    serializedConfig.SkillDefinitions =
+                        SkillDefinition.Normalize(
+                            serializedConfig.SkillDefinitions);
+                    serializedConfig.ArchivedSkillDefinitions =
+                        SkillDefinition.NormalizeArchived(
+                            serializedConfig.ArchivedSkillDefinitions,
+                            serializedConfig.SkillDefinitions);
+                    serializedConfig.MaxMatchdayPlayers = Math.Clamp(
+                        serializedConfig.MaxMatchdayPlayers,
+                        5,
+                        50);
 
                     return new GetConfigResponse(serializedConfig);
                 }
@@ -71,7 +82,8 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
             var userConfig = config as UserConfigBlobConfig;
             BlobContainerClient container = new BlobContainerClient(_storageConnectionString, _storageContainerName);
             BlobClient client = container.GetBlobClient($"{userConfig.UId}_config");
-            using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(configs.ToString())))
+            var serializedConfig = JsonConvert.SerializeObject(configs);
+            using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(serializedConfig)))
             {
                 await client.UploadAsync(ms, overwrite: true);
             }

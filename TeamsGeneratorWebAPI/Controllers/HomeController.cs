@@ -33,12 +33,9 @@ namespace TeamsGeneratorWebAPI.Controllers
         {
             var config = new UserConfigBlobConfig() { UId = uid };
             var response = await _azureStorage.ListAsync(config) as GetConfigResponse;
-            var appSetup = WebAppAPI.GetAppSetup(ver);
-
-            if (response.Config != null)
-            {
-                appSetup.Config = response.Config;
-            }
+            var appSetup = WebAppAPI.GetAppSetup(
+                ver,
+                response?.Config);
 
             var lastUpdate = await _azureTablesStorage.GetAllEntities<UpdateEntity>("2c607f3d-d645-41a5-ad4f-c96ab9737780");
             var lastReleaseVersion = lastUpdate.FirstOrDefault();

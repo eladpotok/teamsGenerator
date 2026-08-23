@@ -14,6 +14,13 @@ namespace TeamsGeneratorWebAPI.DesignCreator
         public List<string> Players { get; set; } = new List<string>();
     }
 
+    public sealed class PlayerShareItem
+    {
+        public string Name { get; set; } = string.Empty;
+        public bool IsWaiting { get; set; }
+        public int? WaitingListOrder { get; set; }
+    }
+
     public class ImageCreator
     {
         public static MemoryStream CreateTeams(List<string> players, string color)
@@ -21,7 +28,7 @@ namespace TeamsGeneratorWebAPI.DesignCreator
             return SkiaImageCreator.GenerateTeamsImage(players, color);
         }
 
-        internal static MemoryStream CreatePlayersList(List<string> players, string teamName, string location, string date, string dayInWeek, string currentCulture)
+        internal static MemoryStream CreatePlayersList(List<PlayerShareItem> players, string teamName, string location, string date, string dayInWeek, string currentCulture)
         {
             return SkiaImageCreator.GeneratePlayersListImageTemplate3(players, teamName, location, date, dayInWeek, currentCulture);
         }
