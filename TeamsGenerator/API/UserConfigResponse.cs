@@ -146,6 +146,7 @@ namespace TeamsGenerator.API
         public string Language { get; set; }
         public bool UseChemistry { get; set; }
         public int MaxMatchdayPlayers { get; set; }
+        public bool HasCustomMatchdayPlayerLimit { get; set; }
         [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
         public List<SkillDefinition> SkillDefinitions { get; set; }
         [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
@@ -178,6 +179,7 @@ namespace TeamsGenerator.API
             Language = AvailableLanguages[0].Value;
             UseChemistry = false;
             MaxMatchdayPlayers = 15;
+            HasCustomMatchdayPlayerLimit = false;
             SkillDefinitions = SkillDefinition.CreateDefaults();
             ArchivedSkillDefinitions = new List<SkillDefinition>();
         }

@@ -1,0 +1,2208 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\projects\\teamsGenerator\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\controllers\\teamscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\controllers\\teamscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\clients\\azuretablestorageservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\clients\\azuretablestorageservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\teamsgeneratorwebapi.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\teamsgeneratorwebapi.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\config.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\config.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\orchestration\\configuration\\config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\orchestration\\configuration\\config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\app.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\app.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\clients\\chemistryhistory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\clients\\chemistryhistory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\orchestration\\chemistryteambalancer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\orchestration\\chemistryteambalancer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\orchestration\\algorunner.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\orchestration\\algorunner.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\api\\webappapi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\api\\webappapi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\datareaders\\excelreader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\datareaders\\excelreader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\ai\\openaiservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\ai\\openaiservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\ai\\matchsummaryanalyzer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\ai\\matchsummaryanalyzer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\ai\\matchsummaryprompt.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\ai\\matchsummaryprompt.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\controllers\\userplayerscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\controllers\\userplayerscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\controllers\\controlpanelcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\controllers\\controlpanelcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\controllers\\configcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\controllers\\configcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\controllers\\playerspropertiescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\controllers\\playerspropertiescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\utils.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\utils.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\storage\\iazurestorage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\storage\\iazurestorage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\configblob\\userconfigazurestorage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\configblob\\userconfigazurestorage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\configblob\\saveconfigresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\configblob\\saveconfigresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\clients\\matchentity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\clients\\matchentity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Users\\potok\\Downloads\\players (3).json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\playersblob\\playersstorageblobconnector.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\playersblob\\playersstorageblobconnector.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\algos\\aialgo\\aimanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\algos\\aialgo\\aimanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\algos\\skillwisealgo\\skillwiseplayer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\algos\\skillwisealgo\\skillwiseplayer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\algos\\aialgo\\aiplayer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\algos\\aialgo\\aiplayer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\algos\\team.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\algos\\team.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\algos\\aialgo\\players.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\algos\\aialgo\\players.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\algos\\aialgo\\aiplayersreader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\algos\\aialgo\\aiplayersreader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\api\\userconfigresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\api\\userconfigresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\orchestration\\algoconfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\orchestration\\algoconfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\api\\playershirt.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\api\\playershirt.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\configblob\\getconfigresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\configblob\\getconfigresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\orchestration\\configuration\\configurationmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\orchestration\\configuration\\configurationmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\configblob\\userconfigblobconfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\configblob\\userconfigblobconfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\algos\\backandforthalgo\\backandforthplayer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\algos\\backandforthalgo\\backandforthplayer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\usersblob\\userazurestorage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\usersblob\\userazurestorage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\orchestration\\algotype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\orchestration\\algotype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\algos\\algomanagerbase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\algos\\algomanagerbase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\api\\webappteam.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\api\\webappteam.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\algos\\backandforthalgo\\backandforthmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\algos\\backandforthalgo\\backandforthmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\orchestration\\contracts\\iplayer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\orchestration\\contracts\\iplayer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\api\\webappalgoinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\api\\webappalgoinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\algos\\positionsalgo\\positionswithvalues.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\algos\\positionsalgo\\positionswithvalues.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\algos\\positionsalgo\\positionsplayer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\algos\\positionsalgo\\positionsplayer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\algos\\positionsalgo\\positionplayersreader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\algos\\positionsalgo\\positionplayersreader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\algos\\skillwisealgo\\skillwiseplayersreader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\algos\\skillwisealgo\\skillwiseplayersreader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\consoleplayground.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\consoleplayground.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\orchestration\\contracts\\ialgomanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\orchestration\\contracts\\ialgomanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\utilities\\helper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\utilities\\helper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\algos\\skillwisealgo\\orderby.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\algos\\skillwisealgo\\orderby.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\algos\\skillwisealgo\\skillwisemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\algos\\skillwisealgo\\skillwisemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\designcreator\\skiaimagecreator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\designcreator\\skiaimagecreator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\designcreator\\imagecreator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\designcreator\\imagecreator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\api\\getappsetupresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\api\\getappsetupresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\utilities\\tablecalculator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\utilities\\tablecalculator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\playersblob\\playersblobconfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\playersblob\\playersblobconfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\api\\playerproperties.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\api\\playerproperties.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\api\\getteamsresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\api\\getteamsresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\playersblob\\teamsstorageblobconnector.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\playersblob\\teamsstorageblobconnector.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\usersblob\\userblobconfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\usersblob\\userblobconfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\designcreator\\imagegraphicobjectwrapper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\designcreator\\imagegraphicobjectwrapper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\templates\\playerslisttemplate2.png||{177559E0-D141-11D0-92DF-00A0C9138C45}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\templates\\playerslisttemplate2.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\designcreator\\imagegraphicwrapper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\designcreator\\imagegraphicwrapper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\designcreator\\helpers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\designcreator\\helpers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\potok\\AppData\\Local\\SourceServer\\1826d2c63bb3ecb8525ed3baecfb5b493223361fb5758ad4291cdb9acc16bd2c\\SKPaint.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\playersblob\\saveplayersresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\playersblob\\saveplayersresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\storage\\iresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\storage\\iresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\algos\\backandforthalgo\\backandforthplayersreader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\algos\\backandforthalgo\\backandforthplayersreader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\algos\\skillwisealgo\\players.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\algos\\skillwisealgo\\players.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\orchestration\\contracts\\igoalkeepersupport.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\orchestration\\contracts\\igoalkeepersupport.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\algos\\positionsalgo\\players.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\algos\\positionsalgo\\players.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\datareaders\\jsonreader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\datareaders\\jsonreader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\playersblob\\getteamsfromstorageresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\playersblob\\getteamsfromstorageresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\playersblob\\getplayersresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\playersblob\\getplayersresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\storage\\iconfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\storage\\iconfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\potok\\OneDrive\\\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD\\example.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\orchestration\\contracts\\idisplayteam.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\orchestration\\contracts\\idisplayteam.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\teamsgeneratorwebapi.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\teamsgeneratorwebapi.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\usersblob\\userargs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\usersblob\\userargs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\api\\displaytextattribute.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\api\\displaytextattribute.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\api\\editableinclientattribute.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\api\\editableinclientattribute.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\utilities\\globalparameters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\utilities\\globalparameters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\usersblob\\loginresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\usersblob\\loginresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|c:\\projects\\teamsgenerator\\teamsgeneratorwebapi\\usersblob\\loginuserresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A26D6F65-D787-4673-AF44-9D1BA00ACE1F}|TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj|solutionrelative:teamsgeneratorwebapi\\usersblob\\loginuserresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\packages.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\packages.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\cli\\clidisplayteam.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\cli\\clidisplayteam.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\orchestration\\contracts\\iplayersreader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\orchestration\\contracts\\iplayersreader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Users\\potok\\Downloads\\players (11).json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Users\\potok\\Downloads\\players (1).json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\datareaders\\textfilereader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\datareaders\\textfilereader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\cli\\copyandexit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\cli\\copyandexit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\cli\\printer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\cli\\printer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\algos\\backandforthalgo\\players.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\algos\\backandforthalgo\\players.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\cli\\iprinteroptioncallback.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\cli\\iprinteroptioncallback.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\cli\\backtoalgo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\cli\\backtoalgo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\cli\\reshuffle.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\cli\\reshuffle.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|c:\\projects\\teamsgenerator\\teamsgenerator\\cli\\exit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5B239FEF-BEBB-4271-AA38-7FEE3F2EE0F1}|TeamsGenerator\\TeamsGenerator.csproj|solutionrelative:teamsgenerator\\cli\\exit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Controllers\\GroceriesController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Controllers\\RankerGameController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Clients\\GroceriesBlobStorage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Controllers\\UserRoleController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\FormationPosition.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\CrowdQuestionResponseApi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Clients\\AzureTableGameRanker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\UserGuessEntity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\WikidataRetriever.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\QuestionEntity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\AnswerEntity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\AddCrowdQuestionApi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\CurrentQuestionEntity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\CrowdAnswerSubmittionApi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\PlayerScoreEntity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\GameRankerQuestionApi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\QuestionsCountEntity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Debugging\\Entities.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\CrowdResultApi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\templates\\standingsWithAssists.png||{177559E0-D141-11D0-92DF-00A0C9138C45}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Clients\\AzureTableGroceries.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Clients\\QuestionStorageService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\ShoppingListApi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\ShoppingListEntity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\CategoryEntity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\ProductEntity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\CategoryApi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\ProductApi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\ShoppingListItemEntity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\RegisterEntity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\ShoppingListProductApi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\UpdatedListProductApi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\UpdatedListProductExtensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\AppDataApi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\RegisterApi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\LoginApi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AzureTableStorageService.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Clients\\AzureTableStorageService.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\Clients\\AzureTableStorageService.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Clients\\AzureTableStorageService.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\Clients\\AzureTableStorageService.cs",
+              "ViewState": "AgIAACsAAAAAAAAAAAAswDYAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.127Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "TeamsGeneratorWebAPI.csproj",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj",
+              "ViewState": "AgIAAI8AAAAAAAAAAAAcwKgAAAA4AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-08-20T20:49:37.132Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 105,
+              "Title": "GroceriesController.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Controllers\\GroceriesController.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Controllers\\GroceriesController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.286Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 106,
+              "Title": "RankerGameController.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Controllers\\RankerGameController.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Controllers\\RankerGameController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.288Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "config.json",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\config.json",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\config.json",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\config.json",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\config.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAADAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-08-20T20:49:37.288Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Config.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Orchestration\\Configuration\\Config.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Orchestration\\Configuration\\Config.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Orchestration\\Configuration\\Config.cs",
+              "RelativeToolTip": "TeamsGenerator\\Orchestration\\Configuration\\Config.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAqwA8AAAA4AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.288Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "App.config",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\App.config",
+              "RelativeDocumentMoniker": "TeamsGenerator\\App.config",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\App.config",
+              "RelativeToolTip": "TeamsGenerator\\App.config",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
+              "WhenOpened": "2026-08-20T20:49:37.288Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ChemistryHistory.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Clients\\ChemistryHistory.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\Clients\\ChemistryHistory.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Clients\\ChemistryHistory.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\Clients\\ChemistryHistory.cs",
+              "ViewState": "AgIAAJUAAAAAAAAAAAAjwKoAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.288Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "ChemistryTeamBalancer.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Orchestration\\ChemistryTeamBalancer.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Orchestration\\ChemistryTeamBalancer.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Orchestration\\ChemistryTeamBalancer.cs",
+              "RelativeToolTip": "TeamsGenerator\\Orchestration\\ChemistryTeamBalancer.cs",
+              "ViewState": "AgIAAIQAAAAAAAAAAAAjwJYAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.299Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "ExcelReader.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\DataReaders\\ExcelReader.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\DataReaders\\ExcelReader.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\DataReaders\\ExcelReader.cs",
+              "RelativeToolTip": "TeamsGenerator\\DataReaders\\ExcelReader.cs",
+              "ViewState": "AgIAAB0AAAAAAAAAAAAUwCwAAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.301Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "AlgoRunner.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Orchestration\\AlgoRunner.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Orchestration\\AlgoRunner.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Orchestration\\AlgoRunner.cs",
+              "RelativeToolTip": "TeamsGenerator\\Orchestration\\AlgoRunner.cs",
+              "ViewState": "AgIAABEAAAAAAAAAAAAjwCAAAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.301Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "UserPlayersController.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Controllers\\UserPlayersController.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\Controllers\\UserPlayersController.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Controllers\\UserPlayersController.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\Controllers\\UserPlayersController.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAQwBEAAABAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.304Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "OpenAiService.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Ai\\OpenAiService.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Ai\\OpenAiService.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Ai\\OpenAiService.cs",
+              "RelativeToolTip": "TeamsGenerator\\Ai\\OpenAiService.cs",
+              "ViewState": "AgIAADMAAAAAAAAAAAAqwB4AAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.304Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "WebAppAPI.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\API\\WebAppAPI.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\API\\WebAppAPI.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\API\\WebAppAPI.cs",
+              "RelativeToolTip": "TeamsGenerator\\API\\WebAppAPI.cs",
+              "ViewState": "AgIAAC0AAAAAAAAAAAAUwDwAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.304Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "ControlPanelController.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Controllers\\ControlPanelController.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\Controllers\\ControlPanelController.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Controllers\\ControlPanelController.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\Controllers\\ControlPanelController.cs",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAQwBgAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.304Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "ConfigController.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Controllers\\ConfigController.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\Controllers\\ConfigController.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Controllers\\ConfigController.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\Controllers\\ConfigController.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAgwBwAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.304Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\Controllers\\AuthController.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\Controllers\\AuthController.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAQwBgAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.304Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "MatchSummaryPrompt.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Ai\\MatchSummaryPrompt.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Ai\\MatchSummaryPrompt.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Ai\\MatchSummaryPrompt.cs",
+              "RelativeToolTip": "TeamsGenerator\\Ai\\MatchSummaryPrompt.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAgwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.304Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "MatchSummaryAnalyzer.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Ai\\MatchSummaryAnalyzer.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Ai\\MatchSummaryAnalyzer.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Ai\\MatchSummaryAnalyzer.cs",
+              "RelativeToolTip": "TeamsGenerator\\Ai\\MatchSummaryAnalyzer.cs",
+              "ViewState": "AgIAAIYBAAAAAAAAAAAkwI0BAAAmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.317Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 107,
+              "Title": "GroceriesBlobStorage.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Clients\\GroceriesBlobStorage.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Clients\\GroceriesBlobStorage.cs",
+              "ViewState": "AgIAABgAAAAAAAAAAAAowAAAAAALAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.317Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 108,
+              "Title": "UserRoleController.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Controllers\\UserRoleController.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Controllers\\UserRoleController.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAcwCkAAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.317Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 109,
+              "Title": "FormationPosition.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\FormationPosition.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\FormationPosition.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.317Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 110,
+              "Title": "CrowdQuestionResponseApi.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\CrowdQuestionResponseApi.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\CrowdQuestionResponseApi.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwA0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.317Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 111,
+              "Title": "AzureTableGameRanker.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Clients\\AzureTableGameRanker.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Clients\\AzureTableGameRanker.cs",
+              "ViewState": "AgIAAEAAAAAAAAAAAADgv0UAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.317Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "PlayersPropertiesController.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Controllers\\PlayersPropertiesController.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\Controllers\\PlayersPropertiesController.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Controllers\\PlayersPropertiesController.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\Controllers\\PlayersPropertiesController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.317Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 112,
+              "Title": "UserGuessEntity.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\UserGuessEntity.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\UserGuessEntity.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAUAAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.317Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 113,
+              "Title": "WikidataRetriever.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\WikidataRetriever.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\WikidataRetriever.cs",
+              "ViewState": "AgIAAHMAAAAAAAAAAAAcwHsAAAAiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.317Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 114,
+              "Title": "QuestionEntity.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\QuestionEntity.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\QuestionEntity.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwA4AAAA3AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.317Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 115,
+              "Title": "AnswerEntity.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\AnswerEntity.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\AnswerEntity.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAUAAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.333Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 116,
+              "Title": "AddCrowdQuestionApi.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\AddCrowdQuestionApi.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\AddCrowdQuestionApi.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.333Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 117,
+              "Title": "CurrentQuestionEntity.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\CurrentQuestionEntity.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\CurrentQuestionEntity.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAmwA4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.333Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 118,
+              "Title": "CrowdAnswerSubmittionApi.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\CrowdAnswerSubmittionApi.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\CrowdAnswerSubmittionApi.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAIAAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.333Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 119,
+              "Title": "PlayerScoreEntity.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\PlayerScoreEntity.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\PlayerScoreEntity.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAUAAAAiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.333Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 120,
+              "Title": "GameRankerQuestionApi.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\GameRankerQuestionApi.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\GameRankerQuestionApi.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.333Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 121,
+              "Title": "QuestionsCountEntity.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\QuestionsCountEntity.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\QuestionsCountEntity.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAxwA4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.333Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 122,
+              "Title": "Entities.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Debugging\\Entities.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Debugging\\Entities.cs",
+              "ViewState": "AgIAAAIAAAAAAAAAAAAMwA0AAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.333Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "Utils.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Utils.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\Utils.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Utils.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\Utils.cs",
+              "ViewState": "AgIAAHoAAAAAAAAAAAAQwHoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.333Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 123,
+              "Title": "CrowdResultApi.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\CrowdResultApi.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\GameRanker\\CrowdResultApi.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAgAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.333Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 33,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\appsettings.json",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\appsettings.json",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\appsettings.json",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-08-20T20:49:37.349Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 38,
+              "Title": "GetConfigResponse.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\ConfigBlob\\GetConfigResponse.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\ConfigBlob\\GetConfigResponse.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\ConfigBlob\\GetConfigResponse.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\ConfigBlob\\GetConfigResponse.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAYAAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.349Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 40,
+              "Title": "UserConfigBlobConfig.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\ConfigBlob\\UserConfigBlobConfig.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\ConfigBlob\\UserConfigBlobConfig.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\ConfigBlob\\UserConfigBlobConfig.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\ConfigBlob\\UserConfigBlobConfig.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAQAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.349Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 42,
+              "Title": "UserAzureStorage.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\UsersBlob\\UserAzureStorage.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\UsersBlob\\UserAzureStorage.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\UsersBlob\\UserAzureStorage.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\UsersBlob\\UserAzureStorage.cs",
+              "ViewState": "AgIAADQAAAAAAAAAAAAqwCUAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.349Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 59,
+              "Title": "SkiaImageCreator.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\DesignCreator\\SkiaImageCreator.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\DesignCreator\\SkiaImageCreator.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\DesignCreator\\SkiaImageCreator.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\DesignCreator\\SkiaImageCreator.cs",
+              "ViewState": "AgIAANMBAAAAAAAAAAASwN8BAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.349Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 60,
+              "Title": "ImageCreator.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\DesignCreator\\ImageCreator.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\DesignCreator\\ImageCreator.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\DesignCreator\\ImageCreator.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\DesignCreator\\ImageCreator.cs",
+              "ViewState": "AgIAAAcAAAAAAAAAAAAjwBMAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.359Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 63,
+              "Title": "PlayersBlobConfig.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\PlayersBlob\\PlayersBlobConfig.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\PlayersBlob\\PlayersBlobConfig.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\PlayersBlob\\PlayersBlobConfig.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\PlayersBlob\\PlayersBlobConfig.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.359Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 66,
+              "Title": "TeamsStorageBlobConnector.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\PlayersBlob\\TeamsStorageBlobConnector.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\PlayersBlob\\TeamsStorageBlobConnector.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\PlayersBlob\\TeamsStorageBlobConnector.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\PlayersBlob\\TeamsStorageBlobConnector.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAqwBIAAAAwAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.359Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 124,
+              "Title": "standingsWithAssists.png",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\templates\\standingsWithAssists.png",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\templates\\standingsWithAssists.png",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
+              "WhenOpened": "2026-08-20T20:49:37.365Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 67,
+              "Title": "UserBlobConfig.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\UsersBlob\\UserBlobConfig.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\UsersBlob\\UserBlobConfig.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\UsersBlob\\UserBlobConfig.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\UsersBlob\\UserBlobConfig.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAQAAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.365Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 68,
+              "Title": "ImageGraphicObjectWrapper.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\DesignCreator\\ImageGraphicObjectWrapper.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\DesignCreator\\ImageGraphicObjectWrapper.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\DesignCreator\\ImageGraphicObjectWrapper.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\DesignCreator\\ImageGraphicObjectWrapper.cs",
+              "ViewState": "AgIAABMAAAAAAAAAAAAgwBsAAAAxAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.365Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 70,
+              "Title": "ImageGraphicWrapper.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\DesignCreator\\ImageGraphicWrapper.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\DesignCreator\\ImageGraphicWrapper.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\DesignCreator\\ImageGraphicWrapper.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\DesignCreator\\ImageGraphicWrapper.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAYwBkAAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.37Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 71,
+              "Title": "Helpers.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\DesignCreator\\Helpers.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\DesignCreator\\Helpers.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\DesignCreator\\Helpers.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\DesignCreator\\Helpers.cs",
+              "ViewState": "AgIAACYAAAAAAAAAAAAswDYAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.37Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 69,
+              "Title": "playersListTemplate2.png",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\templates\\playersListTemplate2.png",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\templates\\playersListTemplate2.png",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\templates\\playersListTemplate2.png",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\templates\\playersListTemplate2.png",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001533|",
+              "WhenOpened": "2026-08-20T20:49:37.37Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 72,
+              "Title": "SKPaint.cs",
+              "DocumentMoniker": "C:\\Users\\potok\\AppData\\Local\\SourceServer\\1826d2c63bb3ecb8525ed3baecfb5b493223361fb5758ad4291cdb9acc16bd2c\\SKPaint.cs",
+              "RelativeDocumentMoniker": "..\\..\\Users\\potok\\AppData\\Local\\SourceServer\\1826d2c63bb3ecb8525ed3baecfb5b493223361fb5758ad4291cdb9acc16bd2c\\SKPaint.cs",
+              "ToolTip": "C:\\Users\\potok\\AppData\\Local\\SourceServer\\1826d2c63bb3ecb8525ed3baecfb5b493223361fb5758ad4291cdb9acc16bd2c\\SKPaint.cs",
+              "RelativeToolTip": "..\\..\\Users\\potok\\AppData\\Local\\SourceServer\\1826d2c63bb3ecb8525ed3baecfb5b493223361fb5758ad4291cdb9acc16bd2c\\SKPaint.cs",
+              "ViewState": "AgIAACYBAAAAAAAAAAAEwDMBAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.37Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 73,
+              "Title": "SavePlayersResponse.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\PlayersBlob\\SavePlayersResponse.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\PlayersBlob\\SavePlayersResponse.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\PlayersBlob\\SavePlayersResponse.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\PlayersBlob\\SavePlayersResponse.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAoAAAAiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.381Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 74,
+              "Title": "IResponse.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Storage\\IResponse.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\Storage\\IResponse.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Storage\\IResponse.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\Storage\\IResponse.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAIAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.381Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 80,
+              "Title": "GetTeamsFromStorageResponse.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\PlayersBlob\\GetTeamsFromStorageResponse.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\PlayersBlob\\GetTeamsFromStorageResponse.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\PlayersBlob\\GetTeamsFromStorageResponse.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\PlayersBlob\\GetTeamsFromStorageResponse.cs",
+              "ViewState": "AgIAAAQAAAAAAAAAAAD4vw0AAAAyAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.381Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 81,
+              "Title": "GetPlayersResponse.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\PlayersBlob\\GetPlayersResponse.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\PlayersBlob\\GetPlayersResponse.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\PlayersBlob\\GetPlayersResponse.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\PlayersBlob\\GetPlayersResponse.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAQwAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.381Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 82,
+              "Title": "IConfig.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Storage\\IConfig.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\Storage\\IConfig.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Storage\\IConfig.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\Storage\\IConfig.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.381Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 83,
+              "Title": "example.json",
+              "DocumentMoniker": "C:\\Users\\potok\\OneDrive\\\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD\\example.json",
+              "RelativeDocumentMoniker": "..\\..\\Users\\potok\\OneDrive\\\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD\\example.json",
+              "ToolTip": "C:\\Users\\potok\\OneDrive\\\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD\\example.json",
+              "RelativeToolTip": "..\\..\\Users\\potok\\OneDrive\\\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD\\example.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-08-20T20:49:37.381Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 85,
+              "Title": "TeamsGeneratorWebAPI",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\TeamsGeneratorWebAPI.csproj",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-08-20T20:49:37.381Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 86,
+              "Title": "UserArgs.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\UsersBlob\\UserArgs.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\UsersBlob\\UserArgs.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\UsersBlob\\UserArgs.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\UsersBlob\\UserArgs.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.393Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 90,
+              "Title": "LoginResponse.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\UsersBlob\\LoginResponse.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\UsersBlob\\LoginResponse.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\UsersBlob\\LoginResponse.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\UsersBlob\\LoginResponse.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwBEAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.393Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 91,
+              "Title": "LoginUserResponse.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\UsersBlob\\LoginUserResponse.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\UsersBlob\\LoginUserResponse.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\UsersBlob\\LoginUserResponse.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\UsersBlob\\LoginUserResponse.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.396Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 95,
+              "Title": "players (11).json",
+              "DocumentMoniker": "F:\\Users\\potok\\Downloads\\players (11).json",
+              "ToolTip": "F:\\Users\\potok\\Downloads\\players (11).json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-08-20T20:49:37.396Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 96,
+              "Title": "players (1).json",
+              "DocumentMoniker": "F:\\Users\\potok\\Downloads\\players (1).json",
+              "ToolTip": "F:\\Users\\potok\\Downloads\\players (1).json",
+              "ViewState": "AgIAAAAAAAAAAAAAAOCPwAsAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-08-20T20:49:37.396Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 125,
+              "Title": "AzureTableGroceries.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Clients\\AzureTableGroceries.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Clients\\AzureTableGroceries.cs",
+              "ViewState": "AgIAABkBAAAAAAAAAAAawCgBAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.396Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 126,
+              "Title": "QuestionStorageService.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Clients\\QuestionStorageService.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Clients\\QuestionStorageService.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAqwAQAAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.396Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 127,
+              "Title": "ShoppingListApi.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\ShoppingListApi.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\ShoppingListApi.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.396Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 128,
+              "Title": "ShoppingListEntity.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\ShoppingListEntity.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\ShoppingListEntity.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.396Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 129,
+              "Title": "CategoryEntity.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\CategoryEntity.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\CategoryEntity.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAgwBAAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.396Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 130,
+              "Title": "ProductEntity.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\ProductEntity.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\ProductEntity.cs",
+              "ViewState": "AgIAABIAAAAAAAAAAAAcwCQAAAA2AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.396Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 131,
+              "Title": "CategoryApi.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\CategoryApi.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\CategoryApi.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.412Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 132,
+              "Title": "ProductApi.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\ProductApi.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\ProductApi.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAQwAQAAAAbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.412Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "IAzureStorage.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Storage\\IAzureStorage.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\Storage\\IAzureStorage.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Storage\\IAzureStorage.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\Storage\\IAzureStorage.cs",
+              "ViewState": "AgIAABEAAAAAAAAAAAAQwA0AAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.412Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 133,
+              "Title": "ShoppingListItemEntity.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\ShoppingListItemEntity.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\ShoppingListItemEntity.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.412Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 134,
+              "Title": "RegisterEntity.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\RegisterEntity.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\RegisterEntity.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAmwA8AAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.412Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "UserConfigAzureStorage.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\ConfigBlob\\UserConfigAzureStorage.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\ConfigBlob\\UserConfigAzureStorage.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\ConfigBlob\\UserConfigAzureStorage.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\ConfigBlob\\UserConfigAzureStorage.cs",
+              "ViewState": "AgIAACEAAAAAAAAAAAAowCkAAABAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.412Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "SaveConfigResponse.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\ConfigBlob\\SaveConfigResponse.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\ConfigBlob\\SaveConfigResponse.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\ConfigBlob\\SaveConfigResponse.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\ConfigBlob\\SaveConfigResponse.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAQAAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.412Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "MatchEntity.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Clients\\MatchEntity.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\Clients\\MatchEntity.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Clients\\MatchEntity.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\Clients\\MatchEntity.cs",
+              "ViewState": "AgIAAFgAAAAAAAAAAAA1wA0AAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.412Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "HomeController.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Controllers\\HomeController.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\Controllers\\HomeController.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Controllers\\HomeController.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\Controllers\\HomeController.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAQwBEAAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.428Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 135,
+              "Title": "ShoppingListProductApi.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\ShoppingListProductApi.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\ShoppingListProductApi.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.428Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "players (3).json",
+              "DocumentMoniker": "F:\\Users\\potok\\Downloads\\players (3).json",
+              "ToolTip": "F:\\Users\\potok\\Downloads\\players (3).json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-08-20T20:49:37.428Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 136,
+              "Title": "UpdatedListProductApi.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\UpdatedListProductApi.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\UpdatedListProductApi.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.428Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 137,
+              "Title": "UpdatedListProductExtensions.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\UpdatedListProductExtensions.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\UpdatedListProductExtensions.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAOAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.428Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 138,
+              "Title": "AppDataApi.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\AppDataApi.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\AppDataApi.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAcAAAA5AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.428Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 139,
+              "Title": "RegisterApi.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\RegisterApi.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\RegisterApi.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAIAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.428Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 140,
+              "Title": "LoginApi.cs",
+              "DocumentMoniker": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\LoginApi.cs",
+              "ToolTip": "F:\\Documents\\Projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Groceries\\LoginApi.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAIAAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.428Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "PlayersStorageBlobConnector.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\PlayersBlob\\PlayersStorageBlobConnector.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\PlayersBlob\\PlayersStorageBlobConnector.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\PlayersBlob\\PlayersStorageBlobConnector.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\PlayersBlob\\PlayersStorageBlobConnector.cs",
+              "ViewState": "AgIAAEgAAAAAAAAAAAAhwFwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.428Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 29,
+              "Title": "SkillWisePlayer.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\SkillWiseAlgo\\SkillWisePlayer.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Algos\\SkillWiseAlgo\\SkillWisePlayer.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\SkillWiseAlgo\\SkillWisePlayer.cs",
+              "RelativeToolTip": "TeamsGenerator\\Algos\\SkillWiseAlgo\\SkillWisePlayer.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.444Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 31,
+              "Title": "Team.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\Team.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Algos\\Team.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\Team.cs",
+              "RelativeToolTip": "TeamsGenerator\\Algos\\Team.cs",
+              "ViewState": "AQIAAAgAAAAAAAAAAAAQwAcAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.444Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 30,
+              "Title": "AiPlayer.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\AiAlgo\\AiPlayer.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Algos\\AiAlgo\\AiPlayer.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\AiAlgo\\AiPlayer.cs",
+              "RelativeToolTip": "TeamsGenerator\\Algos\\AiAlgo\\AiPlayer.cs",
+              "ViewState": "AQIAABEAAAAAAAAAAAAIwCUAAAAqAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.444Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "AiManager.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\AiAlgo\\AiManager.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Algos\\AiAlgo\\AiManager.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\AiAlgo\\AiManager.cs",
+              "RelativeToolTip": "TeamsGenerator\\Algos\\AiAlgo\\AiManager.cs",
+              "ViewState": "AQIAAD0AAAAAAAAAAIBpwMwAAAANAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.444Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 32,
+              "Title": "players.json",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\AiAlgo\\players.json",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Algos\\AiAlgo\\players.json",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\AiAlgo\\players.json",
+              "RelativeToolTip": "TeamsGenerator\\Algos\\AiAlgo\\players.json",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-08-20T20:49:37.444Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 37,
+              "Title": "PlayerShirt.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\API\\PlayerShirt.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\API\\PlayerShirt.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\API\\PlayerShirt.cs",
+              "RelativeToolTip": "TeamsGenerator\\API\\PlayerShirt.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAqwAgAAAAcAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.444Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 34,
+              "Title": "AiPlayersReader.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\AiAlgo\\AiPlayersReader.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Algos\\AiAlgo\\AiPlayersReader.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\AiAlgo\\AiPlayersReader.cs",
+              "RelativeToolTip": "TeamsGenerator\\Algos\\AiAlgo\\AiPlayersReader.cs",
+              "ViewState": "AQIAAAMAAAAAAAAAAAAEwAgAAAAhAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.444Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 36,
+              "Title": "AlgoConfig.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Orchestration\\AlgoConfig.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Orchestration\\AlgoConfig.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Orchestration\\AlgoConfig.cs",
+              "RelativeToolTip": "TeamsGenerator\\Orchestration\\AlgoConfig.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAqwAwAAAAVAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.444Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 39,
+              "Title": "ConfigurationManager.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Orchestration\\Configuration\\ConfigurationManager.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Orchestration\\Configuration\\ConfigurationManager.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Orchestration\\Configuration\\ConfigurationManager.cs",
+              "RelativeToolTip": "TeamsGenerator\\Orchestration\\Configuration\\ConfigurationManager.cs",
+              "ViewState": "AQIAABEAAAAAAAAAAAAawA4AAABFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.46Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 35,
+              "Title": "UserConfigResponse.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\API\\UserConfigResponse.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\API\\UserConfigResponse.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\API\\UserConfigResponse.cs",
+              "RelativeToolTip": "TeamsGenerator\\API\\UserConfigResponse.cs",
+              "ViewState": "AQIAACYAAAAAAAAAAAAWwDwAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.463Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 46,
+              "Title": "BackAndForthManager.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\BackAndForthAlgo\\BackAndForthManager.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Algos\\BackAndForthAlgo\\BackAndForthManager.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\BackAndForthAlgo\\BackAndForthManager.cs",
+              "RelativeToolTip": "TeamsGenerator\\Algos\\BackAndForthAlgo\\BackAndForthManager.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAQAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.464Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 41,
+              "Title": "BackAndForthPlayer.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\BackAndForthAlgo\\BackAndForthPlayer.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Algos\\BackAndForthAlgo\\BackAndForthPlayer.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\BackAndForthAlgo\\BackAndForthPlayer.cs",
+              "RelativeToolTip": "TeamsGenerator\\Algos\\BackAndForthAlgo\\BackAndForthPlayer.cs",
+              "ViewState": "AQIAABEAAAAAAAAAAAAAwCAAAAAqAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.464Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 43,
+              "Title": "AlgoType.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Orchestration\\AlgoType.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Orchestration\\AlgoType.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Orchestration\\AlgoType.cs",
+              "RelativeToolTip": "TeamsGenerator\\Orchestration\\AlgoType.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.464Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 44,
+              "Title": "AlgoManagerBase.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\AlgoManagerBase.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Algos\\AlgoManagerBase.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\AlgoManagerBase.cs",
+              "RelativeToolTip": "TeamsGenerator\\Algos\\AlgoManagerBase.cs",
+              "ViewState": "AQIAAAMAAAAAAAAAAAAqwAkAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.47Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 45,
+              "Title": "WebAppTeam.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\API\\WebAppTeam.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\API\\WebAppTeam.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\API\\WebAppTeam.cs",
+              "RelativeToolTip": "TeamsGenerator\\API\\WebAppTeam.cs",
+              "ViewState": "AQIAABMAAAAAAAAAAAAjwBUAAAAPAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.47Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 47,
+              "Title": "IPlayer.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Orchestration\\Contracts\\IPlayer.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Orchestration\\Contracts\\IPlayer.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Orchestration\\Contracts\\IPlayer.cs",
+              "RelativeToolTip": "TeamsGenerator\\Orchestration\\Contracts\\IPlayer.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAqwAgAAAAPAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.47Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 48,
+              "Title": "WebAppAlgoInfo.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\API\\WebAppAlgoInfo.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\API\\WebAppAlgoInfo.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\API\\WebAppAlgoInfo.cs",
+              "RelativeToolTip": "TeamsGenerator\\API\\WebAppAlgoInfo.cs",
+              "ViewState": "AQIAABMAAAAAAAAAAADgvyMAAAAOAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.476Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 49,
+              "Title": "PositionsWithValues.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\PositionsAlgo\\PositionsWithValues.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Algos\\PositionsAlgo\\PositionsWithValues.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\PositionsAlgo\\PositionsWithValues.cs",
+              "RelativeToolTip": "TeamsGenerator\\Algos\\PositionsAlgo\\PositionsWithValues.cs",
+              "ViewState": "AQIAABQAAAAAAAAAAAAQwCMAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.476Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 50,
+              "Title": "PositionsPlayer.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\PositionsAlgo\\PositionsPlayer.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Algos\\PositionsAlgo\\PositionsPlayer.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\PositionsAlgo\\PositionsPlayer.cs",
+              "RelativeToolTip": "TeamsGenerator\\Algos\\PositionsAlgo\\PositionsPlayer.cs",
+              "ViewState": "AQIAAAYAAAAAAAAAAAAqwAsAAAAgAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.476Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 51,
+              "Title": "PositionPlayersReader.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\PositionsAlgo\\PositionPlayersReader.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Algos\\PositionsAlgo\\PositionPlayersReader.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\PositionsAlgo\\PositionPlayersReader.cs",
+              "RelativeToolTip": "TeamsGenerator\\Algos\\PositionsAlgo\\PositionPlayersReader.cs",
+              "ViewState": "AQIAAAoAAAAAAAAAAAAEwBYAAAAuAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.476Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 52,
+              "Title": "SkillWisePlayersReader.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\SkillWiseAlgo\\SkillWisePlayersReader.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Algos\\SkillWiseAlgo\\SkillWisePlayersReader.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\SkillWiseAlgo\\SkillWisePlayersReader.cs",
+              "RelativeToolTip": "TeamsGenerator\\Algos\\SkillWiseAlgo\\SkillWisePlayersReader.cs",
+              "ViewState": "AQIAAA4AAAAAAAAAAAAxwBMAAAApAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.476Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 53,
+              "Title": "ConsolePlayground.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\ConsolePlayground.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\ConsolePlayground.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\ConsolePlayground.cs",
+              "RelativeToolTip": "TeamsGenerator\\ConsolePlayground.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAuwBkAAAAwAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.476Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 54,
+              "Title": "IAlgoManager.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Orchestration\\Contracts\\IAlgoManager.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Orchestration\\Contracts\\IAlgoManager.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Orchestration\\Contracts\\IAlgoManager.cs",
+              "RelativeToolTip": "TeamsGenerator\\Orchestration\\Contracts\\IAlgoManager.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAqwAkAAAAhAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.476Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 55,
+              "Title": "Helper.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Utilities\\Helper.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Utilities\\Helper.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Utilities\\Helper.cs",
+              "RelativeToolTip": "TeamsGenerator\\Utilities\\Helper.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABMAAABBAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.476Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 56,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Program.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Program.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Program.cs",
+              "RelativeToolTip": "TeamsGenerator\\Program.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABAAAAAgAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.476Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 57,
+              "Title": "OrderBy.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\SkillWiseAlgo\\OrderBy.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Algos\\SkillWiseAlgo\\OrderBy.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\SkillWiseAlgo\\OrderBy.cs",
+              "RelativeToolTip": "TeamsGenerator\\Algos\\SkillWiseAlgo\\OrderBy.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAA7AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.476Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 58,
+              "Title": "SkillWiseManager.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\SkillWiseAlgo\\SkillWiseManager.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Algos\\SkillWiseAlgo\\SkillWiseManager.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\SkillWiseAlgo\\SkillWiseManager.cs",
+              "RelativeToolTip": "TeamsGenerator\\Algos\\SkillWiseAlgo\\SkillWiseManager.cs",
+              "ViewState": "AQIAADkAAAAAAAAAAAAqwEYAAAAjAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.491Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 61,
+              "Title": "GetAppSetupResponse.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\API\\GetAppSetupResponse.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\API\\GetAppSetupResponse.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\API\\GetAppSetupResponse.cs",
+              "RelativeToolTip": "TeamsGenerator\\API\\GetAppSetupResponse.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAqwAgAAAAhAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.491Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 62,
+              "Title": "TableCalculator.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Utilities\\TableCalculator.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Utilities\\TableCalculator.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Utilities\\TableCalculator.cs",
+              "RelativeToolTip": "TeamsGenerator\\Utilities\\TableCalculator.cs",
+              "ViewState": "AQIAABMAAAAAAAAAAAASwBkAAAAoAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.491Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 64,
+              "Title": "PlayerProperties.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\API\\PlayerProperties.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\API\\PlayerProperties.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\API\\PlayerProperties.cs",
+              "RelativeToolTip": "TeamsGenerator\\API\\PlayerProperties.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAqwAgAAAAuAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.491Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 65,
+              "Title": "GetTeamsResponse.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\API\\GetTeamsResponse.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\API\\GetTeamsResponse.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\API\\GetTeamsResponse.cs",
+              "RelativeToolTip": "TeamsGenerator\\API\\GetTeamsResponse.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAqwAoAAAAZAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.491Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 75,
+              "Title": "BackAndForthPlayersReader.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\BackAndForthAlgo\\BackAndForthPlayersReader.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Algos\\BackAndForthAlgo\\BackAndForthPlayersReader.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\BackAndForthAlgo\\BackAndForthPlayersReader.cs",
+              "RelativeToolTip": "TeamsGenerator\\Algos\\BackAndForthAlgo\\BackAndForthPlayersReader.cs",
+              "ViewState": "AQIAAAMAAAAAAAAAAAAnwBUAAAAdAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.491Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 76,
+              "Title": "players.json",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\SkillWiseAlgo\\players.json",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Algos\\SkillWiseAlgo\\players.json",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\SkillWiseAlgo\\players.json",
+              "RelativeToolTip": "TeamsGenerator\\Algos\\SkillWiseAlgo\\players.json",
+              "ViewState": "AQIAAG4AAAAAAAAAAAAYwIgAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-08-20T20:49:37.491Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 77,
+              "Title": "IGoalKeeperSupport.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Orchestration\\Contracts\\IGoalKeeperSupport.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Orchestration\\Contracts\\IGoalKeeperSupport.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Orchestration\\Contracts\\IGoalKeeperSupport.cs",
+              "RelativeToolTip": "TeamsGenerator\\Orchestration\\Contracts\\IGoalKeeperSupport.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAqwAIAAAAgAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.491Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 78,
+              "Title": "players.json",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\PositionsAlgo\\players.json",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Algos\\PositionsAlgo\\players.json",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\PositionsAlgo\\players.json",
+              "RelativeToolTip": "TeamsGenerator\\Algos\\PositionsAlgo\\players.json",
+              "ViewState": "AQIAALAAAAAAAAAAAAAYwMcAAAAUAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-08-20T20:49:37.491Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 79,
+              "Title": "JsonReader.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\DataReaders\\JsonReader.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\DataReaders\\JsonReader.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\DataReaders\\JsonReader.cs",
+              "RelativeToolTip": "TeamsGenerator\\DataReaders\\JsonReader.cs",
+              "ViewState": "AQIAAA8AAAAAAAAAAAAlwBIAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.507Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 84,
+              "Title": "IDisplayTeam.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Orchestration\\Contracts\\IDisplayTeam.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Orchestration\\Contracts\\IDisplayTeam.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Orchestration\\Contracts\\IDisplayTeam.cs",
+              "RelativeToolTip": "TeamsGenerator\\Orchestration\\Contracts\\IDisplayTeam.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAqwAgAAAAjAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.507Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 89,
+              "Title": "GlobalParameters.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Utilities\\GlobalParameters.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Utilities\\GlobalParameters.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Utilities\\GlobalParameters.cs",
+              "RelativeToolTip": "TeamsGenerator\\Utilities\\GlobalParameters.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.507Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 88,
+              "Title": "EditableInClientAttribute.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\API\\EditableInClientAttribute.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\API\\EditableInClientAttribute.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\API\\EditableInClientAttribute.cs",
+              "RelativeToolTip": "TeamsGenerator\\API\\EditableInClientAttribute.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAqwA0AAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.507Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 87,
+              "Title": "DisplayTextAttribute.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\API\\DisplayTextAttribute.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\API\\DisplayTextAttribute.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\API\\DisplayTextAttribute.cs",
+              "RelativeToolTip": "TeamsGenerator\\API\\DisplayTextAttribute.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.507Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 92,
+              "Title": "packages.config",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\packages.config",
+              "RelativeDocumentMoniker": "TeamsGenerator\\packages.config",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\packages.config",
+              "RelativeToolTip": "TeamsGenerator\\packages.config",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAMAAAALAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
+              "WhenOpened": "2026-08-20T20:49:37.507Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 93,
+              "Title": "CliDisplayTeam.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\CLI\\CliDisplayTeam.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\CLI\\CliDisplayTeam.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\CLI\\CliDisplayTeam.cs",
+              "RelativeToolTip": "TeamsGenerator\\CLI\\CliDisplayTeam.cs",
+              "ViewState": "AQIAAAMAAAAAAAAAAAAqwAkAAAAqAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.507Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 94,
+              "Title": "IPlayersReader.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Orchestration\\Contracts\\IPlayersReader.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Orchestration\\Contracts\\IPlayersReader.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Orchestration\\Contracts\\IPlayersReader.cs",
+              "RelativeToolTip": "TeamsGenerator\\Orchestration\\Contracts\\IPlayersReader.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAAhAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.507Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 97,
+              "Title": "TextFileReader.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\DataReaders\\TextFileReader.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\DataReaders\\TextFileReader.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\DataReaders\\TextFileReader.cs",
+              "RelativeToolTip": "TeamsGenerator\\DataReaders\\TextFileReader.cs",
+              "ViewState": "AQIAAAIAAAAAAAAAAAAYwBsAAAAvAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.507Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 99,
+              "Title": "Printer.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\CLI\\Printer.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\CLI\\Printer.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\CLI\\Printer.cs",
+              "RelativeToolTip": "TeamsGenerator\\CLI\\Printer.cs",
+              "ViewState": "AQIAABcAAAAAAAAAAAAQwAoAAAAgAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.507Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 98,
+              "Title": "CopyAndExit.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\CLI\\CopyAndExit.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\CLI\\CopyAndExit.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\CLI\\CopyAndExit.cs",
+              "RelativeToolTip": "TeamsGenerator\\CLI\\CopyAndExit.cs",
+              "ViewState": "AQIAAAkAAAAAAAAAAAAkwBUAAAA8AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.523Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 102,
+              "Title": "BackToAlgo.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\CLI\\BackToAlgo.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\CLI\\BackToAlgo.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\CLI\\BackToAlgo.cs",
+              "RelativeToolTip": "TeamsGenerator\\CLI\\BackToAlgo.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.523Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 100,
+              "Title": "players.json",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\BackAndForthAlgo\\players.json",
+              "RelativeDocumentMoniker": "TeamsGenerator\\Algos\\BackAndForthAlgo\\players.json",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\Algos\\BackAndForthAlgo\\players.json",
+              "RelativeToolTip": "TeamsGenerator\\Algos\\BackAndForthAlgo\\players.json",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAB0AAAADAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-08-20T20:49:37.523Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 104,
+              "Title": "Exit.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\CLI\\Exit.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\CLI\\Exit.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\CLI\\Exit.cs",
+              "RelativeToolTip": "TeamsGenerator\\CLI\\Exit.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.523Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 101,
+              "Title": "IPrinterOptionCallback.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\CLI\\IPrinterOptionCallback.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\CLI\\IPrinterOptionCallback.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\CLI\\IPrinterOptionCallback.cs",
+              "RelativeToolTip": "TeamsGenerator\\CLI\\IPrinterOptionCallback.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.523Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 103,
+              "Title": "Reshuffle.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGenerator\\CLI\\Reshuffle.cs",
+              "RelativeDocumentMoniker": "TeamsGenerator\\CLI\\Reshuffle.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGenerator\\CLI\\Reshuffle.cs",
+              "RelativeToolTip": "TeamsGenerator\\CLI\\Reshuffle.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.523Z"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 1448,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "TeamsController.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Controllers\\TeamsController.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\Controllers\\TeamsController.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Controllers\\TeamsController.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\Controllers\\TeamsController.cs",
+              "ViewState": "AgIAABkAAAAAAAAAAAAUwCkAAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.107Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{e1b7d1f8-9b3c-49b1-8f4f-bfc63a88835d}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{5a4e9529-b6a0-46b5-be4f-0f0b239bc0eb}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{0ad07096-bba9-4900-a651-0598d26f6d24}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "FloatingWindowState": {
+        "Id": "7fe35d2a-7ba2-47e9-8c73-b7369d575053",
+        "Display": 0,
+        "X": 950,
+        "Y": 178,
+        "Width": 194,
+        "Height": 985,
+        "WindowState": 0
+      },
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Program.cs",
+              "RelativeDocumentMoniker": "TeamsGeneratorWebAPI\\Program.cs",
+              "ToolTip": "C:\\projects\\teamsGenerator\\TeamsGeneratorWebAPI\\Program.cs",
+              "RelativeToolTip": "TeamsGeneratorWebAPI\\Program.cs",
+              "ViewState": "AgIAAEIAAAAAAAAAAAAAAE4AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-20T20:49:37.016Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

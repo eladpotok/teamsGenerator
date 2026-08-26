@@ -61,10 +61,16 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
                         SkillDefinition.NormalizeArchived(
                             serializedConfig.ArchivedSkillDefinitions,
                             serializedConfig.SkillDefinitions);
-                    serializedConfig.MaxMatchdayPlayers = Math.Clamp(
-                        serializedConfig.MaxMatchdayPlayers,
-                        5,
-                        50);
+                    serializedConfig.MaxMatchdayPlayers =
+                        serializedConfig.HasCustomMatchdayPlayerLimit
+                            ? Math.Clamp(
+                                serializedConfig.MaxMatchdayPlayers,
+                                5,
+                                50)
+                            : Math.Clamp(
+                                serializedConfig.NumberOfTeams * 5,
+                                5,
+                                50);
 
                     return new GetConfigResponse(serializedConfig);
                 }

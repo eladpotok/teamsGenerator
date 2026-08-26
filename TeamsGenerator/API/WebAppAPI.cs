@@ -160,6 +160,10 @@ namespace TeamsGenerator.API
             config.NumberOfTeams = config.NumberOfTeams <= 0
                 ? numberOfTeams
                 : config.NumberOfTeams;
+            config.MaxMatchdayPlayers =
+                config.HasCustomMatchdayPlayerLimit
+                    ? Math.Clamp(config.MaxMatchdayPlayers, 5, 50)
+                    : Math.Clamp(config.NumberOfTeams * 5, 5, 50);
             config.SkillDefinitions = skillDefinitions;
 
             return new GetAppSetupResponse() { Algos = algos, Config = config };

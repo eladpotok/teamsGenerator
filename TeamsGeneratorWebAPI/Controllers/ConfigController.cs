@@ -63,6 +63,10 @@ namespace TeamsGeneratorWebAPI.Controllers
                 SkillDefinition.NormalizeArchived(
                     userConfig.ArchivedSkillDefinitions,
                     userConfig.SkillDefinitions);
+            userConfig.MaxMatchdayPlayers =
+                userConfig.HasCustomMatchdayPlayerLimit
+                    ? Math.Clamp(userConfig.MaxMatchdayPlayers, 5, 50)
+                    : Math.Clamp(userConfig.NumberOfTeams * 5, 5, 50);
             var userId = RequestUserId.Resolve(User, uid);
             var config = new UserConfigBlobConfig() { UId = userId };
             return await _azureStorage.UploadAsync(userConfig, config);
