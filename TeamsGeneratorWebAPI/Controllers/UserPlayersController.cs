@@ -1,5 +1,4 @@
-﻿using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using TeamsGenerator.Algos.BackAndForthAlgo;
@@ -10,6 +9,7 @@ using TeamsGeneratorWebAPI.DesignCreator;
 using TeamsGeneratorWebAPI.Authentication;
 using TeamsGeneratorWebAPI.PlayersBlob;
 using TeamsGeneratorWebAPI.Storage;
+using TeamsGeneratorWebAPI.Telemetry;
 
 namespace TeamsGeneratorWebAPI.Controllers
 {
@@ -19,13 +19,13 @@ namespace TeamsGeneratorWebAPI.Controllers
     {
         private readonly ILogger<UserPlayersController> _logger;
         private readonly IPlayersStorageBlobConnector _azureStorage;
-        private readonly TelemetryClient _telemetryClient;
+        private readonly IUsageTelemetry _usageTelemetry;
 
-        public UserPlayersController(ILogger<UserPlayersController> logger, IPlayersStorageBlobConnector azureStorage, TelemetryClient telemetryClient)
+        public UserPlayersController(ILogger<UserPlayersController> logger, IPlayersStorageBlobConnector azureStorage, IUsageTelemetry usageTelemetry)
         {
             _logger = logger;
             _azureStorage = azureStorage;
-            _telemetryClient = telemetryClient;
+            _usageTelemetry = usageTelemetry;
         }
 
         [HttpPost("Upload")]
@@ -33,8 +33,24 @@ namespace TeamsGeneratorWebAPI.Controllers
         {
             var userId = RequestUserId.Resolve(User, uid);
             var config = new PlayersBlobConfig() { UId = userId, AlgoType = algoKey };
-            _telemetryClient.TrackMetric("PlayerAdded", 1);
-            return await  _azureStorage.UploadAsync(players, config);
+            var response = await _azureStorage.UploadAsync(players, config);
+            var playerItems = GetPlayerItems((object)players);
+            _usageTelemetry.Track(
+                "PlayerRosterSaved",
+                ver,
+                userId,
+                new Dictionary<string, string?>
+                {
+                    ["outcome"] = response.Success ? "succeeded" : "failed",
+                    ["algorithm"] = algoKey.ToString()
+                },
+                new Dictionary<string, double>
+                {
+                    ["player_count"] = playerItems.Count,
+                    ["arrived_count"] = playerItems.Count(IsArrived),
+                    ["waiting_count"] = playerItems.Count(IsWaiting)
+                });
+            return response;
         }
 
         [HttpPost("SharePlayers")]
@@ -93,7 +109,22 @@ namespace TeamsGeneratorWebAPI.Controllers
             // Convert the image to a byte array and add it to the result list
             byte[] imageBytes = ms.ToArray();
 
-            _telemetryClient.TrackMetric("SharePlayersWithImage", 1);
+            _usageTelemetry.Track(
+                "ShareImageGenerated",
+                ver,
+                uid,
+                new Dictionary<string, string?>
+                {
+                    ["graphic_type"] = "players",
+                    ["language"] = GetLanguage(culture)
+                },
+                new Dictionary<string, double>
+                {
+                    ["player_count"] = playersList.Count,
+                    ["waiting_count"] =
+                        playersList.Count(player => player.IsWaiting),
+                    ["image_bytes"] = imageBytes.Length
+                });
             return File(imageBytes, "image/png");
         }
 
@@ -113,13 +144,63 @@ namespace TeamsGeneratorWebAPI.Controllers
             return string.Empty;
         }
 
+        private static List<JToken> GetPlayerItems(object players)
+        {
+            var token = players as JToken ?? JToken.FromObject(players);
+            return (token as JArray ?? token["players"] as JArray)
+                ?.Children()
+                .ToList() ?? new List<JToken>();
+        }
+
+        private static bool IsArrived(JToken player)
+        {
+            return player["isArrived"]?.Value<bool>() == true;
+        }
+
+        private static bool IsWaiting(JToken player)
+        {
+            return !IsArrived(player)
+                && player["waitingListOrder"]?.Type != JTokenType.Null
+                && player["waitingListOrder"]?.Value<int?>() >= 0;
+        }
+
+        private static string GetLanguage(string culture)
+        {
+            if (culture.StartsWith("he", StringComparison.OrdinalIgnoreCase))
+            {
+                return "he";
+            }
+            if (culture.StartsWith("ar", StringComparison.OrdinalIgnoreCase))
+            {
+                return "ar";
+            }
+            return "other";
+        }
+
 
         [HttpGet(Name = "UserPlayersController")]
 
         public async Task<IResponse> Get([FromHeader(Name = "client_version")] string ver, string uid, int algoType)
         {
             var config = new PlayersBlobConfig() { UId = uid, AlgoType = algoType };
-            return await _azureStorage.ListAsync(config);
+            var response = await _azureStorage.ListAsync(config);
+            var playerCount = response is GetPlayersResponse playersResponse
+                ? playersResponse.Players?.Count() ?? 0
+                : 0;
+            _usageTelemetry.Track(
+                "PlayerRosterLoaded",
+                ver,
+                uid,
+                new Dictionary<string, string?>
+                {
+                    ["outcome"] = response.Success ? "succeeded" : "failed",
+                    ["algorithm"] = algoType.ToString()
+                },
+                new Dictionary<string, double>
+                {
+                    ["player_count"] = playerCount
+                });
+            return response;
         }
     }
 

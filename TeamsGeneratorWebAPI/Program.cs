@@ -8,6 +8,7 @@ using TeamsGenerator.API;
 using TeamsGeneratorWebAPI.Clients;
 using TeamsGeneratorWebAPI.PlayersBlob;
 using TeamsGeneratorWebAPI.Storage;
+using TeamsGeneratorWebAPI.Telemetry;
 using TeamsGeneratorWebAPI.UsersBlob;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -56,12 +57,10 @@ builder.Services.AddTransient<ITeamsStorageBlobConnector, TeamsStorageBlobConnec
 builder.Services.AddTransient<IUserAzureStorage, UserAzureStorage>();
 builder.Services.AddSingleton<AzureTableStorageService>();
 builder.Services.AddSingleton<OpenAiService>();
+builder.Services.AddSingleton<IUsageTelemetry, UsageTelemetry>();
 
 
-builder.Services.AddApplicationInsightsTelemetry((appInsightOption) => 
-{
-    appInsightOption.ConnectionString = @"InstrumentationKey=a1d45916-05d0-4d09-a7a0-5f31a19ca1b6;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/;ApplicationId=433fb5f2-7c3c-4487-997d-7c066c2dfe50";
-});
+builder.Services.AddApplicationInsightsTelemetry();
 
 builder.Services.AddCors(options =>
 {

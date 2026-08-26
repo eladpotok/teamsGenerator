@@ -72,3 +72,24 @@ Then all the user need is to run the app, choose the relevant algorithm and rece
 ## Web Service
 In order that any one at the world could use your algorithm, you should maintain the web service.
 In `WebAppAPI` we should add our algorithm to the both dictionary (follow the existing items), and in addition we need to add a new `AlgoType` enum.
+
+## Backend usage telemetry
+
+The web API sends privacy-safe custom events to Application Insights through
+`IUsageTelemetry`. Events include the client version, deployment environment,
+anonymous user ID when available, operation outcome, and aggregate counts.
+Player names, match content, email addresses, and locations must not be added
+to telemetry.
+
+The main events are:
+
+- `AppSetupLoaded`, `ConfigurationSaved`
+- `PlayerRosterLoaded`, `PlayerRosterSaved`
+- `TeamsGenerated`, `TeamsLoaded`, `TeamsSaved`
+- `MatchdayStarted`, `MatchRecorded`, `MatchEdited`, `MatchDeleted`
+- `PlayerSwapRecorded`, `MatchdayCompleted`
+- `ShareImageGenerated`, `AiReportGenerated`
+
+Use custom event counts for usage and the `outcome` property for reliability.
+Measurements such as `player_count`, `team_count`, `match_count`,
+`image_bytes`, and `duration_ms` support aggregate analysis.

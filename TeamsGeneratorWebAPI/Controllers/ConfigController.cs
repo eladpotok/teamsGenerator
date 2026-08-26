@@ -5,6 +5,7 @@ using TeamsGeneratorWebAPI.ConfigBlob;
 using TeamsGeneratorWebAPI.Authentication;
 using TeamsGeneratorWebAPI.PlayersBlob;
 using TeamsGeneratorWebAPI.Storage;
+using TeamsGeneratorWebAPI.Telemetry;
 
 namespace TeamsGeneratorWebAPI.Controllers
 {
@@ -15,11 +16,13 @@ namespace TeamsGeneratorWebAPI.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IUserConfigAzureStorage _azureStorage;
+        private readonly IUsageTelemetry _usageTelemetry;
 
-        public ConfigController(ILogger<HomeController> logger, IUserConfigAzureStorage azureStorage)
+        public ConfigController(ILogger<HomeController> logger, IUserConfigAzureStorage azureStorage, IUsageTelemetry usageTelemetry)
         {
             _logger = logger;
             _azureStorage = azureStorage;
+            _usageTelemetry = usageTelemetry;
         }
 
         [HttpPost("Upload")]
@@ -69,7 +72,28 @@ namespace TeamsGeneratorWebAPI.Controllers
                     : Math.Clamp(userConfig.NumberOfTeams * 5, 5, 50);
             var userId = RequestUserId.Resolve(User, uid);
             var config = new UserConfigBlobConfig() { UId = userId };
-            return await _azureStorage.UploadAsync(userConfig, config);
+            var response = await _azureStorage.UploadAsync(userConfig, config);
+            _usageTelemetry.Track(
+                "ConfigurationSaved",
+                ver,
+                userId,
+                new Dictionary<string, string?>
+                {
+                    ["outcome"] = response.Success ? "succeeded" : "failed",
+                    ["custom_player_limit"] =
+                        userConfig.HasCustomMatchdayPlayerLimit
+                            .ToString()
+                            .ToLowerInvariant()
+                },
+                new Dictionary<string, double>
+                {
+                    ["team_count"] = userConfig.NumberOfTeams,
+                    ["matchday_player_limit"] =
+                        userConfig.MaxMatchdayPlayers,
+                    ["skill_count"] =
+                        userConfig.SkillDefinitions.Count
+                });
+            return response;
         }
 
 

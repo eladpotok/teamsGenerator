@@ -1,4 +1,4 @@
-﻿using Microsoft.ApplicationInsights;
+﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -12,6 +12,7 @@ using TeamsGeneratorWebAPI.Clients;
 using TeamsGeneratorWebAPI.Authentication;
 using TeamsGeneratorWebAPI.DesignCreator;
 using TeamsGeneratorWebAPI.PlayersBlob;
+using TeamsGeneratorWebAPI.Telemetry;
 
 namespace TeamsGeneratorWebAPI.Controllers
 {
@@ -22,14 +23,14 @@ namespace TeamsGeneratorWebAPI.Controllers
         private readonly ITeamsStorageBlobConnector _azureStorage;
 
         private readonly ILogger<TeamsController> _logger;
-        private readonly TelemetryClient _telemetryClient;
+        private readonly IUsageTelemetry _usageTelemetry;
         private readonly AzureTableStorageService _matchService;
         private readonly OpenAiService _aiService;
 
-        public TeamsController(ILogger<TeamsController> logger, TelemetryClient telemetryClient, ITeamsStorageBlobConnector teamsStorageBlobConnector, AzureTableStorageService matchService, OpenAiService aiService)
+        public TeamsController(ILogger<TeamsController> logger, IUsageTelemetry usageTelemetry, ITeamsStorageBlobConnector teamsStorageBlobConnector, AzureTableStorageService matchService, OpenAiService aiService)
         {
             _logger = logger;
-            _telemetryClient = telemetryClient;
+            _usageTelemetry = usageTelemetry;
             _azureStorage = teamsStorageBlobConnector;
             _matchService = matchService;
             _aiService = aiService;
@@ -44,17 +45,37 @@ namespace TeamsGeneratorWebAPI.Controllers
         {
             var effectiveOwnerId =
                 RequestUserId.ResolveOptional(User, ownerId);
-            _telemetryClient.TrackEvent("GetTeams");
-            _telemetryClient.TrackMetric("GetTeams", 1);
             ChemistryHistorySnapshot chemistryHistory =
                 string.IsNullOrWhiteSpace(effectiveOwnerId)
                 ? new ChemistryHistorySnapshot()
                 : await _matchService.GetChemistryHistory(effectiveOwnerId);
-            return WebAppAPI.GetTeams(
+            var response = WebAppAPI.GetTeams(
                 dicJson,
                 algoKey,
                 chemistryHistory.Scores,
                 chemistryHistory.MatchdayCount);
+            var request = dicJson as JObject ?? JObject.FromObject(dicJson);
+            _usageTelemetry.Track(
+                "TeamsGenerated",
+                ver,
+                effectiveOwnerId,
+                new Dictionary<string, string?>
+                {
+                    ["algorithm"] = algoKey.ToString(),
+                    ["chemistry_history_used"] =
+                        (chemistryHistory.MatchdayCount > 0)
+                            .ToString()
+                            .ToLowerInvariant()
+                },
+                new Dictionary<string, double>
+                {
+                    ["player_count"] =
+                        request["players"]?.Count() ?? 0,
+                    ["team_count"] = response.Teams?.Count ?? 0,
+                    ["chemistry_matchday_count"] =
+                        chemistryHistory.MatchdayCount
+                });
+            return response;
         }
 
         [HttpPost("[action]")]
@@ -76,7 +97,18 @@ namespace TeamsGeneratorWebAPI.Controllers
             // Convert the image to a byte array and add it to the result list
             byte[] imageBytes = ms.ToArray();
 
-            _telemetryClient.TrackMetric("ShareWithImage", 1);
+            _usageTelemetry.Track(
+                "ShareImageGenerated",
+                ver,
+                properties: new Dictionary<string, string?>
+                {
+                    ["graphic_type"] = "single_team"
+                },
+                measurements: new Dictionary<string, double>
+                {
+                    ["player_count"] = players.Count(),
+                    ["image_bytes"] = imageBytes.Length
+                });
             return File(imageBytes, "image/png");
         }
 
@@ -110,7 +142,21 @@ namespace TeamsGeneratorWebAPI.Controllers
                 GetString(teamInfo, "dayInWeek"),
                 string.IsNullOrWhiteSpace(culture) ? "en-US" : culture);
 
-            _telemetryClient.TrackMetric("ShareAllTeamsWithImage", 1);
+            _usageTelemetry.Track(
+                "ShareImageGenerated",
+                ver,
+                properties: new Dictionary<string, string?>
+                {
+                    ["graphic_type"] = "all_teams",
+                    ["language"] = GetLanguage(culture)
+                },
+                measurements: new Dictionary<string, double>
+                {
+                    ["team_count"] = teams.Count,
+                    ["player_count"] =
+                        teams.Sum(team => team.Players.Count),
+                    ["image_bytes"] = image.Length
+                });
             return File(image.ToArray(), "image/png");
         }
 
@@ -126,7 +172,17 @@ namespace TeamsGeneratorWebAPI.Controllers
             // Convert the image to a byte array and add it to the result list
             byte[] imageBytes = ms.ToArray();
 
-            _telemetryClient.TrackMetric("ShareWithImage", 1);
+            _usageTelemetry.Track(
+                "ShareImageGenerated",
+                ver,
+                properties: new Dictionary<string, string?>
+                {
+                    ["graphic_type"] = "scoreboard"
+                },
+                measurements: new Dictionary<string, double>
+                {
+                    ["image_bytes"] = imageBytes.Length
+                });
             return File(imageBytes, "image/png");
         }
 
@@ -142,7 +198,17 @@ namespace TeamsGeneratorWebAPI.Controllers
             // Convert the image to a byte array and add it to the result list
             byte[] imageBytes = ms.ToArray();
 
-            _telemetryClient.TrackMetric("ShareWithImage", 1);
+            _usageTelemetry.Track(
+                "ShareImageGenerated",
+                ver,
+                properties: new Dictionary<string, string?>
+                {
+                    ["graphic_type"] = "scoreboard_normalized"
+                },
+                measurements: new Dictionary<string, double>
+                {
+                    ["image_bytes"] = imageBytes.Length
+                });
             return File(imageBytes, "image/png");
         }
 
@@ -150,33 +216,48 @@ namespace TeamsGeneratorWebAPI.Controllers
         public async Task<IResponse> SaveToStorage([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic teams, string uid)
         {
             var userId = RequestUserId.Resolve(User, uid);
-            _telemetryClient.TrackEvent("SaveTeamsToStorage");
-            _telemetryClient.TrackMetric("SaveTeamsToStorage", 1);
-            return await _azureStorage.UploadAsync(teams, new TeamsBlobConfig() { UId = userId });
+            var response = await _azureStorage.UploadAsync(teams, new TeamsBlobConfig() { UId = userId });
+            _usageTelemetry.Track(
+                "TeamsSaved",
+                ver,
+                userId,
+                new Dictionary<string, string?>
+                {
+                    ["outcome"] = response.Success ? "succeeded" : "failed"
+                });
+            return response;
         }
 
         [HttpPost("[action]")]
         public async Task<IResponse> GetTeamsFromStorage([FromHeader(Name = "client_version")] string ver, string uid)
         {
-            _telemetryClient.TrackEvent("GetTeamsFromStorage");
-            _telemetryClient.TrackMetric("GetTeamsFromStorage", 1);
-            return await _azureStorage.ListAsync(new TeamsBlobConfig() { UId = uid });
+            var response = await _azureStorage.ListAsync(new TeamsBlobConfig() { UId = uid });
+            _usageTelemetry.Track(
+                "TeamsLoaded",
+                ver,
+                uid,
+                new Dictionary<string, string?>
+                {
+                    ["outcome"] = response.Success ? "succeeded" : "failed"
+                });
+            return response;
         }
 
         [HttpPost("[action]")]
         public Dictionary<string, Score> GetScores([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic stats)
         {
-            _telemetryClient.TrackEvent("GetScores");
-            _telemetryClient.TrackMetric("GetScores", 1);
             return TableCalculator.Create(stats.stats);
         }
 
 
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> AddMatch([FromBody] MatchEntity match)
+        public async Task<IActionResult> AddMatch(
+            [FromHeader(Name = "client_version")] string ver,
+            [FromBody] MatchEntity match)
         {
             var result = await _matchService.AddMatchAsync(match);
+            TrackMatchMutation("MatchRecorded", result, ver);
             if (result == MatchMutationResult.Closed)
             {
                 return ClosedMatchdayResponse();
@@ -199,9 +280,11 @@ namespace TeamsGeneratorWebAPI.Controllers
 
         [HttpPost("[action]")]
         public async Task<IActionResult> AddPlayerSwap(
+            [FromHeader(Name = "client_version")] string ver,
             [FromBody] PlayerSwapEntity playerSwap)
         {
             var result = await _matchService.AddPlayerSwapAsync(playerSwap);
+            TrackMatchMutation("PlayerSwapRecorded", result, ver);
             if (result == MatchMutationResult.Closed)
             {
                 return ClosedMatchdayResponse();
@@ -232,6 +315,7 @@ namespace TeamsGeneratorWebAPI.Controllers
 
         [HttpPost("[action]")]
         public async Task<IActionResult> DoneAndReadMatches(
+            [FromHeader(Name = "client_version")] string ver,
             string partitionKey,
             string? ownerId = null)
         {
@@ -242,20 +326,42 @@ namespace TeamsGeneratorWebAPI.Controllers
                 var matches = await _matchService.FinalizeMatchday(
                     partitionKey,
                     effectiveOwnerId);
+                _usageTelemetry.Track(
+                    "MatchdayCompleted",
+                    ver,
+                    userId: effectiveOwnerId,
+                    properties: new Dictionary<string, string?>
+                    {
+                        ["outcome"] = "succeeded"
+                    },
+                    measurements: new Dictionary<string, double>
+                    {
+                        ["match_count"] = matches.Count()
+                    });
                 return Ok(matches);
             }
             catch (MatchdayConcurrencyException)
             {
+                _usageTelemetry.Track(
+                    "MatchdayCompleted",
+                    ver,
+                    userId: RequestUserId.ResolveOptional(User, ownerId),
+                    properties: new Dictionary<string, string?>
+                    {
+                        ["outcome"] = "conflict"
+                    });
                 return await ConflictMatchdayResponse(partitionKey);
             }
         }
 
         [HttpPost("[action]")]
         public async Task<IActionResult> EditMatch(
+            [FromHeader(Name = "client_version")] string ver,
             [FromBody] MatchEntity match,
             string? ownerId = null)
         {
             var result = await _matchService.EditMatch(match);
+            TrackMatchMutation("MatchEdited", result, ver, ownerId);
             if (result == MatchMutationResult.Closed)
             {
                 return ClosedMatchdayResponse();
@@ -274,10 +380,12 @@ namespace TeamsGeneratorWebAPI.Controllers
 
         [HttpPost("[action]")]
         public async Task<IActionResult> DeleteMatch(
+            [FromHeader(Name = "client_version")] string ver,
             [FromBody] MatchEntity match,
             string? ownerId = null)
         {
             var result = await _matchService.DeleteMatch(match);
+            TrackMatchMutation("MatchDeleted", result, ver, ownerId);
             if (result == MatchMutationResult.Closed)
             {
                 return ClosedMatchdayResponse();
@@ -300,9 +408,63 @@ namespace TeamsGeneratorWebAPI.Controllers
             [FromBody] dynamic matchesHistory,
             CancellationToken cancellationToken = default)
         {
-            string language = "he";
-            var reply = await _aiService.GetResponseFromAgent(matchesHistory, language, cancellationToken);
-            return Ok(reply);
+            const string language = "he";
+            var stopwatch = Stopwatch.StartNew();
+            try
+            {
+                var reply = await _aiService.GetResponseFromAgent(
+                    matchesHistory,
+                    language,
+                    cancellationToken);
+                _usageTelemetry.Track(
+                    "AiReportGenerated",
+                    ver,
+                    RequestUserId.ResolveOptional(User, null),
+                    new Dictionary<string, string?>
+                    {
+                        ["outcome"] = "succeeded",
+                        ["language"] = language
+                    },
+                    new Dictionary<string, double>
+                    {
+                        ["duration_ms"] = stopwatch.Elapsed.TotalMilliseconds
+                    });
+                return Ok(reply);
+            }
+            catch (OperationCanceledException)
+            {
+                _usageTelemetry.Track(
+                    "AiReportGenerated",
+                    ver,
+                    RequestUserId.ResolveOptional(User, null),
+                    new Dictionary<string, string?>
+                    {
+                        ["outcome"] = "canceled",
+                        ["language"] = language
+                    },
+                    new Dictionary<string, double>
+                    {
+                        ["duration_ms"] = stopwatch.Elapsed.TotalMilliseconds
+                    });
+                throw;
+            }
+            catch
+            {
+                _usageTelemetry.Track(
+                    "AiReportGenerated",
+                    ver,
+                    RequestUserId.ResolveOptional(User, null),
+                    new Dictionary<string, string?>
+                    {
+                        ["outcome"] = "failed",
+                        ["language"] = language
+                    },
+                    new Dictionary<string, double>
+                    {
+                        ["duration_ms"] = stopwatch.Elapsed.TotalMilliseconds
+                    });
+                throw;
+            }
         }
 
         [HttpPost("[action]")]
@@ -320,9 +482,16 @@ namespace TeamsGeneratorWebAPI.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> StartScoreboard([FromHeader(Name = "client_version")] string ver, string partitionKey)
         {
-            return await _matchService.StartMatchday(partitionKey)
-                ? Ok()
-                : BadRequest();
+            var started = await _matchService.StartMatchday(partitionKey);
+            _usageTelemetry.Track(
+                "MatchdayStarted",
+                ver,
+                RequestUserId.ResolveOptional(User, null),
+                new Dictionary<string, string?>
+                {
+                    ["outcome"] = started ? "succeeded" : "failed"
+                });
+            return started ? Ok() : BadRequest();
 
         }
 
@@ -345,6 +514,41 @@ namespace TeamsGeneratorWebAPI.Controllers
                 Message = "Another user updated the scoreboard. The latest saved matches were loaded.",
                 Matches = matches
             });
+        }
+
+        private void TrackMatchMutation(
+            string eventName,
+            MatchMutationResult result,
+            string? clientVersion,
+            string? fallbackUserId = null)
+        {
+            _usageTelemetry.Track(
+                eventName,
+                clientVersion,
+                userId: RequestUserId.ResolveOptional(
+                    User,
+                    fallbackUserId),
+                properties: new Dictionary<string, string?>
+                {
+                    ["outcome"] = result.ToString().ToLowerInvariant()
+                });
+        }
+
+        private static string GetLanguage(string culture)
+        {
+            if (culture.StartsWith(
+                "he",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                return "he";
+            }
+            if (culture.StartsWith(
+                "ar",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                return "ar";
+            }
+            return "other";
         }
 
         private static string GetString(JObject source, params string[] names)

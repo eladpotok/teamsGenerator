@@ -1,10 +1,10 @@
-﻿using Microsoft.ApplicationInsights;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using TeamsGenerator;
 using TeamsGenerator.API;
 using TeamsGeneratorWebAPI.Clients;
 using TeamsGeneratorWebAPI.ConfigBlob;
 using TeamsGeneratorWebAPI.PlayersBlob;
+using TeamsGeneratorWebAPI.Telemetry;
 
 namespace TeamsGeneratorWebAPI.Controllers
 {
@@ -15,15 +15,15 @@ namespace TeamsGeneratorWebAPI.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IUserConfigAzureStorage _azureStorage;
-        private readonly TelemetryClient _telemetryClient;
+        private readonly IUsageTelemetry _usageTelemetry;
         private readonly AzureTableStorageService _azureTablesStorage;
 
 
-        public HomeController(ILogger<HomeController> logger, IUserConfigAzureStorage azureStorage, TelemetryClient telemetryClient, AzureTableStorageService azureTablesStorage)
+        public HomeController(ILogger<HomeController> logger, IUserConfigAzureStorage azureStorage, IUsageTelemetry usageTelemetry, AzureTableStorageService azureTablesStorage)
         {
             _logger = logger;
             _azureStorage = azureStorage;
-            _telemetryClient = telemetryClient;
+            _usageTelemetry = usageTelemetry;
             _azureTablesStorage = azureTablesStorage;
         }
         
@@ -41,7 +41,15 @@ namespace TeamsGeneratorWebAPI.Controllers
             var lastReleaseVersion = lastUpdate.FirstOrDefault();
             appSetup.Config.CurrentVersion = lastReleaseVersion.VersionNumber;
             
-            _telemetryClient.TrackMetric("UserEntered", 1);
+            _usageTelemetry.Track(
+                "AppSetupLoaded",
+                ver,
+                uid,
+                new Dictionary<string, string?>
+                {
+                    ["has_saved_config"] =
+                        (response?.Config != null).ToString().ToLowerInvariant()
+                });
             return appSetup;
         }
 
