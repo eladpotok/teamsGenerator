@@ -60,7 +60,13 @@ builder.Services.AddSingleton<OpenAiService>();
 builder.Services.AddSingleton<IUsageTelemetry, UsageTelemetry>();
 
 
-builder.Services.AddApplicationInsightsTelemetry();
+var applicationInsightsConnectionString =
+    builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]
+    ?? builder.Configuration["ApplicationInsights:ConnectionString"];
+builder.Services.AddApplicationInsightsTelemetry(options =>
+{
+    options.ConnectionString = applicationInsightsConnectionString;
+});
 
 builder.Services.AddCors(options =>
 {
