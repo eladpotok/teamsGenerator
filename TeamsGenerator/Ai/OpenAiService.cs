@@ -21,14 +21,37 @@ namespace TeamsGenerator.Ai
             SetAiConfig();
         }
 
+        public OpenAiService(string apiKey, string endpoint)
+        {
+            SetAiConfig(apiKey, endpoint);
+        }
+
         private void SetAiConfig()
         {
-            // Read the JSON file
             var json = File.ReadAllText("config.json");
-
             var config = JObject.Parse(json);
-            _apiKey = config.Value<string>("AiApiKey");
-            _endpoint = config.Value<string>("AiAudience");
+            SetAiConfig(
+                config.Value<string>("AiApiKey"),
+                config.Value<string>("AiAudience"));
+        }
+
+        private void SetAiConfig(string apiKey, string endpoint)
+        {
+            Uri endpointUri;
+            if (string.IsNullOrWhiteSpace(apiKey)
+                || !Uri.TryCreate(
+                    endpoint,
+                    UriKind.Absolute,
+                    out endpointUri)
+                || (endpointUri.Scheme != Uri.UriSchemeHttps
+                    && endpointUri.Scheme != Uri.UriSchemeHttp))
+            {
+                throw new InvalidOperationException(
+                    "A valid AI API key and absolute endpoint are required.");
+            }
+
+            _apiKey = apiKey;
+            _endpoint = endpointUri.AbsoluteUri;
         }
 
         public Task<string> GetResponseFromAgentForTeams(

@@ -56,7 +56,13 @@ builder.Services.AddTransient<IPlayersStorageBlobConnector, PlayersStorageBlobCo
 builder.Services.AddTransient<ITeamsStorageBlobConnector, TeamsStorageBlobConnector>();
 builder.Services.AddTransient<IUserAzureStorage, UserAzureStorage>();
 builder.Services.AddSingleton<AzureTableStorageService>();
-builder.Services.AddSingleton<OpenAiService>();
+builder.Services.AddSingleton(provider =>
+{
+    var configuration = provider.GetRequiredService<IConfiguration>();
+    return new OpenAiService(
+        configuration["AiApiKey"],
+        configuration["AiAudience"]);
+});
 builder.Services.AddSingleton<IUsageTelemetry, UsageTelemetry>();
 
 
