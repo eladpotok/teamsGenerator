@@ -8,7 +8,34 @@ namespace TeamsGenerator.Ai
 {
     internal static class MatchSummaryAnalyzer
     {
-        internal static string CreateFactSheet(object input)
+        private static readonly HashSet<string> TeamReferenceProperties =
+            new HashSet<string>(
+                new[]
+                {
+                    "team",
+                    "opponent",
+                    "previousLeader",
+                    "fromTeam",
+                    "toTeam"
+                },
+                StringComparer.OrdinalIgnoreCase);
+
+        private static readonly Dictionary<string, string> HebrewTeamNames =
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["Red"] = "הקבוצה האדומה",
+                ["Green"] = "הקבוצה הירוקה",
+                ["Yellow"] = "הקבוצה הצהובה",
+                ["White"] = "הקבוצה הלבנה",
+                ["Black"] = "הקבוצה השחורה",
+                ["Blue"] = "הקבוצה הכחולה",
+                ["Orange"] = "הקבוצה הכתומה",
+                ["Purple"] = "הקבוצה הסגולה"
+            };
+
+        internal static string CreateFactSheet(
+            object input,
+            string language = MatchSummaryPrompt.DefaultLanguage)
         {
             var source = input as JToken ?? JToken.FromObject(input);
             var matches = FindMatches(source);
@@ -98,7 +125,43 @@ namespace TeamsGenerator.Ai
                     dataQuality)
             };
 
-            return JsonConvert.SerializeObject(factSheet, Formatting.None);
+            var factSheetToken = JToken.FromObject(factSheet);
+            LocalizeTeamReferences(factSheetToken, language);
+            return factSheetToken.ToString(Formatting.None);
+        }
+
+        private static void LocalizeTeamReferences(
+            JToken factSheet,
+            string language)
+        {
+            if (!string.Equals(
+                MatchSummaryPrompt.NormalizeLanguage(language),
+                MatchSummaryPrompt.DefaultLanguage,
+                StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            if (!(factSheet is JContainer container))
+            {
+                return;
+            }
+
+            foreach (var property in container
+                .DescendantsAndSelf()
+                .OfType<JProperty>()
+                .Where(property =>
+                    TeamReferenceProperties.Contains(property.Name)
+                    && property.Value.Type == JTokenType.String))
+            {
+                string localizedName;
+                if (HebrewTeamNames.TryGetValue(
+                    property.Value.Value<string>()?.Trim() ?? string.Empty,
+                    out localizedName))
+                {
+                    property.Value = localizedName;
+                }
+            }
         }
 
         private static List<JObject> FindMatches(JToken source)

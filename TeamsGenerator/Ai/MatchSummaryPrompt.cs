@@ -43,6 +43,7 @@ Relevance rules:
 - Never apologize or write meta-commentary such as ""not enough information was supplied"", ""there is nothing to say"", ""the full details are unavailable"", or any equivalent phrasing.
 - Silently omit any insight that is not supported. If only a few useful facts exist, write a shorter factual report from those facts without explaining why it is shorter.
 - Preserve names exactly as provided.
+- Team labels in the fact sheet are already localized complete phrases. Preserve them exactly and never prepend another word meaning ""team"".
 - Superlatives must be tie-aware. Never say one team or player scored ""the most"", was ""the highest"", or was the sole leader when another has the same value. Use wording such as ""joint-highest"" or name every tied participant. Fields beginning with joint explicitly indicate a tie.
 - Except for player or team names, use only the selected output language. Do not insert English labels or explanations into a Hebrew report.
 
@@ -70,7 +71,7 @@ Never use an exceeded-expectations pattern as a reason for changing or explainin
 Write the entire response in {outputLanguage}.";
         }
 
-        private static string NormalizeLanguage(string language)
+        internal static string NormalizeLanguage(string language)
         {
             return string.Equals(language, "en", System.StringComparison.OrdinalIgnoreCase)
                 ? "en"

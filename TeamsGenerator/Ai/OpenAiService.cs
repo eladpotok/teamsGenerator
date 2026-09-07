@@ -72,7 +72,9 @@ namespace TeamsGenerator.Ai
                 throw new ArgumentNullException(nameof(userInput));
             }
 
-            var factSheet = MatchSummaryAnalyzer.CreateFactSheet(userInput);
+            var factSheet = MatchSummaryAnalyzer.CreateFactSheet(
+                userInput,
+                language);
             var userMessage = "VERIFIED_FACT_SHEET_JSON_START\n"
                 + factSheet
                 + "\nVERIFIED_FACT_SHEET_JSON_END";
