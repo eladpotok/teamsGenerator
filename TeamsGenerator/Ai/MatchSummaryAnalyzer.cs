@@ -17,6 +17,10 @@ namespace TeamsGenerator.Ai
             var assisters = FindLeaderboard(source, matches, "topAssists");
             var players = FindPlayers(source, matches);
             var playerTeams = FindPlayerTeams(matches);
+            ReplaceLeaderboardsWithVerifiedMatchTotals(
+                matches,
+                scorers,
+                assisters);
             var partnerships = FindAssistPartnerships(matches);
             var ownGoals = FindOwnGoals(matches, playerTeams);
             var penaltyGoals = FindPenaltyGoals(matches);
@@ -282,6 +286,112 @@ namespace TeamsGenerator.Ai
             }
 
             return result;
+        }
+
+        private static void ReplaceLeaderboardsWithVerifiedMatchTotals(
+            IList<JObject> matches,
+            IDictionary<string, int> scorers,
+            IDictionary<string, int> assisters)
+        {
+            Dictionary<string, int> verifiedScorers;
+            Dictionary<string, int> verifiedAssisters;
+            if (!TryGetVerifiedMatchTotals(
+                matches,
+                out verifiedScorers,
+                out verifiedAssisters))
+            {
+                return;
+            }
+
+            ReplaceTotals(scorers, verifiedScorers);
+            ReplaceTotals(assisters, verifiedAssisters);
+        }
+
+        private static bool TryGetVerifiedMatchTotals(
+            IList<JObject> matches,
+            out Dictionary<string, int> scorers,
+            out Dictionary<string, int> assisters)
+        {
+            var scorerNames = new List<string>();
+            var assisterNames = new List<string>();
+
+            if (matches.Count == 0)
+            {
+                scorers = new Dictionary<string, int>(
+                    StringComparer.OrdinalIgnoreCase);
+                assisters = new Dictionary<string, int>(
+                    StringComparer.OrdinalIgnoreCase);
+                return false;
+            }
+
+            foreach (var match in matches)
+            {
+                MatchScoreFact score;
+                if (!TryGetMatchScore(match, out score))
+                {
+                    scorers = CountNames(scorerNames);
+                    assisters = CountNames(assisterNames);
+                    return false;
+                }
+
+                var teamA = GetValue(match, "teamA") as JObject;
+                var teamB = GetValue(match, "teamB") as JObject;
+                var teamAGoals = GetValue(teamA, "goals") as JArray;
+                var teamBGoals = GetValue(teamB, "goals") as JArray;
+                if (teamAGoals == null
+                    || teamBGoals == null
+                    || teamAGoals.Count != score.TeamAScore
+                    || teamBGoals.Count != score.TeamBScore)
+                {
+                    scorers = CountNames(scorerNames);
+                    assisters = CountNames(assisterNames);
+                    return false;
+                }
+
+                foreach (var goal in teamAGoals
+                    .Concat(teamBGoals)
+                    .OfType<JObject>())
+                {
+                    var ownGoal = IsGoalEventOwnGoal(goal);
+                    var scorer = GetName(GetValue(
+                        goal,
+                        "scorer",
+                        "goalScorer",
+                        "scoredBy"));
+                    if (!ownGoal && string.IsNullOrWhiteSpace(scorer))
+                    {
+                        scorers = CountNames(scorerNames);
+                        assisters = CountNames(assisterNames);
+                        return false;
+                    }
+
+                    if (!ownGoal)
+                    {
+                        scorerNames.Add(scorer);
+                    }
+
+                    assisterNames.Add(GetName(GetValue(
+                        goal,
+                        "assist",
+                        "assister",
+                        "assistedBy")));
+                }
+            }
+
+            scorers = CountNames(scorerNames);
+            assisters = CountNames(assisterNames);
+            return true;
+        }
+
+        private static void ReplaceTotals(
+            IDictionary<string, int> destination,
+            IDictionary<string, int> verifiedTotals)
+        {
+            destination.Clear();
+            foreach (var entry in verifiedTotals)
+            {
+                destination[entry.Key] = entry.Value;
+            }
         }
 
         private static HashSet<string> FindPlayers(JToken source, IEnumerable<JObject> matches)
@@ -1801,6 +1911,21 @@ namespace TeamsGenerator.Ai
                     return GoalEventsMatchFinalScore(events, score);
                 });
 
+            Dictionary<string, int> verifiedScorers;
+            Dictionary<string, int> verifiedAssisters;
+            if (TryGetVerifiedMatchTotals(
+                matches,
+                out verifiedScorers,
+                out verifiedAssisters))
+            {
+                quality.ScorerTotalsReliable = DictionariesEqual(
+                    verifiedScorers,
+                    scorers);
+                quality.AssistTotalsReliable = DictionariesEqual(
+                    verifiedAssisters,
+                    assisters);
+            }
+
             if (quality.CompleteGoalTimelines)
             {
                 var goalEvents = matches.SelectMany(match =>
@@ -1818,9 +1943,11 @@ namespace TeamsGenerator.Ai
                 var calculatedAssisters = CountNames(goalEvents
                     .Select(goal => goal.Assister));
 
-                quality.ScorerTotalsReliable = completeScorerNames
+                quality.ScorerTotalsReliable = quality.ScorerTotalsReliable
+                    && completeScorerNames
                     && DictionariesEqual(calculatedScorers, scorers);
-                quality.AssistTotalsReliable = DictionariesEqual(
+                quality.AssistTotalsReliable = quality.AssistTotalsReliable
+                    && DictionariesEqual(
                     calculatedAssisters,
                     assisters);
             }
