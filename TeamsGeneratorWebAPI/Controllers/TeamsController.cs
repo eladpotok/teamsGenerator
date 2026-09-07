@@ -54,7 +54,10 @@ namespace TeamsGeneratorWebAPI.Controllers
                 algoKey,
                 chemistryHistory.Scores,
                 chemistryHistory.MatchdayCount);
-            var request = dicJson as JObject ?? JObject.FromObject(dicJson);
+            JObject request =
+                dicJson as JObject ?? JObject.FromObject((object)dicJson);
+            var playerCount =
+                (request["players"] as JArray)?.Count ?? 0;
             _usageTelemetry.Track(
                 "TeamsGenerated",
                 ver,
@@ -69,8 +72,7 @@ namespace TeamsGeneratorWebAPI.Controllers
                 },
                 new Dictionary<string, double>
                 {
-                    ["player_count"] =
-                        request["players"]?.Count() ?? 0,
+                    ["player_count"] = playerCount,
                     ["team_count"] = response.Teams?.Count ?? 0,
                     ["chemistry_matchday_count"] =
                         chemistryHistory.MatchdayCount
