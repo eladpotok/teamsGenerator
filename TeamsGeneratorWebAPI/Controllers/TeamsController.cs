@@ -237,7 +237,7 @@ namespace TeamsGeneratorWebAPI.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> SaveToStorage([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic teams, string uid, string groupId = null)
+        public async Task<IActionResult> SaveToStorage([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic teams, string uid, string? groupId = null)
         {
             var userId = RequestUserId.Resolve(User, uid);
             if (
@@ -308,7 +308,7 @@ namespace TeamsGeneratorWebAPI.Controllers
                 StringComparison.Ordinal) == true;
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> GetTeamsFromStorage([FromHeader(Name = "client_version")] string ver, string uid, string groupId = null)
+        public async Task<IActionResult> GetTeamsFromStorage([FromHeader(Name = "client_version")] string ver, string uid, string? groupId = null)
         {
             var userId = RequestUserId.Resolve(User, uid);
             if (

@@ -41,7 +41,7 @@ namespace TeamsGeneratorWebAPI.Controllers
         
         [HttpGet(Name = "AlgosController")]
 
-        public async Task<ActionResult<GetAppSetupResponse>> Get([FromHeader(Name = "client_version")] string ver, string uid, string groupId = null)
+        public async Task<ActionResult<GetAppSetupResponse>> Get([FromHeader(Name = "client_version")] string ver, string uid, string? groupId = null)
         {
             var userId = RequestUserId.Resolve(User, uid);
             if (

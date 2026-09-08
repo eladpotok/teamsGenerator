@@ -40,7 +40,7 @@ namespace TeamsGeneratorWebAPI.Controllers
         }
 
         [HttpPost("Upload")]
-        public async Task<IActionResult> Post([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic players, string uid, int algoKey, string groupId = null)
+        public async Task<IActionResult> Post([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic players, string uid, int algoKey, string? groupId = null)
         {
             var userId = RequestUserId.Resolve(User, uid);
             if (
@@ -229,7 +229,7 @@ namespace TeamsGeneratorWebAPI.Controllers
 
         [HttpGet(Name = "UserPlayersController")]
 
-        public async Task<IActionResult> Get([FromHeader(Name = "client_version")] string ver, string uid, int algoType, string groupId = null)
+        public async Task<IActionResult> Get([FromHeader(Name = "client_version")] string ver, string uid, int algoType, string? groupId = null)
         {
             var userId = RequestUserId.Resolve(User, uid);
             if (

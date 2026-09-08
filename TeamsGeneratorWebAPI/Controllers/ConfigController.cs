@@ -38,8 +38,8 @@ namespace TeamsGeneratorWebAPI.Controllers
             [FromHeader(Name = "client_version")] string ver,
             [FromBody] UserConfigResponse userConfig,
             string uid,
-            string groupId = null,
-            string scope = null)
+            string? groupId = null,
+            string? scope = null)
         {
             var saveGroupSettings = !string.Equals(
                 scope,
@@ -228,7 +228,7 @@ namespace TeamsGeneratorWebAPI.Controllers
 
         [HttpGet(Name = "ConfigController")]
 
-        public async Task<IActionResult> Get([FromHeader(Name = "client_version")] string ver, string uid, string groupId = null)
+        public async Task<IActionResult> Get([FromHeader(Name = "client_version")] string ver, string uid, string? groupId = null)
         {
             var userId = RequestUserId.Resolve(User, uid);
             if (
