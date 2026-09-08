@@ -73,6 +73,80 @@ Then all the user need is to run the app, choose the relevant algorithm and rece
 In order that any one at the world could use your algorithm, you should maintain the web service.
 In `WebAppAPI` we should add our algorithm to the both dictionary (follow the existing items), and in addition we need to add a new `AlgoType` enum.
 
+## Player groups and compatibility
+
+Each account has a built-in `default` player group plus up to 19 custom
+groups. The Default group deliberately uses the original player blob names,
+so clients that do not know about groups continue to read and write the same
+roster without a migration. Existing accounts use their legacy matchday name
+as the Default group's initial display name. That value is persisted once;
+later group renames and matchday-name changes are independent. Matchday names
+continue to label scoreboard graphics.
+
+`groupId` is optional on the existing `GET /UserPlayers` and
+`POST /UserPlayers/Upload` endpoints. Omitting it, sending an empty value, or
+sending `default` selects the legacy roster. Custom group IDs use isolated
+blob paths and must first be created through `UserPlayers/Groups`.
+
+The group API supports listing, creating, renaming, and deleting groups.
+The built-in group's display name can be renamed, but its `default` ID and
+legacy player blob paths never change. The built-in group cannot be deleted.
+Deletion is rejected while any algorithm roster in the group contains a
+player. `POST /UserPlayers/Move` moves every stored algorithm representation
+of a player between groups, writing destination copies before removing source
+copies so an interrupted operation cannot lose the player.
+`POST /UserPlayers/Copy` copies those representations to another group while
+leaving the source roster unchanged.
+
+Group-scoped settings include the matchday name, location, player limit, team
+count, schedule, shirt colors, algorithm, and skill definitions. All remaining
+preferences are global per organizer, including scoreboard behavior, timer
+behavior, language, and chemistry. The Default group continues to use the
+legacy `{uid}_config` blob. Custom groups use
+`{uid}_player_groups/{groupId}/config`, and co-organizers resolve to the same
+owner-backed group configuration through membership authorization while
+retaining their own global preferences. A custom group without a saved
+configuration inherits the owner's legacy Default-group configuration as a
+migration fallback; its first save creates an independent group configuration.
+The app exposes these settings separately: **Account Settings** is available
+from the main header, while **Group settings** is available from the active
+player group's management menu. Configuration saves include a `scope` query
+parameter so each screen updates only its own settings.
+
+## Premium entitlements
+
+Premium behavior is centralized behind `IAccountEntitlementService`. The
+current provider intentionally grants Premium to every account, so existing
+behavior is unchanged until a billing-backed provider replaces it. Both API
+and UI gates cover AI summaries, chemistry, the AI team-building algorithm,
+and the free-account limit of 25 players. Older API responses that do not
+include entitlements are treated as Premium during deployment.
+
+## Co-organizers and private player data
+
+Group owners can create a seven-day, single-use co-organizer invitation link
+and QR code. Invitation tokens are random and only their SHA-256 hash is
+stored. Redemption requires an authenticated account. Shared groups expose
+one canonical roster and generated-team snapshot, which active clients refresh
+every five seconds while visible.
+
+Player identity, attendance, and generated-team placement are shared.
+Skill ratings and other assessments are stripped from co-organizer responses
+and stored in organizer-specific assessment overlays.
+
+Roster writes are serialized by the client. An account-, group-, and
+algorithm-scoped pending snapshot remains on the device until the API confirms
+the write, so interrupted mobile saves can be retried after suspension or
+relaunch without losing attendance state.
+
+## AI match reports
+
+AI reports are generated from a server-verified fact sheet. The writing prompt
+establishes the winner concisely and then prioritizes the strongest evidence
+from across the evening, preventing one leading team from crowding out more
+meaningful player, partnership, comeback, or opposing-team stories. Generated
+report text is cached only on the device that requested it.
+
 ## Backend usage telemetry
 
 The web API sends privacy-safe custom events to Application Insights through

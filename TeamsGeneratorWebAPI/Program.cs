@@ -7,6 +7,8 @@ using TeamsGenerator.Ai;
 using TeamsGenerator.API;
 using TeamsGeneratorWebAPI.Clients;
 using TeamsGeneratorWebAPI.PlayersBlob;
+using TeamsGeneratorWebAPI.Premium;
+using TeamsGeneratorWebAPI.Collaboration;
 using TeamsGeneratorWebAPI.Storage;
 using TeamsGeneratorWebAPI.Telemetry;
 using TeamsGeneratorWebAPI.UsersBlob;
@@ -52,9 +54,13 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddTransient<IUserConfigAzureStorage, UserConfigAzureStorage>();
+builder.Services.AddMemoryCache();
 builder.Services.AddTransient<IPlayersStorageBlobConnector, PlayersStorageBlobConnector>();
 builder.Services.AddTransient<ITeamsStorageBlobConnector, TeamsStorageBlobConnector>();
 builder.Services.AddTransient<IUserAzureStorage, UserAzureStorage>();
+builder.Services.AddSingleton<IAccountEntitlementService, AccountEntitlementService>();
+builder.Services.AddSingleton<IGroupCollaborationService, GroupCollaborationService>();
+builder.Services.AddSingleton<IPlayerAssessmentService, PlayerAssessmentService>();
 builder.Services.AddSingleton<AzureTableStorageService>();
 builder.Services.AddSingleton(provider =>
 {
@@ -120,7 +126,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseStaticFiles();
 

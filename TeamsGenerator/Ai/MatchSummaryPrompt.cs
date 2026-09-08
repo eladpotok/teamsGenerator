@@ -22,6 +22,8 @@ Relevance rules:
 - Build a layered report when the fact sheet supports it. Aim to use three to five distinct verified insights, but use fewer when the available facts are ordinary or incomplete.
 - Every insight must be anchored to a concrete supplied value, named event, result, ranking, streak, contribution total, or partnership. Do not add generic commentary merely to make the report longer.
 - Prefer insight quality over quantity. Never repeat the same fact in different wording or promote a minor observation into a major storyline.
+- Establish the leading team once, then broaden the story. Do not repeatedly center the winner or let one team dominate more than half of the narrative unless the verified facts overwhelmingly concern that team.
+- When another team has a genuinely meaningful verified result, run, comeback, partnership, or player contribution, include it before returning to the leader. Do not invent or force a weak counterpoint merely for symmetry.
 - Use verifiedPatterns only when the pattern is genuinely interesting. It is acceptable to omit weak patterns and to produce a shorter report when few strong patterns exist.
 - Never print, translate, transliterate, or place in parentheses the value of a pattern's type property. Convert the underlying facts directly into natural prose.
 - When a verified pattern says a player exceeded expectations, highlight the surprise in the main story when meaningful, not in that player's rating explanation. Never mention or imply low ratings, weak skills, below-average ability, or hidden player statistics.
@@ -50,7 +52,7 @@ Relevance rules:
 - Except for player or team names, use only the selected output language. Do not insert English labels or explanations into a Hebrew report.
 
 Story priorities:
-- Open with the final shape of the evening: the leading team, how close or clear the table was, and the most meaningful verified overall trend.
+- Open with the final shape of the evening: identify the leader concisely, explain how close or clear the table was, and move promptly to the most meaningful verified overall trend.
 - Then develop the matchday arc when chronological evidence exists: comebacks, late winners, match-winning goals, a final-match lead change, recovery after losses, or meaningful runs.
 - Give meaningful player contributions room to breathe: scoring and assisting balance, creator-only impact, all-round production, contribution share, unexpected contribution, or clutch goals.
 - Highlight genuine connections between players when verified: especially high-frequency mutual assists, direct goal combinations, or a productive duo. Include the supplied direction counts or total when they make the insight clearer.

@@ -42,7 +42,8 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
                 var teamsConfig = config as TeamsBlobConfig;
                 BlobContainerClient container = new BlobContainerClient(_storageConnectionString, _storageContainerName);
 
-                BlobClient client = container.GetBlobClient($"{teamsConfig.UId}_teams");
+                BlobClient client = container.GetBlobClient(
+                    GetTeamsPath(teamsConfig));
                 if (client == null) return GetTeamsFromStorageResponse.Failure("teams were not found");
 
                 if (await client.ExistsAsync())
@@ -73,13 +74,25 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
         {
             var playersConfig = config as TeamsBlobConfig;
             BlobContainerClient container = new BlobContainerClient(_storageConnectionString, _storageContainerName);
-            BlobClient client = container.GetBlobClient($"{playersConfig.UId}_teams");
+            BlobClient client = container.GetBlobClient(
+                GetTeamsPath(playersConfig));
             using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(teams.ToString())))
             {
                 await client.UploadAsync(ms, overwrite: true);
             }
 
             return new SavePlayersResponse();
+        }
+
+        private static string GetTeamsPath(TeamsBlobConfig config)
+        {
+            return string.IsNullOrWhiteSpace(config.GroupId)
+                || string.Equals(
+                    config.GroupId,
+                    PlayersStorageBlobConnector.DefaultGroupId,
+                    StringComparison.OrdinalIgnoreCase)
+                ? $"{config.UId}_teams"
+                : $"{config.UId}_player_groups/{config.GroupId}/teams";
         }
     }
 }

@@ -13,6 +13,8 @@ using TeamsGeneratorWebAPI.Authentication;
 using TeamsGeneratorWebAPI.DesignCreator;
 using TeamsGeneratorWebAPI.PlayersBlob;
 using TeamsGeneratorWebAPI.Telemetry;
+using TeamsGeneratorWebAPI.Premium;
+using TeamsGeneratorWebAPI.Collaboration;
 
 namespace TeamsGeneratorWebAPI.Controllers
 {
@@ -26,18 +28,22 @@ namespace TeamsGeneratorWebAPI.Controllers
         private readonly IUsageTelemetry _usageTelemetry;
         private readonly AzureTableStorageService _matchService;
         private readonly OpenAiService _aiService;
+        private readonly IAccountEntitlementService _entitlements;
+        private readonly IGroupCollaborationService _collaboration;
 
-        public TeamsController(ILogger<TeamsController> logger, IUsageTelemetry usageTelemetry, ITeamsStorageBlobConnector teamsStorageBlobConnector, AzureTableStorageService matchService, OpenAiService aiService)
+        public TeamsController(ILogger<TeamsController> logger, IUsageTelemetry usageTelemetry, ITeamsStorageBlobConnector teamsStorageBlobConnector, AzureTableStorageService matchService, OpenAiService aiService, IAccountEntitlementService entitlements, IGroupCollaborationService collaboration)
         {
             _logger = logger;
             _usageTelemetry = usageTelemetry;
             _azureStorage = teamsStorageBlobConnector;
             _matchService = matchService;
             _aiService = aiService;
+            _entitlements = entitlements;
+            _collaboration = collaboration;
         }
 
         [HttpPost()]
-        public async Task<GetTeamsResponse> Post(
+        public async Task<ActionResult<GetTeamsResponse>> Post(
             [FromHeader(Name = "client_version")] string ver,
             [FromBody] dynamic dicJson,
             int algoKey,
@@ -45,8 +51,26 @@ namespace TeamsGeneratorWebAPI.Controllers
         {
             var effectiveOwnerId =
                 RequestUserId.ResolveOptional(User, ownerId);
+            var entitlements = _entitlements.Get(effectiveOwnerId ?? string.Empty);
+            if (algoKey == 3 && !entitlements.CanUseAiAlgorithm)
+            {
+                return StatusCode(
+                    StatusCodes.Status403Forbidden,
+                    new { error = "The AI algorithm requires a Premium account." });
+            }
+            JObject request =
+                dicJson as JObject ?? JObject.FromObject((object)dicJson);
+            var chemistryRequested =
+                request["config"]?["useChemistry"]?.Value<bool>() == true;
+            if (chemistryRequested && !entitlements.CanUseChemistry)
+            {
+                return StatusCode(
+                    StatusCodes.Status403Forbidden,
+                    new { error = "Team chemistry requires a Premium account." });
+            }
             ChemistryHistorySnapshot chemistryHistory =
                 string.IsNullOrWhiteSpace(effectiveOwnerId)
+                || !chemistryRequested
                 ? new ChemistryHistorySnapshot()
                 : await _matchService.GetChemistryHistory(effectiveOwnerId);
             var response = WebAppAPI.GetTeams(
@@ -54,8 +78,6 @@ namespace TeamsGeneratorWebAPI.Controllers
                 algoKey,
                 chemistryHistory.Scores,
                 chemistryHistory.MatchdayCount);
-            JObject request =
-                dicJson as JObject ?? JObject.FromObject((object)dicJson);
             var playerCount =
                 (request["players"] as JArray)?.Count ?? 0;
             _usageTelemetry.Track(
@@ -77,7 +99,7 @@ namespace TeamsGeneratorWebAPI.Controllers
                     ["chemistry_matchday_count"] =
                         chemistryHistory.MatchdayCount
                 });
-            return response;
+            return Ok(response);
         }
 
         [HttpPost("[action]")]
@@ -215,10 +237,27 @@ namespace TeamsGeneratorWebAPI.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<IResponse> SaveToStorage([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic teams, string uid)
+        public async Task<IActionResult> SaveToStorage([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic teams, string uid, string groupId = null)
         {
             var userId = RequestUserId.Resolve(User, uid);
-            var response = await _azureStorage.UploadAsync(teams, new TeamsBlobConfig() { UId = userId });
+            if (
+                IsSharedGroupReference(groupId)
+                && User.Identity?.IsAuthenticated != true)
+            {
+                return Unauthorized();
+            }
+            var access = await _collaboration.ResolveAccessAsync(
+                userId,
+                groupId);
+            if (access == null)
+            {
+                return Forbid();
+            }
+            var response = await _azureStorage.UploadAsync(teams, new TeamsBlobConfig()
+            {
+                UId = access.OwnerId,
+                GroupId = access.GroupId
+            });
             _usageTelemetry.Track(
                 "TeamsSaved",
                 ver,
@@ -227,13 +266,69 @@ namespace TeamsGeneratorWebAPI.Controllers
                 {
                     ["outcome"] = response.Success ? "succeeded" : "failed"
                 });
-            return response;
+            return Ok(response);
         }
 
-        [HttpPost("[action]")]
-        public async Task<IResponse> GetTeamsFromStorage([FromHeader(Name = "client_version")] string ver, string uid)
+        private static JObject CreateSharedTeams(JObject storedTeams)
         {
-            var response = await _azureStorage.ListAsync(new TeamsBlobConfig() { UId = uid });
+            var result = (JObject)storedTeams.DeepClone();
+            foreach (var players in result.SelectTokens("$..players")
+                .OfType<JArray>())
+            {
+                foreach (var player in players.Children<JObject>().ToList())
+                {
+                    foreach (var property in player.Properties()
+                        .Where(property =>
+                            !SharedTeamPlayerProperties.Contains(property.Name))
+                        .ToList())
+                    {
+                        property.Remove();
+                    }
+                }
+            }
+            return result;
+        }
+
+        private static readonly HashSet<string> SharedTeamPlayerProperties =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                "key",
+                "id",
+                "name",
+                "photo",
+                "isArrived",
+                "waitingListOrder",
+                "isLocked",
+                "isGoalKeeper"
+            };
+
+        private static bool IsSharedGroupReference(string groupId) =>
+            groupId?.StartsWith(
+                "shared.",
+                StringComparison.Ordinal) == true;
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> GetTeamsFromStorage([FromHeader(Name = "client_version")] string ver, string uid, string groupId = null)
+        {
+            var userId = RequestUserId.Resolve(User, uid);
+            if (
+                IsSharedGroupReference(groupId)
+                && User.Identity?.IsAuthenticated != true)
+            {
+                return Unauthorized();
+            }
+            var access = await _collaboration.ResolveAccessAsync(
+                userId,
+                groupId);
+            if (access == null)
+            {
+                return Forbid();
+            }
+            var response = await _azureStorage.ListAsync(new TeamsBlobConfig()
+            {
+                UId = access.OwnerId,
+                GroupId = access.GroupId
+            });
             _usageTelemetry.Track(
                 "TeamsLoaded",
                 ver,
@@ -242,7 +337,18 @@ namespace TeamsGeneratorWebAPI.Controllers
                 {
                     ["outcome"] = response.Success ? "succeeded" : "failed"
                 });
-            return response;
+            if (
+                !access.IsOwner
+                && response is GetTeamsFromStorageResponse sharedTeams
+                && sharedTeams.Success)
+            {
+                return Ok(new
+                {
+                    success = true,
+                    teams = CreateSharedTeams(sharedTeams.Teams)
+                });
+            }
+            return Ok(response);
         }
 
         [HttpPost("[action]")]
@@ -411,6 +517,13 @@ namespace TeamsGeneratorWebAPI.Controllers
             CancellationToken cancellationToken = default)
         {
             const string language = "he";
+            var userId = RequestUserId.ResolveOptional(User, null);
+            if (!_entitlements.Get(userId ?? string.Empty).CanUseAiSummary)
+            {
+                return StatusCode(
+                    StatusCodes.Status403Forbidden,
+                    new { error = "AI summaries require a Premium account." });
+            }
             var stopwatch = Stopwatch.StartNew();
             try
             {

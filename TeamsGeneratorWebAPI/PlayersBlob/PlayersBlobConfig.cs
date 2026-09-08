@@ -7,11 +7,14 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
         public int AlgoType { get; set; }
         
         public string UId { get; set; }
+
+        public string GroupId { get; set; }
     }
 
     public class TeamsBlobConfig : IConfig
     {
         public string UId { get; set; }
 
+        public string GroupId { get; set; }
     }
 }

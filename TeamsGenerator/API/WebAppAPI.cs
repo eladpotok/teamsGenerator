@@ -156,7 +156,17 @@ namespace TeamsGenerator.API
             //}
 
             var config = userConfig ?? new UserConfigResponse();
-            config.ShirtsColors ??= shirtsColors;
+            if (config.ShirtsColors == null || config.ShirtsColors.Count == 0)
+            {
+                config.ShirtsColors = shirtsColors
+                    .Select(shirt => new PlayerShirt
+                    {
+                        ColorName = shirt.ColorName,
+                        Symbol = shirt.Symbol,
+                        IsMarked = shirt.IsMarked
+                    })
+                    .ToList();
+            }
             config.NumberOfTeams = config.NumberOfTeams <= 0
                 ? numberOfTeams
                 : config.NumberOfTeams;
