@@ -62,7 +62,7 @@ namespace TeamsGenerator.Ai
             return SendChatRequestAsync(prompt, userInput, 0.2, cancellationToken);
         }
 
-        public Task<string> GetResponseFromAgent(
+        public async Task<string> GetResponseFromAgent(
             object userInput,
             string language = MatchSummaryPrompt.DefaultLanguage,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -79,11 +79,16 @@ namespace TeamsGenerator.Ai
                 + factSheet
                 + "\nVERIFIED_FACT_SHEET_JSON_END";
 
-            return SendChatRequestAsync(
+            var response = await SendChatRequestAsync(
                 MatchSummaryPrompt.Create(language),
                 userMessage,
                 0.25,
                 cancellationToken);
+
+            return MatchSummaryPenaltyRenderer.AddVerifiedPenaltySummary(
+                response,
+                factSheet,
+                language);
         }
 
         private async Task<string> SendChatRequestAsync(
