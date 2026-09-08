@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace TeamsGenerator.Ai
@@ -11,6 +12,27 @@ namespace TeamsGenerator.Ai
         private static readonly Regex PlayerRatingsStart = new Regex(
             @"(?m)^(?=1\.\s)",
             RegexOptions.Compiled);
+
+        internal static string PrepareForAiNarrative(string factSheet)
+        {
+            var factSheetToken = JObject.Parse(factSheet);
+            var patterns = factSheetToken["verifiedPatterns"] as JArray;
+            if (patterns == null || !HasAggregatePenaltyPattern(patterns))
+            {
+                return factSheet;
+            }
+
+            factSheetToken["penaltyGoals"] = new JArray();
+            foreach (var pattern in patterns
+                .OfType<JObject>()
+                .Where(IsAggregatePenaltyPattern)
+                .ToList())
+            {
+                pattern.Remove();
+            }
+
+            return factSheetToken.ToString(Formatting.None);
+        }
 
         internal static string AddVerifiedPenaltySummary(
             string report,
@@ -60,6 +82,24 @@ namespace TeamsGenerator.Ai
                 scoringRuns,
                 MatchSummaryPrompt.NormalizeLanguage(language));
             return InsertBeforeRatings(report, summary);
+        }
+
+        private static bool HasAggregatePenaltyPattern(JArray patterns)
+        {
+            return patterns.OfType<JObject>().Any(IsAggregatePenaltyPattern);
+        }
+
+        private static bool IsAggregatePenaltyPattern(JObject pattern)
+        {
+            var type = pattern.Value<string>("type");
+            return string.Equals(
+                    type,
+                    "penalty_heavy_evening",
+                    StringComparison.Ordinal)
+                || string.Equals(
+                    type,
+                    "penalty_scoring_run",
+                    StringComparison.Ordinal);
         }
 
         private static string CreateSummary(

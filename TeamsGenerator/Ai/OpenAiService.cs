@@ -75,8 +75,10 @@ namespace TeamsGenerator.Ai
             var factSheet = MatchSummaryAnalyzer.CreateFactSheet(
                 userInput,
                 language);
+            var narrativeFactSheet =
+                MatchSummaryPenaltyRenderer.PrepareForAiNarrative(factSheet);
             var userMessage = "VERIFIED_FACT_SHEET_JSON_START\n"
-                + factSheet
+                + narrativeFactSheet
                 + "\nVERIFIED_FACT_SHEET_JSON_END";
 
             var response = await SendChatRequestAsync(
