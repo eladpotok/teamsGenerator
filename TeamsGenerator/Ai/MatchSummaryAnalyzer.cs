@@ -120,6 +120,7 @@ namespace TeamsGenerator.Ai
                     playerTeams,
                     partnerships,
                     ownGoals,
+                    penaltyGoals,
                     unexpectedContributors,
                     playerSwaps,
                     dataQuality)
@@ -878,6 +879,7 @@ namespace TeamsGenerator.Ai
             IDictionary<string, string> playerTeams,
             IEnumerable<PartnershipFact> partnerships,
             IEnumerable<OwnGoalFact> ownGoals,
+            IEnumerable<PenaltyGoalFact> penaltyGoals,
             IEnumerable<string> unexpectedContributors,
             IEnumerable<PlayerSwapFact> playerSwaps,
             SummaryDataQuality dataQuality)
@@ -886,6 +888,7 @@ namespace TeamsGenerator.Ai
             var maxGoals = scorers.Count == 0 ? 0 : scorers.Values.Max();
             var maxAssists = assisters.Count == 0 ? 0 : assisters.Values.Max();
             var ownGoalList = ownGoals.ToList();
+            var penaltyGoalList = penaltyGoals.ToList();
             var ratingsByPlayer = ratings.ToDictionary(
                 rating => rating.Name,
                 StringComparer.OrdinalIgnoreCase);
@@ -973,6 +976,11 @@ namespace TeamsGenerator.Ai
                     type = "own_goal_festival",
                     totalOwnGoals = ownGoalList.Count
                 });
+            }
+
+            if (dataQuality.CompleteGoalTimelines)
+            {
+                AddPenaltyPatterns(patterns, penaltyGoalList);
             }
 
             foreach (var team in ownGoalList
@@ -1128,7 +1136,6 @@ namespace TeamsGenerator.Ai
                     patterns,
                     matches,
                     playerSwaps);
-                AddDefensiveEveningPattern(patterns, matches);
                 if (dataQuality.StandingsReliable)
                 {
                     AddResiliencePatterns(patterns, matches, standings);
@@ -1155,6 +1162,42 @@ namespace TeamsGenerator.Ai
             }
 
             return patterns;
+        }
+
+        private static void AddPenaltyPatterns(
+            ICollection<object> patterns,
+            IList<PenaltyGoalFact> penaltyGoals)
+        {
+            if (penaltyGoals.Count >= 4)
+            {
+                patterns.Add(new
+                {
+                    type = "penalty_heavy_evening",
+                    penaltyGoals = penaltyGoals.Count,
+                    matchesWithPenalties = penaltyGoals
+                        .Select(goal => goal.MatchNumber)
+                        .Distinct()
+                        .Count(),
+                    differentPenaltyScorers = penaltyGoals
+                        .Select(goal => goal.Player)
+                        .Where(player => !string.IsNullOrWhiteSpace(player))
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .Count()
+                });
+            }
+
+            foreach (var player in penaltyGoals
+                .Where(goal => !string.IsNullOrWhiteSpace(goal.Player))
+                .GroupBy(goal => goal.Player, StringComparer.OrdinalIgnoreCase)
+                .Where(group => group.Count() >= 3))
+            {
+                patterns.Add(new
+                {
+                    type = "penalty_scoring_run",
+                    player = player.Key,
+                    penaltyGoals = player.Count()
+                });
+            }
         }
 
         private static void AddPlayerSwapMomentumPatterns(
@@ -1629,42 +1672,6 @@ namespace TeamsGenerator.Ai
                     goalsFor = entry.Team.GoalsFor,
                     finalPosition = entry.Position,
                     jointHighestScoring = highestScoringTeamCount > 1
-                });
-            }
-        }
-
-        private static void AddDefensiveEveningPattern(
-            ICollection<object> patterns,
-            IEnumerable<JObject> matches)
-        {
-            var parsedMatches = new List<MatchScoreFact>();
-            foreach (var match in matches)
-            {
-                MatchScoreFact score;
-                if (TryGetMatchScore(match, out score))
-                {
-                    parsedMatches.Add(score);
-                }
-            }
-
-            if (parsedMatches.Count < 3)
-            {
-                return;
-            }
-
-            var totalGoals = parsedMatches.Sum(match => match.TeamAScore + match.TeamBScore);
-            var cleanSheets = parsedMatches.Sum(match =>
-                (match.TeamAScore == 0 ? 1 : 0) + (match.TeamBScore == 0 ? 1 : 0));
-            var average = (double)totalGoals / parsedMatches.Count;
-            if (average <= 2 || cleanSheets >= 3)
-            {
-                patterns.Add(new
-                {
-                    type = "defensive_evening",
-                    matches = parsedMatches.Count,
-                    totalGoals,
-                    goalsPerMatch = Math.Round(average, 2),
-                    cleanSheets
                 });
             }
         }

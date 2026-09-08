@@ -34,10 +34,12 @@ Relevance rules:
 - Verified chronological events such as winning goals, comebacks, late winners, and leadership changes may receive stronger emphasis.
 - A post-swap momentum pattern is optional and meaningful only when it records at least two immediate wins after a prior non-winning stretch. Describe it as a run that followed or coincided with the player swap; never claim that the swap caused the improvement.
 - Do not mention a player swap merely because it appears in playerSwaps. Mention it only when verifiedPatterns contains a corresponding post_swap_momentum pattern.
-- `penaltyGoals` contains only verified penalty goals. Mention a penalty only when it materially shaped a close result, contributed meaningfully to a player's scoring story, or when multiple penalties form a notable pattern.
+- `penaltyGoals` contains only verified penalty goals. A penalty_heavy_evening pattern means at least four penalties were scored and is a worthwhile unusual matchday note. A penalty_scoring_run means one player scored at least three penalties and should be included in that player's scoring story.
+- Outside those verified patterns, mention an individual penalty only when it materially shaped a close result or contributed meaningfully to a player's scoring story.
 - Do not force an ordinary single penalty into the report. Never describe a penalty as controversial, dramatic, late, decisive, missed, or saved unless the supplied facts explicitly establish that.
 - A player's large share of team contributions should praise the player's influence without criticizing teammates. Shared team efforts and productive duos may be framed positively.
-- Table, defensive, resilience, perfect, undefeated, and winless patterns must be described exactly from their supplied values without inventing causes.
+- Table, resilience, perfect, undefeated, and winless patterns must be described exactly from their supplied values without inventing causes.
+- Matches are short and may end when a team scores two goals. Never characterize low goal totals, clean sheets, or ordinary 1-0, 2-0, and 2-1 scores as a low-scoring or unusually defensive evening.
 - Never infer player roles, atmosphere, team quality, decisive goals, or causation.
 - Never discuss the input, fact sheet, available data, missing data, incomplete details, analysis limitations, or what could not be determined.
 - Never apologize or write meta-commentary such as ""not enough information was supplied"", ""there is nothing to say"", ""the full details are unavailable"", or any equivalent phrasing.
@@ -52,7 +54,7 @@ Story priorities:
 - Then develop the matchday arc when chronological evidence exists: comebacks, late winners, match-winning goals, a final-match lead change, recovery after losses, or meaningful runs.
 - Give meaningful player contributions room to breathe: scoring and assisting balance, creator-only impact, all-round production, contribution share, unexpected contribution, or clutch goals.
 - Highlight genuine connections between players when verified: especially high-frequency mutual assists, direct goal combinations, or a productive duo. Include the supplied direction counts or total when they make the insight clearer.
-- Include a team-level contrast when useful: scoring depth, high scoring without table reward, defensive consistency, an all-action profile, or an unusual undefeated, perfect, or winless run.
+- Include a team-level contrast when useful: scoring depth, high scoring without table reward, an all-action profile, or an unusual undefeated, perfect, or winless run.
 - Use playful own-goal material only when it is prominent enough to be a real evening storyline.
 - Select insights from different categories where possible. Do not fill several paragraphs with variations of the same scorer, team, or table fact.
 
