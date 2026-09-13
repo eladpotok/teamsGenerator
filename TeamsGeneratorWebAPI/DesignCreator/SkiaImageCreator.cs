@@ -207,7 +207,7 @@ namespace TeamsDesignCreator
                 using (var image = surface.Snapshot())
                 using (var png = image.Encode(SKEncodedImageFormat.Png, 100))
                 {
-                    return new MemoryStream(png.ToArray(), writable: false);
+                    return png.ToArray();
                 }
             }
         }
@@ -1284,7 +1284,7 @@ namespace TeamsDesignCreator
             
         }
 
-        internal static MemoryStream GenerateTeamsOverviewImage(
+        internal static byte[] GenerateTeamsOverviewImage(
             List<TeamShareItem> teams,
             string matchName,
             string location,

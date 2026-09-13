@@ -33,7 +33,7 @@ namespace TeamsGeneratorWebAPI.DesignCreator
             return SkiaImageCreator.GeneratePlayersListImageTemplate3(players, teamName, location, date, dayInWeek, currentCulture);
         }
 
-        internal static MemoryStream CreateTeamsOverview(
+        internal static byte[] CreateTeamsOverview(
             List<TeamShareItem> teams,
             string matchName,
             string location,

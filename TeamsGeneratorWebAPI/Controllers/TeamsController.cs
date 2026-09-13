@@ -158,7 +158,7 @@ namespace TeamsGeneratorWebAPI.Controllers
                 .ToList() ?? new List<TeamShareItem>();
 
             var culture = GetString(teamInfo, "currentCulture", "culture");
-            using var image = ImageCreator.CreateTeamsOverview(
+            var image = ImageCreator.CreateTeamsOverview(
                 teams,
                 GetString(teamInfo, "teamName", "matchName"),
                 GetString(teamInfo, "location", "venue"),
@@ -181,7 +181,7 @@ namespace TeamsGeneratorWebAPI.Controllers
                         teams.Sum(team => team.Players.Count),
                     ["image_bytes"] = image.Length
                 });
-            return File(image.ToArray(), "image/png");
+            return File(image, "image/png");
         }
 
         [HttpPost("[action]")]
