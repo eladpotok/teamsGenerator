@@ -1700,7 +1700,7 @@ namespace TeamsDesignCreator
         {
             var positions = locations[playerNames.Count];
 
-            using (var templateStream = System.IO.File.OpenRead($@"templates/generatedTeams2.png"))
+            using (var templateStream = OpenLineupTemplate())
             {
                 var canvasWrapper = new ImageGraphicWrapper(templateStream);
                 canvasWrapper.DrawCanvas();
@@ -1738,6 +1738,41 @@ namespace TeamsDesignCreator
 
                 return canvasWrapper.Save();
             }
+        }
+
+        private static FileStream OpenLineupTemplate()
+        {
+            var templatePaths = new[]
+            {
+                Path.Combine(
+                    AppContext.BaseDirectory,
+                    "DesignCreator",
+                    "team_template.png"),
+                Path.Combine(
+                    AppContext.BaseDirectory,
+                    "templates",
+                    "team_template.png"),
+                Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    "DesignCreator",
+                    "team_template.png"),
+                Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    "templates",
+                    "team_template.png")
+            };
+
+            foreach (var templatePath in templatePaths.Distinct())
+            {
+                if (File.Exists(templatePath))
+                {
+                    return File.OpenRead(templatePath);
+                }
+            }
+
+            throw new FileNotFoundException(
+                "The lineup image template could not be found.",
+                templatePaths[0]);
         }
 
         public static List<string> WrapText(SKPaint paint, string text, float maxWidth)
