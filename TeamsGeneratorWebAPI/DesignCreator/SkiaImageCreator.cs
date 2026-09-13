@@ -881,7 +881,7 @@ namespace TeamsDesignCreator
                 using (var image = surface.Snapshot())
                 using (var png = image.Encode(SKEncodedImageFormat.Png, 100))
                 {
-                    return png.ToArray();
+                    return new MemoryStream(png.ToArray(), writable: false);
                 }
             }
         }
@@ -1364,10 +1364,8 @@ namespace TeamsDesignCreator
 
                 using (var image = surface.Snapshot())
                 using (var png = image.Encode(SKEncodedImageFormat.Png, 100))
-                using (var ms = new MemoryStream())
                 {
-                    png.SaveTo(ms);
-                    return ms;
+                    return png.ToArray();
                 }
             }
         }
