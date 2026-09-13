@@ -64,8 +64,6 @@ builder.Services.AddSingleton<IPlayerAssessmentService, PlayerAssessmentService>
 builder.Services.AddSingleton<AzureTableStorageService>();
 builder.Services.AddSingleton<AzureTableGroceries>();
 builder.Services.AddSingleton<GroceriesBlobStorage>();
-builder.Services.AddSingleton<QuestionStorageService>();
-builder.Services.AddSingleton<AzureTableGameRanker>();
 builder.Services.AddSingleton(provider =>
 {
     var configuration = provider.GetRequiredService<IConfiguration>();

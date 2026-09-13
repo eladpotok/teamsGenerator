@@ -206,8 +206,8 @@ namespace TeamsDesignCreator
 
                 using (var image = surface.Snapshot())
                 using (var png = image.Encode(SKEncodedImageFormat.Png, 100))
-                using (var ms = new MemoryStream())
                 {
+                    var ms = new MemoryStream();
                     png.SaveTo(ms);
                     return ms;
                 }
