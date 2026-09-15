@@ -99,7 +99,8 @@ copies so an interrupted operation cannot lose the player.
 leaving the source roster unchanged.
 
 Group-scoped settings include the matchday name, location, player limit, team
-count, schedule, shirt colors, algorithm, and skill definitions. All remaining
+count, schedule, shirt colors, algorithm, skill definitions, and descriptive
+matchday rules. All remaining
 preferences are global per organizer, including scoreboard behavior, timer
 behavior, language, and chemistry. The Default group continues to use the
 legacy `{uid}_config` blob. Custom groups use
@@ -107,11 +108,77 @@ legacy `{uid}_config` blob. Custom groups use
 owner-backed group configuration through membership authorization while
 retaining their own global preferences. A custom group without a saved
 configuration inherits the owner's legacy Default-group configuration as a
-migration fallback; its first save creates an independent group configuration.
+migration fallback, except matchday rules, which start unset for every distinct
+group; its first save creates an independent group configuration.
 The app exposes these settings separately: **Account Settings** is available
 from the main header, while **Group settings** is available from the active
 player group's management menu. Configuration saves include a `scope` query
 parameter so each screen updates only its own settings.
+
+### Descriptive matchday rules API
+
+`config.matchdayRules` is nullable and is returned by both `GET /Config` and
+`GET /Home` for the authorized active group. These rules are display/share
+content only: they never change timers, scoring, team generation, or automatic
+match completion. The existing operational timer preferences remain global.
+Rules retain a `language` field (`en` by default, or `he`) in the API contract.
+The current frontend uses the organizer's App Settings language for the editor
+and rules graphics, overriding the stored rules language when displaying them.
+
+Send the object with `POST /Config/Upload?scope=group&groupId=...`:
+
+```json
+{
+  "language": "en",
+  "timeLimitEnabled": false,
+  "minutes": 8,
+  "goalLimitEnabled": false,
+  "goals": 2,
+  "extraTimeEnabled": false,
+  "extraMinutes": 2,
+  "goldenGoal": false,
+  "endMode": "on-time",
+  "endOnCorner": false,
+  "endOnBallOut": false,
+  "endOnGoalkeeperHold": false,
+  "endOnOther": false,
+  "endOtherText": "",
+  "tieResolution": "none",
+  "noSlideTackles": false,
+  "noDangerousPlay": false,
+  "rotateGoalkeepers": false,
+  "respectDecisions": false,
+  "customText": ""
+}
+```
+
+The example is the value of `matchdayRules`, not the entire configuration
+request. All rule switches default to false. Enabled numeric limits must be
+integers: minutes 1-120, goals 1-50, extra minutes 1-30. Extra time is normalized
+off without a time limit, and golden goal is normalized off without extra time.
+Only effectively enabled numeric limits are range-checked. `tieResolution`
+must be `none`, `penalties`, or `longest-playing-off`. `customText` must be a
+non-null string of at most 1200 UTF-16 code units and 20 nonempty lines;
+whitespace-only lines do not count. Domain validation failures return the
+existing unsuccessful save response; malformed JSON/types use the API's
+standard model-binding errors.
+
+`endMode` is `on-time` (default) or `stoppage`. With a time limit and `stoppage`,
+at least one end-event flag is required. These describe waiting after time expires
+for any selected event: corner, throw-in/goal kick, goalkeeper holding the ball,
+or the supplied other condition. The rule also applies after extra time; goal
+limits and golden goals still end play immediately. `endOtherText` must be a
+non-null string of at most 300 UTF-16 code units, and must be nonblank when Other
+is active. Without a time limit, `endMode` normalizes to `on-time` and event
+choices are ignored for display. Existing blobs without these fields retain
+their prior right-on-time behavior.
+
+Omitting `matchdayRules` or sending null preserves existing group rules for
+older clients. To clear rules, send the full all-disabled object above. A
+non-null object replaces the previous rules (it is not a partial patch).
+Global-only saves ignore incoming rules and preserve stored group rules.
+Co-organizers use the same owner-backed rules after existing group access
+checks; rules never fall back to another group's or organizer's rules.
 
 ## Premium entitlements
 

@@ -122,6 +122,12 @@ namespace TeamsGeneratorWebAPI.Controllers
 
             if (saveGroupSettings)
             {
+                if (userConfig.MatchdayRules != null
+                    && !userConfig.MatchdayRules.TryNormalize(
+                        out var rulesError))
+                {
+                    return SaveConfigResponse.Failure(rulesError);
+                }
                 userConfig.SkillDefinitions =
                     SkillDefinition.Normalize(suppliedSkills);
                 userConfig.ArchivedSkillDefinitions =
@@ -140,7 +146,8 @@ namespace TeamsGeneratorWebAPI.Controllers
                 == PlayersStorageBlobConnector.DefaultGroupId
                 ? ownerDefaultConfig
                 : await LoadConfigAsync(access.OwnerId, access.GroupId)
-                    ?? ownerDefaultConfig;
+                    ?? UserConfigScopes.InheritGroupSettings(
+                        ownerDefaultConfig);
             var groupConfig = UserConfigScopes.WithGroupSettings(
                 existingGroupConfig,
                 userConfig);
@@ -257,7 +264,7 @@ namespace TeamsGeneratorWebAPI.Controllers
                 == PlayersStorageBlobConnector.DefaultGroupId
                 ? ownerDefault
                 : await LoadConfigAsync(access.OwnerId, access.GroupId)
-                    ?? ownerDefault;
+                    ?? UserConfigScopes.InheritGroupSettings(ownerDefault);
             var globalConfig = string.Equals(
                     userId,
                     access.OwnerId,

@@ -147,6 +147,7 @@ namespace TeamsGenerator.API
         public bool UseChemistry { get; set; }
         public int MaxMatchdayPlayers { get; set; }
         public bool HasCustomMatchdayPlayerLimit { get; set; }
+        public MatchdayRules MatchdayRules { get; set; }
         [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
         public List<SkillDefinition> SkillDefinitions { get; set; }
         [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]

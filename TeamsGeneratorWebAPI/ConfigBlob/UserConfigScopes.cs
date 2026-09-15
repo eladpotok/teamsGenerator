@@ -11,8 +11,21 @@ internal static class UserConfigScopes
     {
         var merged = Clone(groupConfig ?? globalConfig)
             ?? new UserConfigResponse();
+        if (groupConfig == null)
+        {
+            merged.MatchdayRules = null;
+        }
         ApplyGlobal(merged, globalConfig ?? new UserConfigResponse());
         return merged;
+    }
+
+    internal static UserConfigResponse InheritGroupSettings(
+        UserConfigResponse ownerDefault)
+    {
+        var inherited = Clone(ownerDefault) ?? new UserConfigResponse();
+        // Keep legacy settings inheritance, but never inherit another group's rules.
+        inherited.MatchdayRules = null;
+        return inherited;
     }
 
     internal static UserConfigResponse WithGroupSettings(
@@ -36,6 +49,10 @@ internal static class UserConfigScopes
         result.SkillDefinitions = incoming.SkillDefinitions;
         result.ArchivedSkillDefinitions =
             incoming.ArchivedSkillDefinitions;
+        if (incoming.MatchdayRules != null)
+        {
+            result.MatchdayRules = incoming.MatchdayRules.Clone();
+        }
         return result;
     }
 

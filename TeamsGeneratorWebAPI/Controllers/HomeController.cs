@@ -98,14 +98,15 @@ namespace TeamsGeneratorWebAPI.Controllers
             var ownerDefaultResponse =
                 await ownerDefaultTask as GetConfigResponse;
             var response = await groupConfigTask as GetConfigResponse;
-            if (response?.Config == null)
-            {
-                response = ownerDefaultResponse;
-            }
+            var effectiveGroupConfig = response?.Config
+                ?? (access.GroupId == PlayersStorageBlobConnector.DefaultGroupId
+                    ? ownerDefaultResponse?.Config
+                    : UserConfigScopes.InheritGroupSettings(
+                        ownerDefaultResponse?.Config));
             var globalResponse =
                 await globalConfigTask as GetConfigResponse;
             var mergedConfig = UserConfigScopes.Merge(
-                response?.Config,
+                effectiveGroupConfig,
                 globalResponse?.Config);
             var appSetup = WebAppAPI.GetAppSetup(
                 ver,
@@ -139,7 +140,8 @@ namespace TeamsGeneratorWebAPI.Controllers
                 new Dictionary<string, string?>
                 {
                     ["has_saved_config"] =
-                        (response?.Config != null).ToString().ToLowerInvariant()
+                        ((response?.Config ?? ownerDefaultResponse?.Config)
+                            != null).ToString().ToLowerInvariant()
                 });
             return Ok(appSetup);
         }
