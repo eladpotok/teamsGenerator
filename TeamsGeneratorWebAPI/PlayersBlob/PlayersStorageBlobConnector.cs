@@ -20,7 +20,8 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
 
         Task<PlayerGroupMutationResponse> CreateGroupAsync(
             string userId,
-            string name);
+            string name,
+            int maximumOwnedGroups);
 
         Task<PlayerGroupMutationResponse> RenameGroupAsync(
             string userId,
@@ -214,7 +215,8 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
 
         public async Task<PlayerGroupMutationResponse> CreateGroupAsync(
             string userId,
-            string name)
+            string name,
+            int maximumOwnedGroups)
         {
             var normalizedName = NormalizeGroupName(name);
             if (string.IsNullOrWhiteSpace(userId))
@@ -233,11 +235,14 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
                 attempt++)
             {
                 var state = await DownloadGroupStateAsync(userId);
+                var effectiveMaximum = maximumOwnedGroups > 0
+                    ? Math.Min(maximumOwnedGroups, MaximumGroups)
+                    : MaximumGroups;
                 if (state.Groups.Count(group =>
-                    IsCustomGroupId(group.Id)) >= MaximumGroups - 1)
+                    IsCustomGroupId(group.Id)) >= effectiveMaximum - 1)
                 {
                     return PlayerGroupMutationResponse.Failure(
-                        $"An account can have at most {MaximumGroups} groups");
+                        $"An account can own at most {effectiveMaximum} groups");
                 }
                 if (GroupNameExists(state.Groups, normalizedName))
                 {

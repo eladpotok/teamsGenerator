@@ -11,6 +11,8 @@ public sealed class AccountEntitlements
     public bool CanUseAiAlgorithm => IsPremium;
 
     public int MaximumPlayers => IsPremium ? 0 : 25;
+
+    public int MaximumOwnedGroups => IsPremium ? 0 : 2;
 }
 
 public interface IAccountEntitlementService

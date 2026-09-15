@@ -345,9 +345,11 @@ namespace TeamsGeneratorWebAPI.Controllers
             string uid,
             [FromBody] CreatePlayerGroupRequest request)
         {
+            var userId = RequestUserId.Resolve(User, uid);
             return _azureStorage.CreateGroupAsync(
-                RequestUserId.Resolve(User, uid),
-                request?.Name);
+                userId,
+                request?.Name,
+                _entitlements.Get(userId).MaximumOwnedGroups);
         }
 
         [HttpPut("Groups/{groupId}")]

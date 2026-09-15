@@ -11,6 +11,7 @@ namespace TeamsGenerator.API
         public bool CanUseChemistry { get; set; }
         public bool CanUseAiAlgorithm { get; set; }
         public int MaximumPlayers { get; set; }
+        public int MaximumOwnedGroups { get; set; }
     }
 
     public class GetAppSetupResponse

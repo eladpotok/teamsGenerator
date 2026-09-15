@@ -117,7 +117,8 @@ namespace TeamsGeneratorWebAPI.Controllers
                 CanUseAiSummary = entitlements.CanUseAiSummary,
                 CanUseChemistry = entitlements.CanUseChemistry,
                 CanUseAiAlgorithm = entitlements.CanUseAiAlgorithm,
-                MaximumPlayers = entitlements.MaximumPlayers
+                MaximumPlayers = entitlements.MaximumPlayers,
+                MaximumOwnedGroups = entitlements.MaximumOwnedGroups
             };
 
             if (_cache.TryGetValue<string>(
