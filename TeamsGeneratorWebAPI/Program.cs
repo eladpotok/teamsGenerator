@@ -59,6 +59,7 @@ builder.Services.AddTransient<IPlayersStorageBlobConnector, PlayersStorageBlobCo
 builder.Services.AddTransient<ITeamsStorageBlobConnector, TeamsStorageBlobConnector>();
 builder.Services.AddTransient<IUserAzureStorage, UserAzureStorage>();
 builder.Services.AddSingleton<IAccountEntitlementService, AccountEntitlementService>();
+builder.Services.AddSingleton<IPremiumAccountStore, PremiumAccountStore>();
 builder.Services.AddSingleton<IGroupCollaborationService, GroupCollaborationService>();
 builder.Services.AddSingleton<IPlayerAssessmentService, PlayerAssessmentService>();
 builder.Services.AddSingleton<AzureTableStorageService>();
@@ -67,9 +68,10 @@ builder.Services.AddSingleton<GroceriesBlobStorage>();
 builder.Services.AddSingleton(provider =>
 {
     var configuration = provider.GetRequiredService<IConfiguration>();
-    return new OpenAiService(
-        configuration["AiApiKey"],
-        configuration["AiAudience"]);
+    return new Lazy<OpenAiService>(() =>
+        new OpenAiService(
+            configuration["AiApiKey"],
+            configuration["AiAudience"]));
 });
 builder.Services.AddSingleton<IUsageTelemetry, UsageTelemetry>();
 

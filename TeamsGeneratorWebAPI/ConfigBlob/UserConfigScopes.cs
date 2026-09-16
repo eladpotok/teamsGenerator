@@ -14,6 +14,7 @@ internal static class UserConfigScopes
         if (groupConfig == null)
         {
             merged.MatchdayRules = null;
+            merged.GroupLogoDataUrl = null;
         }
         ApplyGlobal(merged, globalConfig ?? new UserConfigResponse());
         return merged;
@@ -25,6 +26,7 @@ internal static class UserConfigScopes
         var inherited = Clone(ownerDefault) ?? new UserConfigResponse();
         // Keep legacy settings inheritance, but never inherit another group's rules.
         inherited.MatchdayRules = null;
+        inherited.GroupLogoDataUrl = null;
         return inherited;
     }
 
@@ -53,6 +55,7 @@ internal static class UserConfigScopes
         {
             result.MatchdayRules = incoming.MatchdayRules.Clone();
         }
+        result.GroupLogoDataUrl = incoming.GroupLogoDataUrl;
         return result;
     }
 
@@ -77,7 +80,27 @@ internal static class UserConfigScopes
         target.EnableTimer = source.EnableTimer;
         target.Language = source.Language;
         target.UseChemistry = source.UseChemistry;
+        target.ShareImageTemplate = NormalizeShareImageTemplate(
+            source.ShareImageTemplate);
         target.AvailableLanguages = source.AvailableLanguages;
+    }
+
+    internal static string NormalizeShareImageTemplate(string value)
+    {
+        return value?.Trim().ToLowerInvariant() switch
+        {
+            "stadium" => "stadium",
+            "midnight" => "midnight",
+            "sunset" => "sunset",
+            "minimal" => "minimal",
+            _ => "classic"
+        };
+    }
+
+    internal static bool IsPremiumShareImageTemplate(string value)
+    {
+        var normalized = NormalizeShareImageTemplate(value);
+        return normalized != "classic" && normalized != "stadium";
     }
 
     private static UserConfigResponse Clone(UserConfigResponse config)

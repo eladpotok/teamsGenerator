@@ -10,6 +10,10 @@ public sealed class AccountEntitlements
 
     public bool CanUseAiAlgorithm => IsPremium;
 
+    public bool CanUseCustomGroupLogo => IsPremium;
+
+    public bool CanUsePremiumShareTemplates => IsPremium;
+
     public int MaximumPlayers => IsPremium ? 0 : 25;
 
     public int MaximumOwnedGroups => IsPremium ? 0 : 2;
@@ -17,25 +21,42 @@ public sealed class AccountEntitlements
 
 public interface IAccountEntitlementService
 {
-    AccountEntitlements Get(string userId);
+    Task<AccountEntitlements> GetAsync(
+        string userId,
+        string? verifiedEmail = null,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class AccountEntitlementService : IAccountEntitlementService
 {
     private readonly IConfiguration _configuration;
+    private readonly IPremiumAccountStore _premiumAccounts;
 
-    public AccountEntitlementService(IConfiguration configuration)
+    public AccountEntitlementService(
+        IConfiguration configuration,
+        IPremiumAccountStore premiumAccounts)
     {
         _configuration = configuration;
+        _premiumAccounts = premiumAccounts;
     }
 
-    public AccountEntitlements Get(string userId)
+    public async Task<AccountEntitlements> GetAsync(
+        string userId,
+        string? verifiedEmail = null,
+        CancellationToken cancellationToken = default)
     {
-        // This default keeps the launch behavior unchanged. A future billing
-        // provider only needs to replace this service's entitlement lookup.
-        var isPremium = _configuration.GetValue(
-            "Premium:DefaultEntitled",
+        var enforcementEnabled = _configuration.GetValue(
+            "Premium:EnforcementEnabled",
             true);
+        var isPremium = enforcementEnabled
+            ? await _premiumAccounts.IsPremiumAsync(
+                userId,
+                verifiedEmail,
+                cancellationToken)
+            : _configuration.GetValue(
+                "Premium:DefaultEntitled",
+                true);
+
         return new AccountEntitlements { IsPremium = isPremium };
     }
 }

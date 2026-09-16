@@ -72,7 +72,9 @@ namespace TeamsGeneratorWebAPI.Controllers
                 return SaveConfigResponse.Failure(
                     "Player group was not found.");
             }
-            var entitlements = _entitlements.Get(userId);
+            var entitlements = await _entitlements.GetAsync(
+                userId,
+                RequestUserId.ResolveVerifiedEmail(User));
             if (saveGroupSettings
                 && !entitlements.CanUseAiAlgorithm
                 && userConfig.SelectedAlgoKey == 3)
@@ -86,6 +88,26 @@ namespace TeamsGeneratorWebAPI.Controllers
             {
                 return SaveConfigResponse.Failure(
                     "Team chemistry requires a Premium account.");
+            }
+            if (saveGlobalSettings)
+            {
+                userConfig.ShareImageTemplate =
+                    UserConfigScopes.NormalizeShareImageTemplate(
+                        userConfig.ShareImageTemplate);
+                if (!entitlements.CanUsePremiumShareTemplates
+                    && UserConfigScopes.IsPremiumShareImageTemplate(
+                        userConfig.ShareImageTemplate))
+                {
+                    return SaveConfigResponse.Failure(
+                        "This sharing image style requires a Premium account.");
+                }
+            }
+            if (saveGroupSettings
+                && !TryValidateGroupLogo(
+                    userConfig.GroupLogoDataUrl,
+                    out var logoError))
+            {
+                return SaveConfigResponse.Failure(logoError);
             }
 
             if (saveGroupSettings
@@ -148,6 +170,17 @@ namespace TeamsGeneratorWebAPI.Controllers
                 : await LoadConfigAsync(access.OwnerId, access.GroupId)
                     ?? UserConfigScopes.InheritGroupSettings(
                         ownerDefaultConfig);
+            if (saveGroupSettings
+                && !entitlements.CanUseCustomGroupLogo
+                && !string.IsNullOrWhiteSpace(userConfig.GroupLogoDataUrl)
+                && !string.Equals(
+                    existingGroupConfig?.GroupLogoDataUrl,
+                    userConfig.GroupLogoDataUrl,
+                    StringComparison.Ordinal))
+            {
+                return SaveConfigResponse.Failure(
+                    "A custom group logo requires a Premium account.");
+            }
             var groupConfig = UserConfigScopes.WithGroupSettings(
                 existingGroupConfig,
                 userConfig);
@@ -308,6 +341,59 @@ namespace TeamsGeneratorWebAPI.Controllers
             groupId?.StartsWith(
                 "shared.",
                 StringComparison.Ordinal) == true;
+
+        private static bool TryValidateGroupLogo(
+            string dataUrl,
+            out string error)
+        {
+            error = null;
+            if (string.IsNullOrWhiteSpace(dataUrl))
+            {
+                return true;
+            }
+
+            const string pngPrefix = "data:image/png;base64,";
+            if (!dataUrl.StartsWith(
+                pngPrefix,
+                StringComparison.OrdinalIgnoreCase))
+            {
+                error = "The group logo must be a PNG image.";
+                return false;
+            }
+            try
+            {
+                var bytes = Convert.FromBase64String(
+                    dataUrl.Substring(pngPrefix.Length));
+                if (bytes.Length > 512 * 1024)
+                {
+                    error = "The group logo must be smaller than 512 KB.";
+                    return false;
+                }
+                if (bytes.Length == 0)
+                {
+                    error = "The group logo is invalid.";
+                    return false;
+                }
+                byte[] pngSignature =
+                {
+                    0x89, 0x50, 0x4E, 0x47,
+                    0x0D, 0x0A, 0x1A, 0x0A
+                };
+                if (bytes.Length < pngSignature.Length
+                    || !bytes.Take(pngSignature.Length)
+                        .SequenceEqual(pngSignature))
+                {
+                    error = "The group logo must be a valid PNG image.";
+                    return false;
+                }
+                return true;
+            }
+            catch (FormatException)
+            {
+                error = "The group logo is invalid.";
+                return false;
+            }
+        }
     }
  
 }

@@ -108,16 +108,37 @@ namespace TeamsGeneratorWebAPI.Controllers
             var mergedConfig = UserConfigScopes.Merge(
                 effectiveGroupConfig,
                 globalResponse?.Config);
+            var entitlements = await _entitlements.GetAsync(
+                userId,
+                RequestUserId.ResolveVerifiedEmail(User));
+            if (!entitlements.CanUsePremiumShareTemplates
+                && UserConfigScopes.IsPremiumShareImageTemplate(
+                    mergedConfig.ShareImageTemplate))
+            {
+                mergedConfig.ShareImageTemplate = "classic";
+            }
+            if (!entitlements.CanUseAiAlgorithm
+                && mergedConfig.SelectedAlgoKey == 3)
+            {
+                mergedConfig.SelectedAlgoKey = 0;
+            }
+            if (!entitlements.CanUseChemistry)
+            {
+                mergedConfig.UseChemistry = false;
+            }
             var appSetup = WebAppAPI.GetAppSetup(
                 ver,
                 mergedConfig);
-            var entitlements = _entitlements.Get(userId);
             appSetup.Entitlements = new PremiumEntitlementsResponse
             {
                 IsPremium = entitlements.IsPremium,
                 CanUseAiSummary = entitlements.CanUseAiSummary,
                 CanUseChemistry = entitlements.CanUseChemistry,
                 CanUseAiAlgorithm = entitlements.CanUseAiAlgorithm,
+                CanUseCustomGroupLogo =
+                    entitlements.CanUseCustomGroupLogo,
+                CanUsePremiumShareTemplates =
+                    entitlements.CanUsePremiumShareTemplates,
                 MaximumPlayers = entitlements.MaximumPlayers,
                 MaximumOwnedGroups = entitlements.MaximumOwnedGroups
             };

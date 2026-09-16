@@ -27,11 +27,11 @@ namespace TeamsGeneratorWebAPI.Controllers
         private readonly ILogger<TeamsController> _logger;
         private readonly IUsageTelemetry _usageTelemetry;
         private readonly AzureTableStorageService _matchService;
-        private readonly OpenAiService _aiService;
+        private readonly Lazy<OpenAiService> _aiService;
         private readonly IAccountEntitlementService _entitlements;
         private readonly IGroupCollaborationService _collaboration;
 
-        public TeamsController(ILogger<TeamsController> logger, IUsageTelemetry usageTelemetry, ITeamsStorageBlobConnector teamsStorageBlobConnector, AzureTableStorageService matchService, OpenAiService aiService, IAccountEntitlementService entitlements, IGroupCollaborationService collaboration)
+        public TeamsController(ILogger<TeamsController> logger, IUsageTelemetry usageTelemetry, ITeamsStorageBlobConnector teamsStorageBlobConnector, AzureTableStorageService matchService, Lazy<OpenAiService> aiService, IAccountEntitlementService entitlements, IGroupCollaborationService collaboration)
         {
             _logger = logger;
             _usageTelemetry = usageTelemetry;
@@ -51,7 +51,9 @@ namespace TeamsGeneratorWebAPI.Controllers
         {
             var effectiveOwnerId =
                 RequestUserId.ResolveOptional(User, ownerId);
-            var entitlements = _entitlements.Get(effectiveOwnerId ?? string.Empty);
+            var entitlements = await _entitlements.GetAsync(
+                effectiveOwnerId ?? string.Empty,
+                RequestUserId.ResolveVerifiedEmail(User));
             if (algoKey == 3 && !entitlements.CanUseAiAlgorithm)
             {
                 return StatusCode(
@@ -518,7 +520,9 @@ namespace TeamsGeneratorWebAPI.Controllers
         {
             const string language = "he";
             var userId = RequestUserId.ResolveOptional(User, null);
-            if (!_entitlements.Get(userId ?? string.Empty).CanUseAiSummary)
+            if (!(await _entitlements.GetAsync(
+                userId ?? string.Empty,
+                RequestUserId.ResolveVerifiedEmail(User))).CanUseAiSummary)
             {
                 return StatusCode(
                     StatusCodes.Status403Forbidden,
@@ -527,7 +531,7 @@ namespace TeamsGeneratorWebAPI.Controllers
             var stopwatch = Stopwatch.StartNew();
             try
             {
-                var reply = await _aiService.GetResponseFromAgent(
+                var reply = await _aiService.Value.GetResponseFromAgent(
                     matchesHistory,
                     language,
                     cancellationToken);

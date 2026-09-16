@@ -148,6 +148,8 @@ namespace TeamsGenerator.API
         public int MaxMatchdayPlayers { get; set; }
         public bool HasCustomMatchdayPlayerLimit { get; set; }
         public MatchdayRules MatchdayRules { get; set; }
+        public string ShareImageTemplate { get; set; }
+        public string GroupLogoDataUrl { get; set; }
         [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
         public List<SkillDefinition> SkillDefinitions { get; set; }
         [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
@@ -181,6 +183,7 @@ namespace TeamsGenerator.API
             UseChemistry = false;
             MaxMatchdayPlayers = 15;
             HasCustomMatchdayPlayerLimit = false;
+            ShareImageTemplate = "classic";
             SkillDefinitions = SkillDefinition.CreateDefaults();
             ArchivedSkillDefinitions = new List<SkillDefinition>();
         }

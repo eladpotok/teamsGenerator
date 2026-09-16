@@ -57,7 +57,9 @@ namespace TeamsGeneratorWebAPI.Controllers
                 return Forbid();
             }
             var playerItems = GetPlayerItems((object)players);
-            var entitlements = _entitlements.Get(userId);
+            var entitlements = await _entitlements.GetAsync(
+                userId,
+                RequestUserId.ResolveVerifiedEmail(User));
             if (!entitlements.IsPremium
                 && playerItems.Count > entitlements.MaximumPlayers)
             {
@@ -341,15 +343,18 @@ namespace TeamsGeneratorWebAPI.Controllers
         }
 
         [HttpPost("Groups")]
-        public Task<PlayerGroupMutationResponse> CreateGroup(
+        public async Task<PlayerGroupMutationResponse> CreateGroup(
             string uid,
             [FromBody] CreatePlayerGroupRequest request)
         {
             var userId = RequestUserId.Resolve(User, uid);
-            return _azureStorage.CreateGroupAsync(
+            return await _azureStorage.CreateGroupAsync(
                 userId,
                 request?.Name,
-                _entitlements.Get(userId).MaximumOwnedGroups);
+                (await _entitlements.GetAsync(
+                    userId,
+                    RequestUserId.ResolveVerifiedEmail(User)))
+                    .MaximumOwnedGroups);
         }
 
         [HttpPut("Groups/{groupId}")]

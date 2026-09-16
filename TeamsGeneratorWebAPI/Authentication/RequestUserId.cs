@@ -33,4 +33,25 @@ internal static class RequestUserId
 
         return fallbackUserId;
     }
+
+    internal static string? ResolveVerifiedEmail(ClaimsPrincipal user)
+    {
+        if (user.Identity?.IsAuthenticated != true)
+        {
+            return null;
+        }
+
+        var verifiedClaim = user.FindFirstValue("email_verified");
+        if (!bool.TryParse(verifiedClaim, out var isVerified) || !isVerified)
+        {
+            return null;
+        }
+
+        var email =
+            user.FindFirstValue("email") ??
+            user.FindFirstValue(ClaimTypes.Email);
+        return string.IsNullOrWhiteSpace(email)
+            ? null
+            : email.Trim().ToLowerInvariant();
+    }
 }
