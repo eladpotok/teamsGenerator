@@ -92,6 +92,7 @@ internal static class UserConfigScopes
             "stadium" => "stadium",
             "midnight" => "midnight",
             "sunset" => "sunset",
+            "neon" => "neon",
             "minimal" => "minimal",
             _ => "classic"
         };
