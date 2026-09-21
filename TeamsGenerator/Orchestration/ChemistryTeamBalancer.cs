@@ -93,11 +93,16 @@ namespace TeamsGenerator.Orchestration
                                     algoType,
                                     chemistryScores,
                                     skillDefinitions);
+                                var candidateGoalkeeperSpread = GetGoalkeeperSpread(teams);
                                 SwapPlayers(
                                     firstTeam,
                                     firstPlayerIndex,
                                     secondTeam,
                                     secondPlayerIndex);
+                                if (candidateGoalkeeperSpread > GetGoalkeeperSpread(teams))
+                                {
+                                    continue;
+                                }
 
                                 if (candidateScore + ImprovementThreshold < bestScore)
                                 {
@@ -188,7 +193,7 @@ namespace TeamsGenerator.Orchestration
         {
             return team.Players.Count == 0
                 ? 0
-                : team.Players.Average(player => player.Rank);
+                : team.Players.Average(PlayerRatings.GetRank);
         }
 
         private static double GetTeamChemistry(
@@ -273,6 +278,12 @@ namespace TeamsGenerator.Orchestration
             return counts.Max() - counts.Min();
         }
 
+        private static int GetGoalkeeperSpread(IEnumerable<Team> teams)
+        {
+            var counts = teams.Select(team => team.Players.Count(PlayerRatings.IsGoalkeeper)).ToList();
+            return counts.Max() - counts.Min();
+        }
+
         private static bool IsLocked(IPlayer player)
         {
             if (player is SkillWisePlayer skillWisePlayer)
@@ -297,8 +308,8 @@ namespace TeamsGenerator.Orchestration
             var firstPlayer = firstTeam.Players[firstPlayerIndex];
             firstTeam.Players[firstPlayerIndex] = secondTeam.Players[secondPlayerIndex];
             secondTeam.Players[secondPlayerIndex] = firstPlayer;
-            firstTeam.TotalRank = firstTeam.Players.Sum(player => player.Rank);
-            secondTeam.TotalRank = secondTeam.Players.Sum(player => player.Rank);
+            firstTeam.TotalRank = firstTeam.Players.Sum(PlayerRatings.GetRank);
+            secondTeam.TotalRank = secondTeam.Players.Sum(PlayerRatings.GetRank);
         }
 
         private static List<ChemistryPartnership> GetNotablePartnerships(

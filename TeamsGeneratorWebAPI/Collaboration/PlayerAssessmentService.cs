@@ -1,6 +1,7 @@
 using Azure.Storage.Blobs;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using TeamsGenerator.API;
 
 namespace TeamsGeneratorWebAPI.Collaboration;
 
@@ -16,7 +17,8 @@ public interface IPlayerAssessmentService
         string organizerId,
         string groupReference,
         int algoType,
-        JArray players);
+        JArray players,
+        bool dedicatedOnly = false);
 }
 
 public sealed class PlayerAssessmentService : IPlayerAssessmentService
@@ -40,6 +42,12 @@ public sealed class PlayerAssessmentService : IPlayerAssessmentService
             organizerId,
             groupReference,
             algoType);
+        return ApplyAssessments(sharedPlayers, assessments);
+    }
+
+    internal static JArray ApplyAssessments(
+        JArray sharedPlayers, IReadOnlyDictionary<string, JObject> assessments)
+    {
         foreach (var player in sharedPlayers.Children<JObject>())
         {
             var key = GetKey(player);
@@ -47,12 +55,13 @@ public sealed class PlayerAssessmentService : IPlayerAssessmentService
                 key != null
                 && assessments.TryGetValue(key, out var assessment))
             {
-                player.Merge(
-                    assessment,
-                    new JsonMergeSettings
-                    {
-                        MergeArrayHandling = MergeArrayHandling.Replace
-                    });
+                foreach (var property in assessment.Properties())
+                {
+                    var existing = player.Properties().FirstOrDefault(candidate =>
+                        string.Equals(candidate.Name, property.Name, StringComparison.OrdinalIgnoreCase));
+                    player[existing?.Name ?? property.Name] =
+                        PrivatePlayerFields.NormalizeAssessment(property.Name, property.Value);
+                }
             }
         }
         return sharedPlayers;
@@ -62,7 +71,21 @@ public sealed class PlayerAssessmentService : IPlayerAssessmentService
         string organizerId,
         string groupReference,
         int algoType,
-        JArray players)
+        JArray players,
+        bool dedicatedOnly = false)
+    {
+        var previous = await LoadAsync(organizerId, groupReference, algoType);
+        var assessments = ExtractAssessments(players, previous, dedicatedOnly);
+        await _container.GetBlobClient(
+                GetPath(organizerId, groupReference, algoType))
+            .UploadAsync(
+                BinaryData.FromString(
+                    JsonConvert.SerializeObject(assessments)),
+                overwrite: true);
+    }
+
+    internal static Dictionary<string, JObject> ExtractAssessments(
+        JArray players, IReadOnlyDictionary<string, JObject> previous, bool dedicatedOnly)
     {
         var assessments = new Dictionary<string, JObject>(
             StringComparer.Ordinal);
@@ -71,10 +94,20 @@ public sealed class PlayerAssessmentService : IPlayerAssessmentService
             var key = GetKey(player);
             if (key == null) continue;
             var assessment = new JObject();
-            foreach (var property in player.Properties().Where(property =>
-                !SharedProperties.Contains(property.Name)))
+            if (previous.TryGetValue(key, out var prior))
             {
-                assessment[property.Name] = property.Value.DeepClone();
+                foreach (var property in prior.Properties().Where(property =>
+                    PrivatePlayerFields.IsDedicatedAssessment(property.Name)))
+                    assessment[property.Name] = PrivatePlayerFields.NormalizeAssessment(property.Name, property.Value);
+            }
+            foreach (var property in player.Properties().Where(property =>
+                !SharedProperties.Contains(property.Name)
+                && (!dedicatedOnly || PrivatePlayerFields.IsDedicatedAssessment(property.Name))))
+            {
+                var existing = assessment.Properties().FirstOrDefault(candidate =>
+                    string.Equals(candidate.Name, property.Name, StringComparison.OrdinalIgnoreCase));
+                assessment[existing?.Name ?? property.Name] =
+                    PrivatePlayerFields.NormalizeAssessment(property.Name, property.Value);
             }
             if (assessment.HasValues)
             {
@@ -82,12 +115,7 @@ public sealed class PlayerAssessmentService : IPlayerAssessmentService
             }
         }
 
-        await _container.GetBlobClient(
-                GetPath(organizerId, groupReference, algoType))
-            .UploadAsync(
-                BinaryData.FromString(
-                    JsonConvert.SerializeObject(assessments)),
-                overwrite: true);
+        return assessments;
     }
 
     private async Task<Dictionary<string, JObject>> LoadAsync(

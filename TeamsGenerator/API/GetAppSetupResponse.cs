@@ -12,8 +12,14 @@ namespace TeamsGenerator.API
         public bool CanUseAiAlgorithm { get; set; }
         public bool CanUseCustomGroupLogo { get; set; }
         public bool CanUsePremiumShareTemplates { get; set; }
+        public bool CanUseMatchInvitations { get; set; }
         public int MaximumPlayers { get; set; }
         public int MaximumOwnedGroups { get; set; }
+    }
+
+    public class InvitationAccessResponse
+    {
+        public bool Enabled { get; set; }
     }
 
     public class GetAppSetupResponse
@@ -21,6 +27,7 @@ namespace TeamsGenerator.API
         public UserConfigResponse Config { get; set; }
         public List<WebAppAlgoInfo> Algos { get; set; }
         public PremiumEntitlementsResponse Entitlements { get; set; }
+        public InvitationAccessResponse InvitationAccess { get; set; } = new();
         public string ServerVersion => "1.0.0";
         public string ClientVersion => "8.0.0";
     }

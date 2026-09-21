@@ -17,6 +17,12 @@ namespace TeamsGenerator.Algos.AiAlgo
         public string ModifiedTime { get; set; }
         public List<string> PreferredWithKeys { get; set; }
         public List<string> AvoidWithKeys { get; set; }
+        [JsonIgnore]
+        public double? GoalkeeperSkill { get; set; }
+        [JsonIgnore]
+        public bool IsRecoveringFromInjury { get; set; }
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public bool UseHealthyBaseline => IsRecoveringFromInjury;
     }
 
     public class TeamsAiJsonOutput
@@ -82,7 +88,9 @@ namespace TeamsGenerator.Algos.AiAlgo
                 Key = player.Key,
                 ModifiedTime = player.ModifyTime,
                 PreferredWithKeys = player.PreferredWithKeys ?? new List<string>(),
-                AvoidWithKeys = player.AvoidWithKeys ?? new List<string>()
+                AvoidWithKeys = player.AvoidWithKeys ?? new List<string>(),
+                GoalkeeperSkill = player.GoalkeeperSkill,
+                IsRecoveringFromInjury = player.IsRecoveringFromInjury
             }).ToList();
 
             var assessedPlayers = AssessPlayers(playersForAssessment);
@@ -104,7 +112,7 @@ namespace TeamsGenerator.Algos.AiAlgo
                 assessedPlayers,
                 lockedTeams,
                 preferences);
-            return MapTeams(generatedTeams, playersForAssessment);
+            return MapTeams(generatedTeams, playersForAssessment, assessedPlayers);
         }
 
         private List<SkillWisePlayer> AssessPlayers(
@@ -129,6 +137,9 @@ namespace TeamsGenerator.Algos.AiAlgo
                 player.Id = input.Key;
                 player.IsArrived = true;
                 player.IsLocked = false;
+                player.GoalkeeperSkill = input.GoalkeeperSkill;
+                player.IsRecoveringFromInjury = input.IsRecoveringFromInjury;
+                player.IsGoalKeeper |= input.GoalkeeperSkill.HasValue;
             }
 
             return assessedPlayers;
@@ -141,7 +152,7 @@ namespace TeamsGenerator.Algos.AiAlgo
         {
             var payload = new
             {
-                players = assessedPlayers,
+                players = assessedPlayers.Select(CreateBalancingInput),
                 lockedTeams,
                 preferences
             };
@@ -153,6 +164,20 @@ namespace TeamsGenerator.Algos.AiAlgo
 
             return JsonConvert.DeserializeObject<List<AiTeam>>(response);
         }
+
+        internal static object CreateBalancingInput(SkillWisePlayer player) => new
+        {
+            player.Name,
+            player.Key,
+            player.IsGoalKeeper,
+            usesGoalkeeperRating = PlayerRatings.HasGoalkeeperRating(player),
+            rank = player.EffectiveRank,
+            attack = player.GetSkillValue("attack"),
+            defence = player.GetSkillValue("defence"),
+            stamina = player.GetSkillValue("stamina"),
+            leadership = player.GetSkillValue("leadership"),
+            passing = player.GetSkillValue("passing")
+        };
 
         private string GetAiResponse(string prompt, object input)
         {
@@ -279,11 +304,11 @@ namespace TeamsGenerator.Algos.AiAlgo
                     .Select(key => playersByKey[key])
                     .ToList();
 
-                ValidateAverage(team.Attack, teamPlayers.Average(player => player.Attack));
-                ValidateAverage(team.Defence, teamPlayers.Average(player => player.Defence));
-                ValidateAverage(team.Stamina, teamPlayers.Average(player => player.Stamina));
-                ValidateAverage(team.Leadership, teamPlayers.Average(player => player.Leadership));
-                ValidateAverage(team.Passing, teamPlayers.Average(player => player.Passing));
+                ValidateAverage(team.Attack, teamPlayers.Average(player => player.GetSkillValue("attack")));
+                ValidateAverage(team.Defence, teamPlayers.Average(player => player.GetSkillValue("defence")));
+                ValidateAverage(team.Stamina, teamPlayers.Average(player => player.GetSkillValue("stamina")));
+                ValidateAverage(team.Leadership, teamPlayers.Average(player => player.GetSkillValue("leadership")));
+                ValidateAverage(team.Passing, teamPlayers.Average(player => player.GetSkillValue("passing")));
             }
         }
 
@@ -309,7 +334,8 @@ namespace TeamsGenerator.Algos.AiAlgo
 
         private static void ValidateAverage(float returnedValue, double actualValue)
         {
-            if (Math.Abs(returnedValue - Math.Round(actualValue, 1)) > 0.01)
+            if (!float.IsFinite(returnedValue)
+                || Math.Abs(returnedValue - Math.Round(actualValue, 1)) > 0.01)
             {
                 throw new InvalidOperationException(
                     "The AI returned an incorrect team attribute average.");
@@ -354,8 +380,10 @@ namespace TeamsGenerator.Algos.AiAlgo
 
         private List<Team> MapTeams(
             IEnumerable<AiTeam> generatedTeams,
-            IEnumerable<PlayerJsonToAi> inputPlayers)
+            IEnumerable<PlayerJsonToAi> inputPlayers,
+            IEnumerable<SkillWisePlayer> assessedPlayers)
         {
+            var assessedByKey = assessedPlayers.ToDictionary(player => player.Key, StringComparer.OrdinalIgnoreCase);
             var playersByKey = inputPlayers.ToDictionary(
                 player => player.Key,
                 StringComparer.OrdinalIgnoreCase);
@@ -365,18 +393,12 @@ namespace TeamsGenerator.Algos.AiAlgo
                 .Select(team => new Team
                 {
                     Index = team.TeamIndex,
+                    TotalRank = team.Players.Sum(key => assessedByKey[key].EffectiveRank),
                     Description = team.Description,
                     PlayStyle = team.PlayStyle,
                     Strength = team.Strength,
                     Weakness = team.Weakness,
-                    SkillAverages = new Dictionary<string, double>
-                    {
-                        ["attack"] = team.Attack,
-                        ["defence"] = team.Defence,
-                        ["stamina"] = team.Stamina,
-                        ["leadership"] = team.Leadership,
-                        ["passing"] = team.Passing
-                    },
+                    SkillAverages = GetOutfieldAverages(team.Players.Select(key => assessedByKey[key])),
                     Players = team.Players.Select(key =>
                     {
                         var player = playersByKey[key];
@@ -389,11 +411,21 @@ namespace TeamsGenerator.Algos.AiAlgo
                             Name = player.Name,
                             IsArrived = true,
                             PreferredWithKeys = player.PreferredWithKeys,
-                            AvoidWithKeys = player.AvoidWithKeys
+                            AvoidWithKeys = player.AvoidWithKeys,
+                            GoalkeeperSkill = player.GoalkeeperSkill,
+                            IsRecoveringFromInjury = player.IsRecoveringFromInjury
                         };
                     }).ToList()
                 })
                 .ToList();
+        }
+
+        private static Dictionary<string, double> GetOutfieldAverages(IEnumerable<SkillWisePlayer> players)
+        {
+            var outfield = players.Where(player => !PlayerRatings.HasGoalkeeperRating(player)).ToList();
+            return outfield.Count == 0 ? new Dictionary<string, double>()
+                : TeamsGenerator.API.SkillDefinition.CreateDefaults().ToDictionary(
+                    skill => skill.Id, skill => outfield.Average(player => player.GetSkillValue(skill.Id)));
         }
 
         private static List<LockedTeamInput> CreateLockedTeamInput(
@@ -551,7 +583,7 @@ namespace TeamsGenerator.Algos.AiAlgo
 
         private static void ValidateSkill(float value, string playerKey, string skill)
         {
-            if (value < 1 || value > 10)
+            if (!float.IsFinite(value) || value < 1 || value > 10)
             {
                 throw new InvalidOperationException(
                     $"The AI returned an invalid {skill} value for player '{playerKey}'.");

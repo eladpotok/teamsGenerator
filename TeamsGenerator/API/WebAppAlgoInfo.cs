@@ -43,6 +43,12 @@ namespace TeamsGenerator.API
 
             foreach (var prop in playerProperties)
             {
+                if (prop.Name == "GoalkeeperSkill"
+                    || prop.Name == "IsRecoveringFromInjury"
+                    || prop.Name == "EffectiveRank")
+                {
+                    continue;
+                }
                 var propertyAttributes = prop.GetCustomAttributes(true);
 
                 var showInClient = true;

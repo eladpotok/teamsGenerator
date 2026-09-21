@@ -12,8 +12,12 @@ using TeamsGeneratorWebAPI.Collaboration;
 using TeamsGeneratorWebAPI.Storage;
 using TeamsGeneratorWebAPI.Telemetry;
 using TeamsGeneratorWebAPI.UsersBlob;
+using TeamsGeneratorWebAPI.Invitations;
+using Microsoft.ApplicationInsights.Extensibility;
 
 var builder = WebApplication.CreateBuilder(args);
+// Capability URLs must not enter the default hosting request-start/request-end logs.
+builder.Logging.AddFilter("Microsoft.AspNetCore.Hosting.Diagnostics", LogLevel.Warning);
 
 WebAppAPI.Init();
 
@@ -39,6 +43,12 @@ builder.Services
             ValidateAudience = true,
             ValidAudience = firebaseProjectId,
             ValidateLifetime = true
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = context => context.HttpContext.RequestServices
+                .GetRequiredService<IPremiumAccountStore>()
+                .UpdateVerifiedIdentityAsync(context.Principal!, context.HttpContext.RequestAborted)
         };
     });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -74,6 +84,20 @@ builder.Services.AddSingleton(provider =>
             configuration["AiAudience"]));
 });
 builder.Services.AddSingleton<IUsageTelemetry, UsageTelemetry>();
+builder.Services.AddSingleton<IInvitationDocumentStore, BlobInvitationDocumentStore>();
+builder.Services.AddSingleton<IInvitationClock, InvitationClock>();
+builder.Services.AddSingleton<IInvitationGroupSource, InvitationGroupSource>();
+builder.Services.AddSingleton<InvitationService>();
+builder.Services.AddSingleton<NotificationAccountService>();
+builder.Services.AddSingleton<InvitationPublicRateLimiter>();
+builder.Services.AddScoped<InvitationExceptionFilter>();
+builder.Services.AddSingleton<IInvitationPushSender, FirebaseDigestSender>();
+builder.Services.AddSingleton<InvitationDigestProcessor>();
+if (builder.Configuration.GetValue<bool>("Notifications:Fcm:Enabled"))
+{
+    builder.Services.AddHostedService<InvitationDigestWorker>();
+}
+builder.Services.AddSingleton<ITelemetryInitializer, InvitationTelemetryRedactor>();
 
 
 var applicationInsightsConnectionString =

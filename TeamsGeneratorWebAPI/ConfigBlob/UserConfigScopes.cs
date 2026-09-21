@@ -64,13 +64,14 @@ internal static class UserConfigScopes
         UserConfigResponse incoming)
     {
         var result = Clone(existing) ?? new UserConfigResponse();
-        ApplyGlobal(result, incoming);
+        ApplyGlobal(result, incoming, preserveMissingInvitationSetting: true);
         return result;
     }
 
     private static void ApplyGlobal(
         UserConfigResponse target,
-        UserConfigResponse source)
+        UserConfigResponse source,
+        bool preserveMissingInvitationSetting = false)
     {
         target.ShowWhoBegins = source.ShowWhoBegins;
         target.ShowFirstGoalKeeper = source.ShowFirstGoalKeeper;
@@ -80,6 +81,11 @@ internal static class UserConfigScopes
         target.EnableTimer = source.EnableTimer;
         target.Language = source.Language;
         target.UseChemistry = source.UseChemistry;
+        // Older clients cannot express this opt-in; omission must not disable it.
+        if (!preserveMissingInvitationSetting || source.HasEnableMatchInvitations)
+        {
+            target.EnableMatchInvitations = source.EnableMatchInvitations;
+        }
         target.ShareImageTemplate = NormalizeShareImageTemplate(
             source.ShareImageTemplate);
         target.AvailableLanguages = source.AvailableLanguages;

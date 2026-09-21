@@ -4,9 +4,13 @@ using TeamsGenerator.Orchestration.Contracts;
 
 namespace TeamsGenerator.Algos.AiAlgo
 {
-    public class AiPlayer : IPlayer
+    public class AiPlayer : PlayerRatingAssessment, IPlayer
     {
         public double Rank { get { return 0; } set { } }
+        [Newtonsoft.Json.JsonIgnore]
+        [EditableInClient(Show = false)]
+        public override double EffectiveRank => GoalkeeperSkill.HasValue
+            ? EffectiveValue(GoalkeeperSkill.Value) : 0;
         public string Name { get; set; }
 
         [EditableInClient(Show = false)]

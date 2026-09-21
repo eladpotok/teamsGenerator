@@ -55,7 +55,8 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
                     var value = content.Value;
                     var json = value.Content;
 
-                    return new GetTeamsFromStorageResponse(JObject.Parse(json.ToString()));
+                    return new GetTeamsFromStorageResponse(
+                        (JObject)PrivatePlayerFields.RemoveFromSnapshot(JObject.Parse(json.ToString())));
                 }
                 else
                 {
@@ -76,7 +77,9 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
             BlobContainerClient container = new BlobContainerClient(_storageConnectionString, _storageContainerName);
             BlobClient client = container.GetBlobClient(
                 GetTeamsPath(playersConfig));
-            using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(teams.ToString())))
+            JToken snapshot = teams as JToken ?? JToken.FromObject((object)teams);
+            using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(
+                PrivatePlayerFields.RemoveFromSnapshot(snapshot).ToString(Formatting.None))))
             {
                 await client.UploadAsync(ms, overwrite: true);
             }

@@ -74,11 +74,18 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
                                 var candidateScore = CalculateScore(
                                     teams,
                                     skillDefinitions);
+                                var goalkeeperCounts = teams.Select(team => team.Players.Count(PlayerRatings.IsGoalkeeper)).ToList();
                                 SwapPlayers(
                                     firstTeam,
                                     firstPlayerIndex,
                                     secondTeam,
                                     secondPlayerIndex);
+                                var originalCounts = teams.Select(team => team.Players.Count(PlayerRatings.IsGoalkeeper)).ToList();
+                                if (goalkeeperCounts.Max() - goalkeeperCounts.Min()
+                                    > originalCounts.Max() - originalCounts.Min())
+                                {
+                                    continue;
+                                }
 
                                 if (candidateScore
                                     + ImprovementThreshold < bestScore)
@@ -157,7 +164,7 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
         {
             return team.Players.Count == 0
                 ? 0
-                : team.Players.Average(player => player.Rank);
+                : team.Players.Average(PlayerRatings.GetRank);
         }
 
         private static double GetVariance(IEnumerable<double> source)
@@ -203,8 +210,8 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
             firstTeam.Players[firstPlayerIndex] =
                 secondTeam.Players[secondPlayerIndex];
             secondTeam.Players[secondPlayerIndex] = firstPlayer;
-            firstTeam.TotalRank = firstTeam.Players.Sum(player => player.Rank);
-            secondTeam.TotalRank = secondTeam.Players.Sum(player => player.Rank);
+            firstTeam.TotalRank = firstTeam.Players.Sum(PlayerRatings.GetRank);
+            secondTeam.TotalRank = secondTeam.Players.Sum(PlayerRatings.GetRank);
         }
 
         private sealed class SwapCandidate

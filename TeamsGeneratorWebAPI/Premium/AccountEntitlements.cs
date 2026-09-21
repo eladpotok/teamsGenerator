@@ -14,6 +14,8 @@ public sealed class AccountEntitlements
 
     public bool CanUsePremiumShareTemplates => IsPremium;
 
+    public bool CanUseMatchInvitations => IsPremium;
+
     public int MaximumPlayers => IsPremium ? 0 : 25;
 
     public int MaximumOwnedGroups => IsPremium ? 0 : 2;

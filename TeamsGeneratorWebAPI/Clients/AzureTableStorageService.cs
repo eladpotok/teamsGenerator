@@ -1,5 +1,6 @@
 ﻿using Azure;
 using Azure.Data.Tables;
+using System.Linq.Expressions;
 
 namespace TeamsGeneratorWebAPI.Clients
 {
@@ -345,6 +346,22 @@ namespace TeamsGeneratorWebAPI.Clients
                 "The chemistry history changed while it was being stored.");
         }
 
+        internal async Task ResetChemistryHistory(string ownerId)
+        {
+            if (string.IsNullOrWhiteSpace(ownerId))
+            {
+                throw new ArgumentException("An owner identifier is required.");
+            }
+
+            // A separate partition keeps this marker out of the matchday evidence.
+            // Its storage timestamp orders concurrent resets without a client clock.
+            await _tableClient.UpsertEntityAsync(
+                new TableEntity(
+                    ChemistryHistory.GetPartitionKey(ownerId) + "_Settings",
+                    "Reset"),
+                TableUpdateMode.Replace);
+        }
+
         internal async Task<ChemistryHistorySnapshot>
             GetChemistryHistory(string ownerId)
         {
@@ -354,10 +371,22 @@ namespace TeamsGeneratorWebAPI.Clients
             }
 
             var partitionKey = ChemistryHistory.GetPartitionKey(ownerId);
+            var reset = await _tableClient.GetEntityIfExistsAsync<TableEntity>(
+                partitionKey + "_Settings",
+                "Reset");
+            Expression<Func<ChemistryMatchdayEntity, bool>> filter =
+                item => item.PartitionKey == partitionKey;
+            if (reset.HasValue)
+            {
+                var resetAt = reset.Value.Timestamp
+                    ?? throw new InvalidOperationException(
+                        "The chemistry reset timestamp is missing.");
+                filter = item => item.PartitionKey == partitionKey
+                    && item.CompletedAt > resetAt;
+            }
             var matchdays = new List<ChemistryMatchdayEntity>();
             await foreach (var entity in _tableClient
-                .QueryAsync<ChemistryMatchdayEntity>(
-                    item => item.PartitionKey == partitionKey))
+                .QueryAsync<ChemistryMatchdayEntity>(filter))
             {
                 matchdays.Add(entity);
             }

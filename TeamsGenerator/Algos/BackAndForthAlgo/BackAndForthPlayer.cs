@@ -8,10 +8,15 @@ using TeamsGenerator.Orchestration.Contracts;
 
 namespace TeamsGenerator.Algos.BackAndForthAlgo
 {
-    public class BackAndForthPlayer : IPlayer, IGoalKeeperSupport
+    public class BackAndForthPlayer : PlayerRatingAssessment, IPlayer, IGoalKeeperSupport
     {
         public string Name { get; set; }
         public double Rank { get; set; }
+
+        [Newtonsoft.Json.JsonIgnore]
+        [EditableInClient(Show = false)]
+        public override double EffectiveRank => EffectiveValue(
+            IsGoalKeeper && GoalkeeperSkill.HasValue ? GoalkeeperSkill.Value : Rank);
 
         [EditableInClientAttribute(Show = false)]
         public string Key { get; set; }

@@ -77,14 +77,14 @@ namespace TeamsGenerator.Utilities
             }
 
             var result = new List<IPlayer>();
-            var orederedPlayers = players.OrderBy(p => p.Rank).ToList();
+            var orederedPlayers = players.OrderBy(PlayerRatings.GetRank).ToList();
             var currPlayer = orederedPlayers[0];
 
             var playersToShuffle = new List<IPlayer>();
             playersToShuffle.Add(currPlayer);
             for (int i = 1; i < orederedPlayers.Count; i++)
             {
-                if (orederedPlayers[i].Rank == currPlayer.Rank)
+                if (PlayerRatings.GetRank(orederedPlayers[i]) == PlayerRatings.GetRank(currPlayer))
                 {
                     playersToShuffle.Add(orederedPlayers[i]);
                 }
@@ -110,20 +110,20 @@ namespace TeamsGenerator.Utilities
 
         public static List<IPlayer> SpreadGoalKeepersInDifferentTeams(List<Team> teams, List<IPlayer> players)
         {
-            var goalKeepers = players.Cast<IGoalKeeperSupport>().Where(p => p.IsGoalKeeper);
-
-            var playersToRemove = new List<IGoalKeeperSupport>();
-            var teamIndices = 0;
+            var goalKeepers = players.Where(PlayerRatings.IsGoalkeeper)
+                .OrderByDescending(PlayerRatings.GetRank).ToList();
+            var maximumTeamSize = (int)Math.Ceiling(
+                (double)(teams.Sum(team => team.Players.Count) + players.Count) / teams.Count);
             foreach (var gk in goalKeepers)
             {
-                if (teamIndices + 1 > teams.Count) break;
-                playersToRemove.Add(gk);
-                teams[teamIndices++].AddPlayer((IPlayer)gk);
-            }
-
-            foreach (var player in playersToRemove)
-            {
-                players.Remove((IPlayer)player);
+                var team = teams
+                    .Where(candidate => candidate.Players.Count < maximumTeamSize)
+                    .OrderBy(candidate => candidate.Players.Count(PlayerRatings.IsGoalkeeper))
+                    .ThenBy(candidate => candidate.Players.Count)
+                    .ThenBy(candidate => candidate.TotalRank)
+                    .First();
+                team.AddPlayer(gk);
+                players.Remove(gk);
             }
 
             return players;

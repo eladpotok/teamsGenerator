@@ -34,6 +34,11 @@ internal static class RequestUserId
         return fallbackUserId;
     }
 
+    internal static bool IsAuthenticatedOrganizer(ClaimsPrincipal user, string organizerId) =>
+        user.Identity?.IsAuthenticated == true
+        && !string.IsNullOrWhiteSpace(organizerId)
+        && string.Equals(Resolve(user, string.Empty), organizerId, StringComparison.Ordinal);
+
     internal static string? ResolveVerifiedEmail(ClaimsPrincipal user)
     {
         if (user.Identity?.IsAuthenticated != true)

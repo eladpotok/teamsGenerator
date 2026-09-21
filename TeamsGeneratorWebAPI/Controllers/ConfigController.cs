@@ -83,6 +83,14 @@ namespace TeamsGeneratorWebAPI.Controllers
                     "The AI algorithm requires a Premium account.");
             }
             if (saveGlobalSettings
+                && userConfig.EnableMatchInvitations
+                && (!RequestUserId.IsAuthenticatedOrganizer(User, userId)
+                    || !entitlements.CanUseMatchInvitations))
+            {
+                return SaveConfigResponse.Failure(
+                    "Match invitations require a signed-in Premium account.");
+            }
+            if (saveGlobalSettings
                 && !entitlements.CanUseChemistry
                 && userConfig.UseChemistry)
             {

@@ -11,7 +11,7 @@ using TeamsGenerator.Orchestration.Contracts;
 
 namespace TeamsGenerator.Algos.PositionsAlgo
 {
-    public class PositionsPlayer : IPlayer, IConfigurableSkillsPlayer
+    public class PositionsPlayer : PlayerRatingAssessment, IPlayer, IConfigurableSkillsPlayer
     {
         private IReadOnlyList<SkillDefinition> _activeSkills =
             SkillDefinition.CreateDefaults();
@@ -23,11 +23,16 @@ namespace TeamsGenerator.Algos.PositionsAlgo
             {
                 return _activeSkills.Count == 0
                     ? 0
-                    : _activeSkills.Average(skill => GetSkillValue(skill.Id));
+                    : _activeSkills.Average(skill => GetBaseSkillValue(skill.Id));
             }
             set { }
         }
         public string Name { get; set; }
+        [JsonIgnore]
+        [EditableInClient(Show = false)]
+        public override double EffectiveRank => PlayerRatings.HasGoalkeeperRating(this)
+            ? EffectiveValue(GoalkeeperSkill.Value)
+            : _activeSkills.Average(skill => GetSkillValue(skill.Id));
         public float Defence { get; set; }
         public float Attack { get; set; }
         public float Stamina { get; set; }
@@ -56,7 +61,20 @@ namespace TeamsGenerator.Algos.PositionsAlgo
         private IDictionary<string, JToken> AdditionalValues { get; set; } =
             new Dictionary<string, JToken>(StringComparer.OrdinalIgnoreCase);
 
+        [System.Runtime.Serialization.OnDeserialized]
+        internal void RemoveDerivedInput(System.Runtime.Serialization.StreamingContext context)
+        {
+            AdditionalValues.Remove(nameof(EffectiveRank));
+        }
+
         public double GetSkillValue(string skillId)
+        {
+            return EffectiveValue(PlayerRatings.HasGoalkeeperRating(this)
+                ? GoalkeeperSkill.Value
+                : GetBaseSkillValue(skillId));
+        }
+
+        private double GetBaseSkillValue(string skillId)
         {
             if (string.IsNullOrWhiteSpace(skillId))
             {

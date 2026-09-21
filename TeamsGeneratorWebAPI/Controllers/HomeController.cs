@@ -129,6 +129,12 @@ namespace TeamsGeneratorWebAPI.Controllers
             var appSetup = WebAppAPI.GetAppSetup(
                 ver,
                 mergedConfig);
+            var ownerEntitlements = await _entitlements.GetAsync(access.OwnerId);
+            appSetup.InvitationAccess = new InvitationAccessResponse
+            {
+                Enabled = ownerEntitlements.CanUseMatchInvitations
+                    && ownerDefaultResponse?.Config?.EnableMatchInvitations == true
+            };
             appSetup.Entitlements = new PremiumEntitlementsResponse
             {
                 IsPremium = entitlements.IsPremium,
@@ -139,6 +145,7 @@ namespace TeamsGeneratorWebAPI.Controllers
                     entitlements.CanUseCustomGroupLogo,
                 CanUsePremiumShareTemplates =
                     entitlements.CanUsePremiumShareTemplates,
+                CanUseMatchInvitations = entitlements.CanUseMatchInvitations,
                 MaximumPlayers = entitlements.MaximumPlayers,
                 MaximumOwnedGroups = entitlements.MaximumOwnedGroups
             };

@@ -139,6 +139,9 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
             bool allowCandidateVariation)
         {
             var playersLeft = players.ToList();
+            var remaining = TeamsGenerator.Utilities.Helper.SpreadGoalKeepersInDifferentTeams(
+                teams.ToList(), playersLeft.Cast<IPlayer>().ToList());
+            playersLeft = remaining.Cast<SkillWisePlayer>().ToList();
             var skills = skillDefinitions.ToList();
             var totalPlayerCount =
                 teams.Sum(team => team.Players.Count) + playersLeft.Count;
@@ -178,7 +181,7 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
                 var orderedPlayers = playersLeft
                     .OrderByDescending(player =>
                         player.GetSkillValue(skill.Id))
-                    .ThenByDescending(player => player.Rank)
+                    .ThenByDescending(player => player.EffectiveRank)
                     .ThenBy(player => _random.Next())
                     .ToList();
                 var selectionWindow = allowCandidateVariation
@@ -231,7 +234,7 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
         {
             return team.Players.Count == 0
                 ? 0
-                : team.Players.Average(player => player.Rank);
+                : team.Players.Average(PlayerRatings.GetRank);
         }
 
         private static bool IsPreassigned(

@@ -31,6 +31,7 @@ Return one flat JSON object for every input player, in the same order:
 Scoring rubric:
 - Scores are integers from 1 to 10.
 - Start every attribute at 5. Change it only when the description supports a change.
+- If UseHealthyBaseline is true, assess normal healthy ability. Ignore temporary injury/recovery limitations in the description; the server applies the temporary adjustment separately.
 - Mild weakness: 4. Clear weakness: 2-3. Explicitly very poor or unable: 1.
 - Mild strength: 6. Clear strength: 7-8. Exceptional or dominant strength: 9-10.
 - Use intensity words such as decent, good, very good, excellent, and exceptional to calibrate the score.
@@ -68,6 +69,8 @@ The user message contains:
 - players: numeric attributes and stable player keys.
 - lockedTeams: player keys that must remain assigned to a specific teamIndex.
 - preferences: preferredWithKeys are soft requests; avoidWithKeys are mandatory separation constraints.
+- All ratings already include any temporary adjustment. Never apply an additional injury or recovery penalty.
+- When usesGoalkeeperRating is true, all five numeric values represent the same single goalkeeper balancing contribution, NOT outfield abilities. Do not describe that goalkeeper as an attacker, defender, or passer based on those values.
 
 Create exactly {teamsCount} teams.
 

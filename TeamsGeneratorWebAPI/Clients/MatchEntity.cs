@@ -1,5 +1,6 @@
 ﻿using Azure;
 using Azure.Data.Tables;
+using TeamsGenerator.API;
 
 namespace TeamsGeneratorWebAPI.Clients
 {
@@ -7,7 +8,12 @@ namespace TeamsGeneratorWebAPI.Clients
     {
         public string PartitionKey { get; set; } // matchdayId
         public string RowKey { get; set; } // matchId
-        public string SerializedMatch { get; set; }
+        private string _serializedMatch;
+        public string SerializedMatch
+        {
+            get => _serializedMatch;
+            set => _serializedMatch = PrivatePlayerFields.SanitizeJson(value);
+        }
         public ETag ETag { get; set; }
         public DateTime CreatedAt { get; set; }
 
@@ -19,7 +25,12 @@ namespace TeamsGeneratorWebAPI.Clients
     {
         public string PartitionKey { get; set; }
         public string RowKey { get; set; }
-        public string SerializedSwap { get; set; }
+        private string _serializedSwap;
+        public string SerializedSwap
+        {
+            get => _serializedSwap;
+            set => _serializedSwap = PrivatePlayerFields.SanitizeJson(value);
+        }
         public DateTime CreatedAt { get; set; }
         public ETag ETag { get; set; }
         public DateTimeOffset? Timestamp { get; set; }
@@ -115,7 +126,12 @@ namespace TeamsGeneratorWebAPI.Clients
     {
         public string PartitionKey { get; set; } // e.g. "Player"
         public string RowKey { get; set; }       // playerId (same as MatchdayPlayerEntity.RowKey)
-        public string JsonData { get; set; }     // full player data as JSON
+        private string _jsonData;
+        public string JsonData
+        {
+            get => _jsonData;
+            set => _jsonData = PrivatePlayerFields.SanitizeJson(value);
+        }
 
         public ETag ETag { get; set; }
         public DateTimeOffset? Timestamp { get; set; }

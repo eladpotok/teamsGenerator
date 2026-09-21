@@ -98,6 +98,9 @@ namespace TeamsGenerator.API
                     "waitinglistorder",
                     "islocked",
                     "isgoalkeeper",
+                    "goalkeeperskill",
+                    "isrecoveringfrominjury",
+                    "effectiverank",
                     "positions",
                     "description",
                     "preferredwithkeys",
@@ -145,6 +148,15 @@ namespace TeamsGenerator.API
         public string RepeatTime { get; set; }
         public string Language { get; set; }
         public bool UseChemistry { get; set; }
+        private bool? _enableMatchInvitations;
+        public bool EnableMatchInvitations
+        {
+            get => _enableMatchInvitations ?? false;
+            set => _enableMatchInvitations = value;
+        }
+        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        public bool HasEnableMatchInvitations => _enableMatchInvitations.HasValue;
         public int MaxMatchdayPlayers { get; set; }
         public bool HasCustomMatchdayPlayerLimit { get; set; }
         public MatchdayRules MatchdayRules { get; set; }

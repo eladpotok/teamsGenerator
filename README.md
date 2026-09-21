@@ -115,6 +115,22 @@ from the main header, while **Group settings** is available from the active
 player group's management menu. Configuration saves include a `scope` query
 parameter so each screen updates only its own settings.
 
+### Resetting chemistry
+
+App Settings > Match > Team balancing offers **Reset chemistry** with a Yes/No
+confirmation. `POST /Teams/Chemistry/Reset` resets only the authenticated
+organizer's account-wide chemistry; it does not accept an owner ID or require
+chemistry to be enabled. No match history, scores, rosters or saved teams are
+deleted, and other accounts are unaffected.
+
+A separate reset marker in the Matches table records a storage-generated cutoff.
+Team generation ignores chemistry evidence from matchdays completed at or before
+that cutoff, including when an old matchday is finalized again. Both chemistry
+scores and the displayed learning-history count use the same cutoff. Matchdays
+completed afterward start building new evidence. Normal settings saves do not
+change the cutoff, and the app invalidates its cached chemistry scores while
+preserving lineups and lineup undo.
+
 ### Descriptive matchday rules API
 
 `config.matchdayRules` is nullable and is returned by both `GET /Config` and
@@ -182,12 +198,20 @@ checks; rules never fall back to another group's or organizer's rules.
 
 ## Premium entitlements
 
-Premium behavior is centralized behind `IAccountEntitlementService`. The
-current provider intentionally grants Premium to every account, so existing
-behavior is unchanged until a billing-backed provider replaces it. Both API
-and UI gates cover AI summaries, chemistry, the AI team-building algorithm,
-and the free-account limit of 25 players. Older API responses that do not
-include entitlements are treated as Premium during deployment.
+Premium behavior is centralized behind `IAccountEntitlementService`, using the
+existing Premium account store when enforcement is enabled. API and UI gates
+cover AI summaries, chemistry, the AI team-building algorithm, sharing styles,
+group logos, match invitations, and free-account roster/group limits.
+
+Match invitations additionally require the account-wide
+`config.enableMatchInvitations` opt-in (default `false`). `GET /Home` returns
+`entitlements.canUseMatchInvitations` for the requester and a separate
+`invitationAccess.enabled` for the selected group's canonical owner policy.
+Shared-group availability never overwrites the requester's global preferences.
+Existing public links close without losing responses when the owner disables
+invitations or loses Premium, and future occurrences reopen on re-enable.
+Public responses remain anonymous and use the owner's live language.
+See [the invitation API and rollout notes](TeamsGeneratorWebAPI/Invitations/README.md).
 
 ## Co-organizers and private player data
 
@@ -200,6 +224,45 @@ every five seconds while visible.
 Player identity, attendance, and generated-team placement are shared.
 Skill ratings and other assessments are stripped from co-organizer responses
 and stored in organizer-specific assessment overlays.
+
+`goalkeeperSkill` (nullable 1-10) and `isRecoveringFromInjury` (default false)
+are organizer-private assessments, including for group owners. They are not
+global skill definitions or reflection-generated editor controls. The roster
+overlay preserves these fields; shared team snapshots, public match JSON, swaps,
+and shared player JSON omit them, including on reads of older snapshots.
+Clients must rehydrate team-detail and locked-player assessments from the
+current organizer's roster, not treat shared snapshots as ratings.
+Anonymous roster reads retain shared names and attendance but omit assessments;
+an authenticated identity claim, never a supplied UID alone, is required to
+load an assessment overlay. Saving nonempty dedicated assessments or moving/
+copying their private overlays also requires a signed-in organizer.
+
+SkillWise and BackAndForth use `isGoalKeeper`; Positions uses `positions`
+containing `GK` (enum value 0), with no separate goalkeeper flag. In Positions,
+the dedicated rating applies only to sole goalkeepers (`positions: [0]`).
+Mixed GK/outfield players retain field-skill contributions, even if a previously
+saved goalkeeper rating remains stored; they still count for GK distribution.
+An explicit goalkeeper level replaces all balancing contributions for an
+eligible goalkeeper.
+Without it, legacy skill averages/rank remain the fallback. Base attributes and
+the BackAndForth rank are returned unchanged; `EffectiveRank` is internal and
+JSON-ignored. Recovery subtracts 0.5 once from effective skills or the goalkeeper
+level/rank, floored at 1. Effective numeric inputs are finite and bounded 1-10;
+invalid nonfinite goalkeeper levels become null. Team rank includes goalkeeper
+contributions. Displayed team skill averages exclude explicitly rated eligible
+goalkeepers rather than label their scalar as attack/defence ability; an all-GK
+team has an empty skill-average map. Null-rated legacy and mixed-position
+players retain field-skill contributions. Returned player base attributes
+remain unchanged.
+AI assessments use the same effective values before balancing, not an additional
+model-inferred recovery penalty. In description-based AI mode, an explicit
+goalkeeper level also identifies a goalkeeper; no additional player roles exist.
+
+The dependency-free regression executable is
+`scripts\RatingRegression\RatingRegression.csproj`. Run with
+`dotnet run --project scripts\RatingRegression`. If the local API holds build
+outputs open, pass a separate `-p:OutputPath=...`. On machines without .NET 6,
+set `DOTNET_ROLL_FORWARD=Major` to use an installed newer runtime.
 
 Roster writes are serialized by the client. An account-, group-, and
 algorithm-scoped pending snapshot remains on the device until the API confirms

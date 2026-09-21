@@ -7,6 +7,7 @@ using TeamsGenerator.API;
 using TeamsGenerator.Orchestration;
 using TeamsGenerator.Orchestration.Contracts;
 using TeamsGeneratorWebAPI.Storage;
+using TeamsGeneratorWebAPI.Collaboration;
 
 namespace TeamsGeneratorWebAPI.PlayersBlob
 {
@@ -52,16 +53,19 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
         private readonly string _storageConnectionString;
         private readonly string _storageContainerName;
         private readonly ILogger<PlayersStorageBlobConnector> _logger;
+        private readonly IPlayerAssessmentService _assessments;
 
         public PlayersStorageBlobConnector(
             IConfiguration configuration,
-            ILogger<PlayersStorageBlobConnector> logger)
+            ILogger<PlayersStorageBlobConnector> logger,
+            IPlayerAssessmentService assessments)
         {
             _storageConnectionString =
                 configuration.GetValue<string>("BlobConnectionString");
             _storageContainerName =
                 configuration.GetValue<string>("PlayersBlobContainerName");
             _logger = logger;
+            _assessments = assessments;
         }
 
         public Task<IResponse> DeleteAsync(string blobFilename)
@@ -126,9 +130,9 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
                     "Player group was not found");
             }
 
-            var playerJson = players is JToken token
-                ? token.ToString(Formatting.None)
-                : JsonConvert.SerializeObject(players);
+            JToken playerToken = players is JToken token
+                ? token : JToken.FromObject((object)players);
+            var playerJson = PrivatePlayerFields.RemoveFromSnapshot(playerToken).ToString(Formatting.None);
             await GetContainer()
                 .GetBlobClient(GetPlayersPath(playersConfig))
                 .UploadAsync(
@@ -616,18 +620,23 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
             }
 
             var content = await client.DownloadContentAsync();
-            return JArray.Parse(content.Value.Content.ToString());
+            return await _assessments.ApplyAsync(
+                config.UId, NormalizeGroupId(config.GroupId), config.AlgoType,
+                JArray.Parse(content.Value.Content.ToString()));
         }
 
-        private Task UploadPlayersJsonAsync(
+        private async Task UploadPlayersJsonAsync(
             PlayersBlobConfig config,
             JArray players)
         {
-            return GetContainer()
+            await _assessments.SaveAsync(
+                config.UId, NormalizeGroupId(config.GroupId), config.AlgoType,
+                players, dedicatedOnly: true);
+            await GetContainer()
                 .GetBlobClient(GetPlayersPath(config))
                 .UploadAsync(
                     BinaryData.FromString(
-                        players.ToString(Formatting.None)),
+                        PrivatePlayerFields.RemoveFromSnapshot(players).ToString(Formatting.None)),
                     overwrite: true);
         }
 

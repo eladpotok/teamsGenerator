@@ -104,6 +104,22 @@ namespace TeamsGeneratorWebAPI.Controllers
             return Ok(response);
         }
 
+        [HttpPost("Chemistry/Reset")]
+        public async Task<IActionResult> ResetChemistry()
+        {
+            var userId = RequestUserId.Resolve(User, string.Empty);
+            if (!RequestUserId.IsAuthenticatedOrganizer(User, userId))
+            {
+                return Unauthorized(new
+                {
+                    error = "Sign in to reset your team chemistry."
+                });
+            }
+
+            await _matchService.ResetChemistryHistory(userId);
+            return Ok(new { success = true });
+        }
+
         [HttpPost("[action]")]
 
         public GetTeamsResponse PostResultString([FromHeader(Name = "client_version")] string ver, [FromBody] dynamic dicJson)
@@ -255,7 +271,8 @@ namespace TeamsGeneratorWebAPI.Controllers
             {
                 return Forbid();
             }
-            var response = await _azureStorage.UploadAsync(teams, new TeamsBlobConfig()
+            JToken teamSnapshot = teams as JToken ?? JToken.FromObject((object)teams);
+            var response = await _azureStorage.UploadAsync(PrivatePlayerFields.RemoveFromSnapshot(teamSnapshot), new TeamsBlobConfig()
             {
                 UId = access.OwnerId,
                 GroupId = access.GroupId
@@ -273,9 +290,10 @@ namespace TeamsGeneratorWebAPI.Controllers
 
         private static JObject CreateSharedTeams(JObject storedTeams)
         {
-            var result = (JObject)storedTeams.DeepClone();
-            foreach (var players in result.SelectTokens("$..players")
-                .OfType<JArray>())
+            var result = (JObject)PrivatePlayerFields.RemoveFromSnapshot(storedTeams);
+            foreach (var players in result.Descendants().OfType<JProperty>()
+                .Where(property => string.Equals(property.Name, "players", StringComparison.OrdinalIgnoreCase))
+                .Select(property => property.Value).OfType<JArray>())
             {
                 foreach (var player in players.Children<JObject>().ToList())
                 {
@@ -331,6 +349,8 @@ namespace TeamsGeneratorWebAPI.Controllers
                 UId = access.OwnerId,
                 GroupId = access.GroupId
             });
+            if (response is GetTeamsFromStorageResponse storedResponse && storedResponse.Success)
+                storedResponse.Teams = (JObject)PrivatePlayerFields.RemoveFromSnapshot(storedResponse.Teams);
             _usageTelemetry.Track(
                 "TeamsLoaded",
                 ver,

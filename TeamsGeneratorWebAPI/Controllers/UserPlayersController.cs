@@ -57,6 +57,16 @@ namespace TeamsGeneratorWebAPI.Controllers
                 return Forbid();
             }
             var playerItems = GetPlayerItems((object)players);
+            var canUsePrivateAssessments = RequestUserId.IsAuthenticatedOrganizer(User, userId);
+            if (!canUsePrivateAssessments && playerItems.OfType<JObject>().Any(player =>
+                player.Properties().Any(property =>
+                    PrivatePlayerFields.IsDedicatedAssessment(property.Name)
+                    && property.Value.Type != JTokenType.Null
+                    && (string.Equals(property.Name, "goalkeeperSkill", StringComparison.OrdinalIgnoreCase)
+                        || property.Value.Value<bool>()))))
+            {
+                return Unauthorized(new { error = "Sign in to save private player assessments." });
+            }
             var entitlements = await _entitlements.GetAsync(
                 userId,
                 RequestUserId.ResolveVerifiedEmail(User));
@@ -73,15 +83,16 @@ namespace TeamsGeneratorWebAPI.Controllers
                 GroupId = access.GroupId
             };
             var playersToSave = access.IsOwner
-                ? players
+                ? PrivatePlayerFields.RemoveFromSnapshot(new JArray(playerItems))
                 : await MergeSharedRosterAsync(players, config);
-            if (!access.IsOwner)
+            if (canUsePrivateAssessments)
             {
                 await _assessments.SaveAsync(
                     userId,
-                    groupId,
+                    access.IsOwner ? access.GroupId : groupId,
                     algoKey,
-                    new JArray(playerItems.Select(item => item.DeepClone())));
+                    new JArray(playerItems.Select(item => item.DeepClone())),
+                    dedicatedOnly: access.IsOwner);
             }
             var response = await _azureStorage.UploadAsync(
                 playersToSave,
@@ -271,17 +282,25 @@ namespace TeamsGeneratorWebAPI.Controllers
                     ["player_count"] = playerCount
                 });
             if (
-                !access.IsOwner
-                && response is GetPlayersResponse sharedResponse
+                response is GetPlayersResponse sharedResponse
                 && sharedResponse.Success)
             {
-                var sharedPlayers = CreateSharedRoster(
-                    sharedResponse.Players);
-                await _assessments.ApplyAsync(
-                    userId,
-                    groupId,
-                    algoType,
-                    sharedPlayers);
+                var canUsePrivateAssessments = RequestUserId.IsAuthenticatedOrganizer(User, userId);
+                var sharedPlayers = access.IsOwner && canUsePrivateAssessments
+                    ? JArray.FromObject(sharedResponse.Players, JsonSerializer.Create(
+                        new JsonSerializerSettings
+                        {
+                            ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
+                        }))
+                    : CreateSharedRoster(sharedResponse.Players);
+                if (canUsePrivateAssessments)
+                {
+                    await _assessments.ApplyAsync(
+                        userId,
+                        access.IsOwner ? access.GroupId : groupId,
+                        algoType,
+                        sharedPlayers);
+                }
                 return Ok(new
                 {
                     success = true,
@@ -385,6 +404,8 @@ namespace TeamsGeneratorWebAPI.Controllers
             int algoType,
             [FromBody] MovePlayerRequest request)
         {
+            if (!RequestUserId.IsAuthenticatedOrganizer(User, RequestUserId.Resolve(User, uid)))
+                return Task.FromResult(SavePlayersResponse.Failure("Sign in to move private player assessments."));
             return _azureStorage.MovePlayerAsync(
                 RequestUserId.Resolve(User, uid),
                 algoType,
@@ -397,6 +418,8 @@ namespace TeamsGeneratorWebAPI.Controllers
             int algoType,
             [FromBody] MovePlayerRequest request)
         {
+            if (!RequestUserId.IsAuthenticatedOrganizer(User, RequestUserId.Resolve(User, uid)))
+                return Task.FromResult(SavePlayersResponse.Failure("Sign in to copy private player assessments."));
             return _azureStorage.CopyPlayerAsync(
                 RequestUserId.Resolve(User, uid),
                 algoType,

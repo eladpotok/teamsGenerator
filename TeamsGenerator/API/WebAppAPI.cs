@@ -269,10 +269,16 @@ namespace TeamsGenerator.API
                 return team.SkillAverages;
             }
 
+            var outfieldPlayers = team.Players
+                .Where(player => !PlayerRatings.HasGoalkeeperRating(player))
+                .Cast<IConfigurableSkillsPlayer>().ToList();
+            if (outfieldPlayers.Count == 0)
+            {
+                return new Dictionary<string, double>();
+            }
             return skillDefinitions.ToDictionary(
                 skill => skill.Id,
-                skill => team.Players
-                    .Cast<IConfigurableSkillsPlayer>()
+                skill => outfieldPlayers
                     .Average(player =>
                         player.GetSkillValue(skill.Id)));
         }

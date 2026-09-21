@@ -47,6 +47,9 @@ namespace TeamsGenerator.Algos.PositionsAlgo
                 }
             }
 
+            positionsPlayers = Helper.SpreadGoalKeepersInDifferentTeams(
+                teamsResult, positionsPlayers.Cast<IPlayer>().ToList()).Cast<PositionsPlayer>().ToList();
+
             while (positionsPlayers.Any())
             {
                 var playersCountBeforePass = positionsPlayers.Count;
@@ -96,7 +99,7 @@ namespace TeamsGenerator.Algos.PositionsAlgo
                 if (positionsPlayers.Count == playersCountBeforePass)
                 {
                     var fallbackPlayer = positionsPlayers
-                        .OrderByDescending(player => player.Rank)
+                        .OrderByDescending(player => player.EffectiveRank)
                         .First();
                     var fallbackTeam = teamsResult
                         .OrderBy(team => team.Players.Count)
@@ -139,7 +142,7 @@ namespace TeamsGenerator.Algos.PositionsAlgo
             if (orderedSkillIds.Count == 0)
             {
                 return players
-                    .OrderByDescending(player => player.Rank)
+                    .OrderByDescending(player => player.EffectiveRank)
                     .ToList();
             }
 

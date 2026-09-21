@@ -7,7 +7,7 @@ using TeamsGenerator.Orchestration.Contracts;
 
 namespace TeamsGenerator.Algos.SkillWiseAlgo
 {
-    public class SkillWisePlayer : IPlayer, IGoalKeeperSupport, IConfigurableSkillsPlayer
+    public class SkillWisePlayer : PlayerRatingAssessment, IPlayer, IGoalKeeperSupport, IConfigurableSkillsPlayer
     {
         private IReadOnlyList<SkillDefinition> _activeSkills =
             SkillDefinition.CreateDefaults();
@@ -19,11 +19,16 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
             {
                 return _activeSkills.Count == 0
                     ? 0
-                    : _activeSkills.Average(skill => GetSkillValue(skill.Id));
+                    : _activeSkills.Average(skill => GetBaseSkillValue(skill.Id));
             }
             set { }
         }
         public string Name { get; set; }
+        [JsonIgnore]
+        [EditableInClient(Show = false)]
+        public override double EffectiveRank => IsGoalKeeper && GoalkeeperSkill.HasValue
+            ? EffectiveValue(GoalkeeperSkill.Value)
+            : _activeSkills.Average(skill => GetSkillValue(skill.Id));
         public float Defence { get; set; }
         public float Attack { get; set; }
         public float Stamina { get; set; }
@@ -53,7 +58,21 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
         private IDictionary<string, JToken> AdditionalValues { get; set; } =
             new Dictionary<string, JToken>(System.StringComparer.OrdinalIgnoreCase);
 
+        [System.Runtime.Serialization.OnDeserialized]
+        internal void RemoveDerivedInput(System.Runtime.Serialization.StreamingContext context)
+        {
+            AdditionalValues.Remove(nameof(EffectiveRank));
+        }
+
         public double GetSkillValue(string skillId)
+        {
+            // A dedicated goalkeeper level is a balancing contribution, not an outfield attribute.
+            return EffectiveValue(IsGoalKeeper && GoalkeeperSkill.HasValue
+                ? GoalkeeperSkill.Value
+                : GetBaseSkillValue(skillId));
+        }
+
+        private double GetBaseSkillValue(string skillId)
         {
             if (string.IsNullOrWhiteSpace(skillId))
             {

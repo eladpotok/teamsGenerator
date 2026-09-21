@@ -30,7 +30,7 @@ namespace TeamsGenerator.Algos
         internal void AddPlayer(IPlayer player)
         {
             Players.Add(player);
-            TotalRank += player.Rank;
+            TotalRank += PlayerRatings.GetRank(player);
         }
 
     }

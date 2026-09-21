@@ -73,7 +73,7 @@ namespace TeamsGenerator.Algos.BackAndForthAlgo
                         && _orderedPlayers.Any())
                     {
                         var optionalRank = new List<int>() { avgRankOfTeamWithMaxPlayers, avgRankOfTeamWithMaxPlayers + 1, avgRankOfTeamWithMaxPlayers - 1 };
-                        var player = _orderedPlayers.Where(t => optionalRank.Contains((int)t.Rank)).FirstOrDefault();
+                        var player = _orderedPlayers.Where(t => optionalRank.Contains((int)PlayerRatings.GetRank(t))).FirstOrDefault();
                         
                         // if no player with this rank, so lets take the middle as default
                         if( player == null)

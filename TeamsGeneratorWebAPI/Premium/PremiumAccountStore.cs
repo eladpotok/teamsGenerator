@@ -1,11 +1,17 @@
 using Azure;
 using Azure.Data.Tables;
+using System.Security.Claims;
 using System.Text;
+using TeamsGeneratorWebAPI.Authentication;
 
 namespace TeamsGeneratorWebAPI.Premium;
 
 public interface IPremiumAccountStore
 {
+    Task UpdateVerifiedIdentityAsync(
+        ClaimsPrincipal user,
+        CancellationToken cancellationToken = default);
+
     Task<bool> IsPremiumAsync(
         string userId,
         string? verifiedEmail = null,
@@ -16,6 +22,7 @@ public sealed class PremiumAccountStore : IPremiumAccountStore
 {
     internal const string AccountPartition = "Account";
     internal const string EmailPartition = "Email";
+    internal const string IdentityPartition = "VerifiedIdentity";
     private readonly TableClient _table;
 
     public PremiumAccountStore(
@@ -48,7 +55,14 @@ public sealed class PremiumAccountStore : IPremiumAccountStore
 
         if (string.IsNullOrWhiteSpace(verifiedEmail))
         {
-            return false;
+            if (string.IsNullOrWhiteSpace(userId)) return false;
+            var identity = await GetIdentityAsync(userId, cancellationToken);
+            var emailRowKey = identity?.GetString("EmailRowKey");
+            if (string.IsNullOrEmpty(emailRowKey)) return false;
+
+            // The binding identifies the grant; it never snapshots Premium or its expiry.
+            return IsActive(await GetAccountAsync(
+                EmailPartition, emailRowKey, cancellationToken));
         }
 
         var emailAccount = await GetAccountAsync(
@@ -56,6 +70,33 @@ public sealed class PremiumAccountStore : IPremiumAccountStore
             CreateEmailRowKey(verifiedEmail),
             cancellationToken);
         return IsActive(emailAccount);
+    }
+
+    public async Task UpdateVerifiedIdentityAsync(
+        ClaimsPrincipal user,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = RequestUserId.Resolve(user, string.Empty);
+        if (!RequestUserId.IsAuthenticatedOrganizer(user, userId))
+            throw new InvalidOperationException("A validated account identity is required.");
+
+        var email = RequestUserId.ResolveVerifiedEmail(user);
+        var emailRowKey = email == null ? string.Empty : CreateEmailRowKey(email);
+        var existing = await GetIdentityAsync(userId, cancellationToken);
+        if ((existing?.GetString("EmailRowKey") ?? string.Empty) == emailRowKey) return;
+
+        // Keep identity separate from Account/Email grants, including when verification is removed.
+        await _table.UpsertEntityAsync(
+            new TableEntity(IdentityPartition, userId) { ["EmailRowKey"] = emailRowKey },
+            TableUpdateMode.Replace,
+            cancellationToken);
+    }
+
+    private async Task<TableEntity?> GetIdentityAsync(string userId, CancellationToken cancellationToken)
+    {
+        var response = await _table.GetEntityIfExistsAsync<TableEntity>(
+            IdentityPartition, userId, cancellationToken: cancellationToken);
+        return response.HasValue ? response.Value : null;
     }
 
     internal static string CreateEmailRowKey(string email)
