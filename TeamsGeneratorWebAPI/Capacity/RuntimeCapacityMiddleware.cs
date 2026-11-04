@@ -55,8 +55,10 @@ public sealed class RuntimeCapacityMiddleware
             return;
         }
         var generation = operation.Equals("Teams.Post", StringComparison.OrdinalIgnoreCase);
+        var websiteVisit = operation.Equals("WebsiteVisits.Post", StringComparison.OrdinalIgnoreCase);
+        var maximumRequestBytes = websiteVisit ? Math.Min(2048, _options.MaximumRequestBytes) : _options.MaximumRequestBytes;
         var heavy = ExpensiveActions.Contains(operation);
-        var mutation = !HttpMethods.IsGet(context.Request.Method)
+        var mutation = !websiteVisit && !HttpMethods.IsGet(context.Request.Method)
             && !HttpMethods.IsHead(context.Request.Method) && !HttpMethods.IsOptions(context.Request.Method)
             && !ReadPosts.Contains(operation) && !heavy;
         var originalCancellation = context.RequestAborted;
@@ -72,8 +74,8 @@ public sealed class RuntimeCapacityMiddleware
         try
         {
             // Bound unknown-length/chunked bodies too, before MVC/Newtonsoft can materialize a model.
-            if (context.Request.ContentLength > _options.MaximumRequestBytes)
-                throw BodyTooLarge();
+            if (context.Request.ContentLength > maximumRequestBytes)
+                throw BodyTooLarge(maximumRequestBytes);
             if (context.Request.ContentLength != 0
                 && (context.Request.ContentLength.HasValue || context.Request.Headers.ContainsKey("Transfer-Encoding")
                     || !HttpMethods.IsGet(context.Request.Method)))
@@ -83,10 +85,10 @@ public sealed class RuntimeCapacityMiddleware
                 while (true)
                 {
                     var read = await originalBody.ReadAsync(buffer.AsMemory(0,
-                        Math.Min(buffer.Length, _options.MaximumRequestBytes - (int)bufferedBody.Length + 1)),
+                        Math.Min(buffer.Length, maximumRequestBytes - (int)bufferedBody.Length + 1)),
                         context.RequestAborted);
                     if (read == 0) break;
-                    if (bufferedBody.Length + read > _options.MaximumRequestBytes) throw BodyTooLarge();
+                    if (bufferedBody.Length + read > maximumRequestBytes) throw BodyTooLarge(maximumRequestBytes);
                     await bufferedBody.WriteAsync(buffer.AsMemory(0, read), context.RequestAborted);
                 }
                 if (bufferedBody.Length > 0)
@@ -197,6 +199,6 @@ public sealed class RuntimeCapacityMiddleware
         }
     }
 
-    private CapacityException BodyTooLarge() => new("request_bytes_limit",
-        "The request is too large. Send fewer players or a smaller image.", 413, _options.MaximumRequestBytes);
+    private static CapacityException BodyTooLarge(int maximumRequestBytes) => new("request_bytes_limit",
+        "The request is too large. Send fewer players or a smaller image.", 413, maximumRequestBytes);
 }

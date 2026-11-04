@@ -132,6 +132,7 @@ builder.Services.AddSingleton(provider =>
             configuration["AiAudience"]));
 });
 builder.Services.AddSingleton<IUsageTelemetry, UsageTelemetry>();
+builder.Services.AddSingleton<WebsiteVisitRateLimiter>();
 builder.Services.AddSingleton<IRegistrationStore, RegistrationStore>();
 builder.Services.AddSingleton<AccountObservationStore>();
 builder.Services.AddSingleton<AuthenticatedAccountObserver>();

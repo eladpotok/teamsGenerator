@@ -23,6 +23,7 @@ internal static class UsageMetricsRegression
 {
     public static async Task Run(Action<bool, string> check)
     {
+        WebsiteReferralRegression.Run(check);
         var context = new DefaultHttpContext
         {
             User = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim("user_id", "organizer") }, "test"))

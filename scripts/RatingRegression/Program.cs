@@ -53,6 +53,14 @@ if (args.Contains("--account-observations"))
     return;
 }
 
+if (args.Contains("--website-referrals"))
+{
+    WebsiteReferralRegression.Run(Check);
+    await RuntimeCapacityRegression.Run(Check);
+    Console.WriteLine($"Passed {assertions} website referral and capacity isolation assertions.");
+    return;
+}
+
 if (args.Contains("--announcements"))
 {
     await AnnouncementRegression.Run(Check);

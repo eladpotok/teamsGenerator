@@ -47,7 +47,7 @@ namespace TeamsGeneratorWebAPI.Telemetry
                 : Authentication.RequestUserId.ResolveOptional(context.User, null);
             var participant = properties != null
                 && properties.TryGetValue("actor_type", out var actorType)
-                && actorType == "participant";
+                && actorType is "participant" or "visitor";
             userId = participant ? null
                 : !string.IsNullOrWhiteSpace(authenticatedId) ? authenticatedId : userId;
             telemetry.Properties["client_version"] =
@@ -65,6 +65,14 @@ namespace TeamsGeneratorWebAPI.Telemetry
             if (!string.IsNullOrWhiteSpace(userId))
             {
                 telemetry.Context.User.Id = CreateAnonymousUserId(userId);
+            }
+
+            if (context != null && WebsiteAttribution.FromHeaders(context.Request.Headers) is { } attribution)
+            {
+                foreach (var property in attribution)
+                    telemetry.Properties[property.Key] = property.Value!;
+                telemetry.Properties["traffic_type"] =
+                    WebsiteVisitRateLimiter.IsAutomated(context.Request.Headers.UserAgent) ? "automated" : "browser";
             }
 
             if (properties != null)

@@ -118,6 +118,26 @@ internal static class RuntimeCapacityRegression
         var telemetry = new Telemetry();
         var fakeState = new StateStub();
         var entitlement = new Entitlements();
+        var visitCalled = false;
+        var visit = Context("WebsiteVisits", "Post", "{}");
+        await new RuntimeCapacityMiddleware(_ => { visitCalled = true; return Task.CompletedTask; }, Options.Create(options))
+            .InvokeAsync(visit, fakeState, entitlement, telemetry);
+        check(visitCalled && fakeState.Rates.Count == 0 && fakeState.Acquisitions.Count == 0,
+            "anonymous website visits cannot consume shared application write or generation capacity");
+        foreach (var chunkedVisit in new[] { false, true })
+        {
+            var largeVisit = Context("WebsiteVisits", "Post", "{\"source\":\"" + new string('x', 2100) + "\"}");
+            if (chunkedVisit)
+            {
+                largeVisit.Request.ContentLength = null;
+                largeVisit.Request.Headers["Transfer-Encoding"] = "chunked";
+            }
+            visitCalled = false;
+            await new RuntimeCapacityMiddleware(_ => { visitCalled = true; return Task.CompletedTask; }, Options.Create(options))
+                .InvokeAsync(largeVisit, fakeState, entitlement, telemetry);
+            check(!visitCalled && largeVisit.Response.StatusCode == 413 && fakeState.Rates.Count == 0,
+                "website body size is bounded before parsing, including chunked requests");
+        }
         var called = false;
         var small = new CapacityOptions { MaximumRequestBytes = 128 };
         var chunked = Context("Config", "Upload", "{\"logo\":\"" + new string('x', 200) + "\"}");
