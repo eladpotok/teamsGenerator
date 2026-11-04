@@ -155,11 +155,20 @@ builder.Services.AddSingleton<TeamsGeneratorWebAPI.GroupJoins.IGroupJoinAnalyzer
 builder.Services.AddSingleton<NotificationAccountService>();
 builder.Services.AddSingleton<InvitationPublicRateLimiter>();
 builder.Services.AddScoped<InvitationExceptionFilter>();
-builder.Services.AddSingleton<IInvitationPushSender, FirebaseDigestSender>();
+builder.Services.AddSingleton<FirebaseDigestSender>();
+builder.Services.AddSingleton<IInvitationPushSender>(services => services.GetRequiredService<FirebaseDigestSender>());
+builder.Services.AddSingleton<IInvitationPromotionPushSender>(services => services.GetRequiredService<FirebaseDigestSender>());
 builder.Services.AddSingleton<InvitationDigestProcessor>();
-if (builder.Configuration.GetValue<bool>("Notifications:Fcm:Enabled"))
+builder.Services.AddSingleton<InvitationPromotionProcessor>();
+if (builder.Configuration.GetValue<bool>("Notifications:Fcm:Enabled")
+    && builder.Configuration.GetValue("Notifications:Digests:Enabled", true))
 {
     builder.Services.AddHostedService<InvitationDigestWorker>();
+}
+if (builder.Configuration.GetValue<bool>("Notifications:Fcm:Enabled")
+    && builder.Configuration.GetValue<bool>("Notifications:Promotions:Enabled"))
+{
+    builder.Services.AddHostedService<InvitationPromotionWorker>();
 }
 builder.Services.AddSingleton<ITelemetryInitializer, InvitationTelemetryRedactor>();
 builder.Services.AddSingleton<ITelemetryInitializer, BillingTelemetryRedactor>();

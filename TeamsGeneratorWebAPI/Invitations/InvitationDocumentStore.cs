@@ -82,4 +82,5 @@ public static class InvitationKeys
     public static string Token(string token) => "match-invitations/v1/capabilities/" + Hash(token);
     public static string Account(string owner) => "match-invitations/v1/accounts/" + Hash(owner);
     public static string DeviceOwner(string tokenHash) => "match-invitations/v1/device-owners/" + tokenHash;
+    public static string PlayerRecipient(string profileId) => "match-invitations/v1/player-recipients/" + profileId;
 }

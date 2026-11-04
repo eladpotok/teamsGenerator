@@ -11,9 +11,13 @@ public sealed class InvitationService
     private readonly IInvitationGroupSource _groups;
     private readonly IInvitationClock _clock;
     private readonly IUsageTelemetry? _telemetry;
+    private readonly bool _promotionsEnabled;
     public InvitationService(IInvitationDocumentStore store, IInvitationGroupSource groups, IInvitationClock clock,
-        IUsageTelemetry? telemetry = null)
-        => (_store, _groups, _clock, _telemetry) = (store, groups, clock, telemetry);
+        IUsageTelemetry? telemetry = null, IConfiguration? configuration = null)
+    {
+        (_store, _groups, _clock, _telemetry) = (store, groups, clock, telemetry);
+        _promotionsEnabled = configuration?.GetValue<bool>("Notifications:Promotions:Enabled") == true;
+    }
 
     public async Task<OrganizerInvitation> CreateAsync(string requester, CreateInvitationRequest request, CancellationToken ct)
     {
@@ -125,15 +129,34 @@ public sealed class InvitationService
                 return Project(state, group, _clock.UtcNow);
             var now = _clock.UtcNow;
             if (state.ScheduledAt <= now) throw new InvitationException(409, "This occurrence is closed.");
-            var before = _telemetry == null ? null : Project(state, group, now);
+            var before = _telemetry == null && !_promotionsEnabled ? null : Project(state, group, now);
             state.Revision++;
             state.Responses[request.PlayerKey] = new Rsvp(request.Status, state.Revision);
             state.Events.Add(new(state.Revision, request.PlayerKey, request.Status, now));
             RecomputePending(state, group.Players);
+            var result = Project(state, group, now);
+            if (_promotionsEnabled && before != null)
+            {
+                var confirmed = result.Players.Where(player => player.Status == "in" && !player.WaitingListPosition.HasValue)
+                    .Select(player => player.Key).ToHashSet(StringComparer.Ordinal);
+                state.Promotions.RemoveAll(item => !confirmed.Contains(item.PlayerKey)
+                    || state.Responses.GetValueOrDefault(item.PlayerKey)?.Order != item.ResponseOrder);
+                foreach (var promoted in before.Players.Where(player => player.WaitingListPosition.HasValue
+                    && confirmed.Contains(player.Key)))
+                {
+                    var profileId = await new PlayerMembershipService(_store).LinkedProfileAsync(group, promoted.Key, ct);
+                    if (profileId == null) continue;
+                    state.Promotions.Add(new PromotionNotification
+                    {
+                        Id = InvitationKeys.Hash($"{state.Id}:{state.Revision}:{promoted.Key}"),
+                        PlayerKey = promoted.Key, ProfileId = profileId,
+                        ResponseOrder = state.Responses[promoted.Key].Order
+                    });
+                }
+            }
             if (await _store.WriteAsync(InvitationKeys.State(state.Id), state, stored.ETag, ct))
             {
-                var result = Project(state, group, now);
-                if (before != null)
+                if (_telemetry != null && before != null)
                 {
                     var waiting = before.Players.Where(player => player.WaitingListPosition.HasValue)
                         .Select(player => player.Key).ToHashSet(StringComparer.Ordinal);
@@ -172,6 +195,7 @@ public sealed class InvitationService
             var stored = await _store.ReadAsync<InvitationState>(key, ct);
             if (stored == null || stored.Value.Revoked) return;
             stored.Value.Revoked = true;
+            stored.Value.Promotions.Clear();
             if (await _store.WriteAsync(key, stored.Value, stored.ETag, ct))
             {
                 _telemetry?.Track("InvitationRevoked", userId: requester,

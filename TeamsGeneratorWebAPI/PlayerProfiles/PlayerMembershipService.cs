@@ -112,6 +112,21 @@ public sealed class PlayerMembershipService(IInvitationDocumentStore store)
     public Task<string?> ResolveAsync(string uid, InvitationGroup group, CancellationToken ct) =>
         ResolveProfileAsync(PlayerProfileService.Id(uid), group, ct);
 
+    public async Task<string?> LinkedProfileAsync(InvitationGroup group, string playerKey, CancellationToken ct)
+    {
+        var binding = await store.ReadAsync<PlayerMembershipBinding>(BindingKey(group, playerKey), ct);
+        var profileId = binding?.Value.ProfileId;
+        if (profileId == null && playerKey.StartsWith("join_", StringComparison.Ordinal))
+        {
+            var state = await store.ReadAsync<GroupJoinState>(GroupJoinService.StateKey(group), ct);
+            var request = state?.Value.Requests.FirstOrDefault(item =>
+                "join_" + item.Id == playerKey && item.Status == "approved" && item.ProfileId != null);
+            if (request != null && await new GroupJoinRoster(store).HasReceiptAsync(group, request, ct))
+                profileId = request.ProfileId;
+        }
+        return profileId != null && await ResolveProfileAsync(profileId, group, ct) == playerKey ? profileId : null;
+    }
+
     internal async Task<string?> ResolveProfileAsync(string profileId, InvitationGroup group, CancellationToken ct)
     {
         var membership = await store.ReadAsync<PlayerMembership>(Key(profileId, group), ct);

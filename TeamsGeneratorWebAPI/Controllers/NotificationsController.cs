@@ -14,8 +14,20 @@ public sealed class NotificationsController : ControllerBase
 {
     private readonly NotificationAccountService _accounts;
     private readonly IInvitationPushSender _sender;
-    public NotificationsController(NotificationAccountService accounts, IInvitationPushSender sender) =>
+    private readonly bool _promotionsEnabled;
+    public NotificationsController(NotificationAccountService accounts, IInvitationPushSender sender,
+        IConfiguration? configuration = null)
+    {
         (_accounts, _sender) = (accounts, sender);
+        _promotionsEnabled = configuration?.GetValue<bool>("Notifications:Promotions:Enabled") == true;
+    }
+
+    [HttpGet("Promotions/Status")]
+    public async Task<IActionResult> PromotionStatus(CancellationToken ct)
+    {
+        TeamsGeneratorWebAPI.PlayerProfiles.PlayerProfileService.Account(User);
+        return Ok(new { deliveryConfigured = _promotionsEnabled && await _sender.IsDeliveryConfiguredAsync(ct) });
+    }
 
     [HttpGet("Preferences")]
     public async Task<ActionResult<NotificationPreferencesResponse>> Preferences(CancellationToken ct)
@@ -33,7 +45,7 @@ public sealed class NotificationsController : ControllerBase
     [RequestSizeLimit(8192)]
     public async Task<IActionResult> Register(DeviceRequest device, CancellationToken ct)
     {
-        await _accounts.RegisterAsync(AuthenticatedUser(), device, ct);
+        await _accounts.RegisterAsync(TeamsGeneratorWebAPI.PlayerProfiles.PlayerProfileService.Account(User), device, ct);
         return Ok(new { success = true });
     }
 
