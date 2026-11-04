@@ -20,10 +20,10 @@ public sealed class BlobInvitationDocumentStore : IInvitationDocumentStore
 {
     private readonly BlobContainerClient _container;
     public BlobInvitationDocumentStore(IConfiguration configuration)
-    {
-        _container = new BlobContainerClient(configuration["BlobConnectionString"],
-            configuration["PlayersBlobContainerName"]);
-    }
+        : this(new BlobContainerClient(configuration["BlobConnectionString"],
+            configuration["PlayersBlobContainerName"])) { }
+
+    public BlobInvitationDocumentStore(BlobContainerClient container) => _container = container;
 
     public async Task<StoredDocument<T>?> ReadAsync<T>(string key, CancellationToken cancellationToken)
     {
@@ -65,7 +65,9 @@ public sealed class BlobInvitationDocumentStore : IInvitationDocumentStore
     {
         await foreach (var page in _container.GetBlobsAsync(prefix: prefix, cancellationToken: cancellationToken)
             .AsPages(continuation, pageSize))
-            return new(page.Values.Select(item => item.Name).ToArray(), page.ContinuationToken);
+            // Blob Storage ends listings with an empty marker; document consumers use null.
+            return new(page.Values.Select(item => item.Name).ToArray(),
+                string.IsNullOrEmpty(page.ContinuationToken) ? null : page.ContinuationToken);
         return new(Array.Empty<string>(), null);
     }
 }

@@ -50,8 +50,7 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
         private const string DefaultGroupName = "Default group";
         private const int MaximumGroups = 20;
         private const int MaximumGroupUpdateAttempts = 3;
-        private readonly string _storageConnectionString;
-        private readonly string _storageContainerName;
+        private readonly BlobContainerClient _container;
         private readonly ILogger<PlayersStorageBlobConnector> _logger;
         private readonly IPlayerAssessmentService _assessments;
 
@@ -59,11 +58,17 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
             IConfiguration configuration,
             ILogger<PlayersStorageBlobConnector> logger,
             IPlayerAssessmentService assessments)
+            : this(new BlobContainerClient(configuration.GetValue<string>("BlobConnectionString"),
+                configuration.GetValue<string>("PlayersBlobContainerName")), logger, assessments)
         {
-            _storageConnectionString =
-                configuration.GetValue<string>("BlobConnectionString");
-            _storageContainerName =
-                configuration.GetValue<string>("PlayersBlobContainerName");
+        }
+
+        public PlayersStorageBlobConnector(
+            BlobContainerClient container,
+            ILogger<PlayersStorageBlobConnector> logger,
+            IPlayerAssessmentService assessments)
+        {
+            _container = container;
             _logger = logger;
             _assessments = assessments;
         }
@@ -100,8 +105,8 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
                     var algoKey = (AlgoType)playersConfig.AlgoType;
                     var players =
                         WebAppAPI.AlgoTypeToPlayerSerializerMapper[algoKey](
-                            content.Value.Content.ToString());
-                    return new GetPlayersResponse(players);
+                            RosterDocument.Players(JToken.Parse(content.Value.Content.ToString())).ToString(Formatting.None));
+                    return new GetPlayersResponse(players) { Revision = content.Value.Details.ETag.ToString() };
                 }
             }
             catch (Exception exception)
@@ -113,7 +118,9 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
                     "Players could not be loaded");
             }
 
-            return GetPlayersResponse.Failure("Players were not found");
+            var missing = GetPlayersResponse.Failure("Players were not found");
+            missing.Revision = RosterDocument.MissingRevision;
+            return missing;
         }
 
         public async Task<IResponse> UploadAsync(
@@ -132,14 +139,49 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
 
             JToken playerToken = players is JToken token
                 ? token : JToken.FromObject((object)players);
-            var playerJson = PrivatePlayerFields.RemoveFromSnapshot(playerToken).ToString(Formatting.None);
-            await GetContainer()
-                .GetBlobClient(GetPlayersPath(playersConfig))
-                .UploadAsync(
-                    BinaryData.FromString(playerJson),
-                    overwrite: true);
-            return new SavePlayersResponse();
+            var sanitized = PrivatePlayerFields.RemoveFromSnapshot(playerToken) as JArray
+                ?? throw new InvalidDataException("A player array is required.");
+            var client = GetContainer().GetBlobClient(GetPlayersPath(playersConfig));
+            JToken? existing = null;
+            string? etag = null;
+            try
+            {
+                var content = await client.DownloadContentAsync();
+                existing = JToken.Parse(content.Value.Content.ToString());
+                RosterDocument.Players(existing);
+                etag = content.Value.Details.ETag.ToString();
+            }
+            catch (RequestFailedException exception) when (exception.Status == 404 && exception.ErrorCode == "BlobNotFound") { }
+            if (!RosterDocument.CanSave(existing, etag, playersConfig.ExpectedRevision, sanitized))
+                return RosterConflict(playersConfig.ExpectedRevision == null);
+            if (playersConfig.MergeRevision != null
+                && playersConfig.MergeRevision != (etag ?? RosterDocument.MissingRevision))
+                return RosterConflict();
+            try
+            {
+                var result = await client.UploadAsync(
+                    BinaryData.FromString(RosterDocument.WithPlayers(existing, sanitized).ToString(Formatting.None)),
+                    new BlobUploadOptions
+                    {
+                        Conditions = etag == null
+                            ? new BlobRequestConditions { IfNoneMatch = ETag.All }
+                            : new BlobRequestConditions { IfMatch = new ETag(etag) }
+                    });
+                return new SavePlayersResponse { Revision = result.Value.ETag.ToString() };
+            }
+            catch (RequestFailedException exception) when (exception.Status is 409 or 412)
+            {
+                return RosterConflict();
+            }
         }
+
+        private static SavePlayersResponse RosterConflict(bool legacyMembershipChange = false) => new()
+        {
+            Success = false, Conflict = true,
+            Error = legacyMembershipChange
+                ? "This save would remove, restore or duplicate an approved member. Reload the online roster before editing. Use the updated app to remove approved members."
+                : "The online roster changed. Reload it before saving to avoid losing newly approved players."
+        };
 
         public async Task<PlayerGroupsResponse> ListGroupsAsync(string userId)
         {
@@ -616,35 +658,33 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
             var client = GetContainer().GetBlobClient(GetPlayersPath(config));
             if (!await client.ExistsAsync())
             {
+                config.ExpectedRevision = RosterDocument.MissingRevision;
                 return new JArray();
             }
 
             var content = await client.DownloadContentAsync();
+            config.ExpectedRevision = content.Value.Details.ETag.ToString();
             return await _assessments.ApplyAsync(
                 config.UId, NormalizeGroupId(config.GroupId), config.AlgoType,
-                JArray.Parse(content.Value.Content.ToString()));
+                RosterDocument.Players(JToken.Parse(content.Value.Content.ToString())));
         }
 
         private async Task UploadPlayersJsonAsync(
             PlayersBlobConfig config,
             JArray players)
         {
+            var response = await UploadAsync(players, config) as SavePlayersResponse;
+            if (response?.Success != true)
+                throw new InvalidOperationException(response?.Error ?? "The player roster could not be saved.");
+            config.ExpectedRevision = response.Revision;
             await _assessments.SaveAsync(
                 config.UId, NormalizeGroupId(config.GroupId), config.AlgoType,
                 players, dedicatedOnly: true);
-            await GetContainer()
-                .GetBlobClient(GetPlayersPath(config))
-                .UploadAsync(
-                    BinaryData.FromString(
-                        PrivatePlayerFields.RemoveFromSnapshot(players).ToString(Formatting.None)),
-                    overwrite: true);
         }
 
         private BlobContainerClient GetContainer()
         {
-            return new BlobContainerClient(
-                _storageConnectionString,
-                _storageContainerName);
+            return _container;
         }
 
         private static PlayersBlobConfig CreateConfig(
@@ -717,7 +757,7 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
                 : normalized;
         }
 
-        private static string NormalizeGroupId(string groupId)
+        internal static string NormalizeGroupId(string groupId)
         {
             return string.IsNullOrWhiteSpace(groupId)
                 || string.Equals(

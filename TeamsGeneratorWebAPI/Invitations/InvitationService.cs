@@ -1,5 +1,7 @@
 using System.Globalization;
 using System.Security.Cryptography;
+using TeamsGeneratorWebAPI.Telemetry;
+using TeamsGeneratorWebAPI.PlayerProfiles;
 
 namespace TeamsGeneratorWebAPI.Invitations;
 
@@ -8,8 +10,10 @@ public sealed class InvitationService
     private readonly IInvitationDocumentStore _store;
     private readonly IInvitationGroupSource _groups;
     private readonly IInvitationClock _clock;
-    public InvitationService(IInvitationDocumentStore store, IInvitationGroupSource groups, IInvitationClock clock)
-        => (_store, _groups, _clock) = (store, groups, clock);
+    private readonly IUsageTelemetry? _telemetry;
+    public InvitationService(IInvitationDocumentStore store, IInvitationGroupSource groups, IInvitationClock clock,
+        IUsageTelemetry? telemetry = null)
+        => (_store, _groups, _clock, _telemetry) = (store, groups, clock, telemetry);
 
     public async Task<OrganizerInvitation> CreateAsync(string requester, CreateInvitationRequest request, CancellationToken ct)
     {
@@ -20,10 +24,11 @@ public sealed class InvitationService
         ValidateTimeZone(request.TimeZone);
         var group = await _groups.ResolveAsync(requester, request.GroupId, ct);
         if (!group.InvitationsEnabled)
-            throw new InvitationException(403, "Match invitations must be enabled by the Premium group owner.");
+            throw new InvitationException(403, "Match invitations must be enabled by the group owner.");
         var id = InvitationKeys.Id(group.OwnerId, group.GroupId, at);
         var key = InvitationKeys.State(id);
         var existing = await _store.ReadAsync<InvitationState>(key, ct);
+        var created = false;
         if (existing == null)
         {
             var state = new InvitationState
@@ -31,15 +36,19 @@ public sealed class InvitationService
                 Id = id, OwnerId = group.OwnerId, GroupId = group.GroupId,
                 Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)).TrimEnd('=').Replace('+', '-').Replace('/', '_'),
                 GroupName = group.Name, MatchName = group.MatchName, Location = group.Location, GroupLogoDataUrl = group.Logo,
-                ScheduledAt = at, ExpiresAt = at.AddDays(30), TimeZone = request.TimeZone, Capacity = group.Capacity
+                ScheduledAt = at, ExpiresAt = at.AddDays(30), TimeZone = request.TimeZone, Capacity = group.Capacity,
+                EventDurationMinutes = group.EventDurationMinutes
             };
-            await _store.WriteAsync(key, state, null, ct);
+            created = await _store.WriteAsync(key, state, null, ct);
             existing = await _store.ReadAsync<InvitationState>(key, ct)
                 ?? throw new InvitationException(503, "Invitation could not be created.");
         }
         if (existing.Value.Revoked) throw new InvitationException(410, "This occurrence's invitation has been revoked.");
         // Repair a missing index after a crash between creating the state and its capability pointer.
         await _store.WriteAsync(InvitationKeys.Token(existing.Value.Token), new TokenPointer(id), null, ct);
+        _telemetry?.Track(created ? "InvitationLinkCreated" : "InvitationLinkReused", userId: requester,
+            properties: new Dictionary<string, string?> { ["actor_type"] = "organizer", ["outcome"] = "succeeded" },
+            measurements: new Dictionary<string, double> { ["capacity"] = existing.Value.Capacity });
         return (OrganizerInvitation)Project(existing.Value, group, _clock.UtcNow, true);
     }
 
@@ -76,9 +85,25 @@ public sealed class InvitationService
         return Project(state.Value, group, _clock.UtcNow);
     }
 
-    public async Task<PublicInvitation> RespondAsync(string token, InvitationResponseRequest request, CancellationToken ct)
+    public async Task<OwnInvitation> OwnAsync(string user, string token, CancellationToken ct)
     {
-        if (request.Status is not ("in" or "out") || string.IsNullOrEmpty(request.PlayerKey) || request.PlayerKey.Length > 256)
+        var state = await GetCapabilityAsync(token, ct);
+        var group = await _groups.LoadAsync(state.Value.OwnerId, state.Value.GroupId, ct);
+        var playerKey = await new PlayerMembershipService(_store).ResolveAsync(user, group, ct);
+        return new(Project(state.Value, group, _clock.UtcNow), playerKey);
+    }
+
+    public Task<PublicInvitation> RespondOwnAsync(string user, string token, OwnInvitationResponseRequest request, CancellationToken ct) =>
+        RespondCoreAsync(token, new("", request.Status), ct, user);
+
+    public Task<PublicInvitation> RespondAsync(string token, InvitationResponseRequest request, CancellationToken ct) =>
+        RespondCoreAsync(token, request, ct);
+
+    private async Task<PublicInvitation> RespondCoreAsync(string token, InvitationResponseRequest request, CancellationToken ct,
+        string? user = null)
+    {
+        if (request.Status is not ("in" or "out")
+            || (user == null && (string.IsNullOrEmpty(request.PlayerKey) || request.PlayerKey.Length > 256)))
             throw new InvitationException(400, "An existing playerKey and status 'in' or 'out' are required.");
         for (var attempt = 0; attempt < 12; attempt++)
         {
@@ -86,21 +111,53 @@ public sealed class InvitationService
             var state = stored.Value;
             if (state.ScheduledAt <= _clock.UtcNow) throw new InvitationException(409, "This occurrence is closed.");
             var group = await _groups.LoadAsync(state.OwnerId, state.GroupId, ct);
+            if (user != null)
+                request = request with { PlayerKey = await new PlayerMembershipService(_store).ResolveAsync(user, group, ct)
+                    ?? throw new InvitationException(403, "Your account is not linked to a current player in this group.") };
             if (!group.InvitationsEnabled)
                 throw new InvitationException(409, "This occurrence is closed.");
             if (!group.Players.Any(player => player.Key == request.PlayerKey))
                 throw new InvitationException(400, "The player is no longer in this group.");
+            if (user == null && await new PlayerMembershipService(_store).RequiresAccountAsync(group, request.PlayerKey, ct))
+                throw new InvitationException(403, "Sign in with this player's linked account to respond.");
             var previous = state.Responses.GetValueOrDefault(request.PlayerKey);
             if (previous?.Status == request.Status || (previous == null && request.Status == "out"))
                 return Project(state, group, _clock.UtcNow);
             var now = _clock.UtcNow;
             if (state.ScheduledAt <= now) throw new InvitationException(409, "This occurrence is closed.");
+            var before = _telemetry == null ? null : Project(state, group, now);
             state.Revision++;
             state.Responses[request.PlayerKey] = new Rsvp(request.Status, state.Revision);
             state.Events.Add(new(state.Revision, request.PlayerKey, request.Status, now));
             RecomputePending(state, group.Players);
             if (await _store.WriteAsync(InvitationKeys.State(state.Id), state, stored.ETag, ct))
-                return Project(state, group, now);
+            {
+                var result = Project(state, group, now);
+                if (before != null)
+                {
+                    var waiting = before.Players.Where(player => player.WaitingListPosition.HasValue)
+                        .Select(player => player.Key).ToHashSet(StringComparer.Ordinal);
+                    _telemetry!.Track("InvitationResponseChanged",
+                        properties: new Dictionary<string, string?>
+                        {
+                            ["actor_type"] = "participant",
+                            ["outcome"] = "succeeded",
+                            ["response_status"] = request.Status,
+                            ["previous_status"] = EffectiveStatus(before.Players.Single(player => player.Key == request.PlayerKey)),
+                            ["new_status"] = EffectiveStatus(result.Players.Single(player => player.Key == request.PlayerKey))
+                        },
+                        measurements: new Dictionary<string, double>
+                        {
+                            ["capacity"] = result.Capacity,
+                            ["in_count"] = result.Counts.In,
+                            ["waiting_count"] = result.Counts.Waiting,
+                            ["out_count"] = result.Counts.Out,
+                            ["promoted_count"] = result.Players.Count(player => waiting.Contains(player.Key)
+                                && player.Status == "in" && !player.WaitingListPosition.HasValue)
+                        });
+                }
+                return result;
+            }
         }
         throw new InvitationException(409, "Responses changed concurrently. Please retry.");
     }
@@ -115,10 +172,18 @@ public sealed class InvitationService
             var stored = await _store.ReadAsync<InvitationState>(key, ct);
             if (stored == null || stored.Value.Revoked) return;
             stored.Value.Revoked = true;
-            if (await _store.WriteAsync(key, stored.Value, stored.ETag, ct)) return;
+            if (await _store.WriteAsync(key, stored.Value, stored.ETag, ct))
+            {
+                _telemetry?.Track("InvitationRevoked", userId: requester,
+                    properties: new Dictionary<string, string?> { ["actor_type"] = "organizer", ["outcome"] = "succeeded" });
+                return;
+            }
         }
         throw new InvitationException(409, "Invitation changed concurrently. Please retry.");
     }
+
+    private static string EffectiveStatus(InvitationPlayer player) =>
+        player.WaitingListPosition.HasValue ? "waiting" : player.Status;
 
     private async Task<StoredDocument<InvitationState>> GetCapabilityAsync(string token, CancellationToken ct)
     {
@@ -193,6 +258,7 @@ public sealed class InvitationService
         result.GroupLogoDataUrl = state.GroupLogoDataUrl;
         result.ScheduledAt = state.ScheduledAt;
         result.TimeZone = state.TimeZone;
+        result.EventDurationMinutes = state.EventDurationMinutes;
         result.Capacity = state.Capacity;
         result.Status = state.Revoked || state.ScheduledAt <= now || state.ExpiresAt <= now ? "closed" : "open";
         result.Revision = state.Revision;

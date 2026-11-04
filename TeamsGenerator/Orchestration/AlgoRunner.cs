@@ -41,6 +41,7 @@ namespace TeamsGenerator.Orchestration
             List<Team> generatedTeamsWithLockedPlayers,
             out ChemistryOptimizationResult chemistryResult)
         {
+            GenerationCancellation.ThrowIfCancellationRequested();
             var allPlayers = players.Concat(
                 generatedTeamsWithLockedPlayers?.SelectMany(team => team.Players)
                     ?? Enumerable.Empty<IPlayer>());
@@ -66,6 +67,7 @@ namespace TeamsGenerator.Orchestration
             }
             var algo = _algoTypeToTeamsGeneratorMapper[algoType];
             var teams = algo.Invoke(config).GenerateTeams(players, generatedTeamsWithLockedPlayers) ?? null;
+            GenerationCancellation.ThrowIfCancellationRequested();
             chemistryResult = new ChemistryOptimizationResult();
             if (config.UseChemistry)
             {

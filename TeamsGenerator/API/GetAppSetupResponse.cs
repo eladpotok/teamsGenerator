@@ -15,6 +15,9 @@ namespace TeamsGenerator.API
         public bool CanUseMatchInvitations { get; set; }
         public int MaximumPlayers { get; set; }
         public int MaximumOwnedGroups { get; set; }
+        public int MaximumGenerationPlayers { get; set; }
+        public int GenerationRequestsPerMinute { get; set; }
+        public int MaximumConcurrentGenerations { get; set; }
     }
 
     public class InvitationAccessResponse
@@ -28,6 +31,7 @@ namespace TeamsGenerator.API
         public List<WebAppAlgoInfo> Algos { get; set; }
         public PremiumEntitlementsResponse Entitlements { get; set; }
         public InvitationAccessResponse InvitationAccess { get; set; } = new();
+        public InvitationAccessResponse GroupJoinAccess { get; set; } = new();
         public string ServerVersion => "1.0.0";
         public string ClientVersion => "8.0.0";
     }

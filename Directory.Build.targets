@@ -1,0 +1,8 @@
+<Project>
+  <Target Name="ExcludePrivateConfigurationFromCandidateBuild" BeforeTargets="PrepareForBuild">
+    <ItemGroup>
+      <None Remove="config.json;appsettings*.json;**\*.pfx;**\*.p12" />
+      <Content Remove="config.json;appsettings*.json;**\*.pfx;**\*.p12" />
+    </ItemGroup>
+  </Target>
+</Project>

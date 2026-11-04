@@ -66,7 +66,9 @@ namespace TeamsGeneratorWebAPI.Controllers
                     "Player group access was denied.");
             }
             var groups = await _players.ListGroupsAsync(access.OwnerId);
-            if (!groups.Success || !groups.Groups.Any(group =>
+            if (!groups.Success)
+                return SaveConfigResponse.Failure("Player groups could not be loaded. Please retry.");
+            if (!groups.Groups.Any(group =>
                 group.Id == access.GroupId))
             {
                 return SaveConfigResponse.Failure(
@@ -84,11 +86,10 @@ namespace TeamsGeneratorWebAPI.Controllers
             }
             if (saveGlobalSettings
                 && userConfig.EnableMatchInvitations
-                && (!RequestUserId.IsAuthenticatedOrganizer(User, userId)
-                    || !entitlements.CanUseMatchInvitations))
+                && !RequestUserId.IsAuthenticatedOrganizer(User, userId))
             {
                 return SaveConfigResponse.Failure(
-                    "Match invitations require a signed-in Premium account.");
+                    "Match invitations require a signed-in account.");
             }
             if (saveGlobalSettings
                 && !entitlements.CanUseChemistry
@@ -169,15 +170,10 @@ namespace TeamsGeneratorWebAPI.Controllers
                         ? Math.Clamp(userConfig.MaxMatchdayPlayers, 5, 50)
                         : Math.Clamp(userConfig.NumberOfTeams * 5, 5, 50);
             }
-            var ownerDefaultConfig = await LoadConfigAsync(
-                access.OwnerId,
-                PlayersStorageBlobConnector.DefaultGroupId);
-            var existingGroupConfig = access.GroupId
-                == PlayersStorageBlobConnector.DefaultGroupId
-                ? ownerDefaultConfig
-                : await LoadConfigAsync(access.OwnerId, access.GroupId)
-                    ?? UserConfigScopes.InheritGroupSettings(
-                        ownerDefaultConfig);
+            var configs = await LoadConfigsAsync(userId, access);
+            if (!configs.HasValue)
+                return SaveConfigResponse.Failure("Configuration could not be loaded. Please retry.");
+            var existingGroupConfig = configs.Value.Group;
             if (saveGroupSettings
                 && !entitlements.CanUseCustomGroupLogo
                 && !string.IsNullOrWhiteSpace(userConfig.GroupLogoDataUrl)
@@ -192,32 +188,43 @@ namespace TeamsGeneratorWebAPI.Controllers
             var groupConfig = UserConfigScopes.WithGroupSettings(
                 existingGroupConfig,
                 userConfig);
-            var existingGlobalConfig = string.Equals(
-                    userId,
-                    access.OwnerId,
-                    StringComparison.Ordinal)
-                ? ownerDefaultConfig
-                : await LoadConfigAsync(
-                    userId,
-                    PlayersStorageBlobConnector.DefaultGroupId);
+            var existingGlobalConfig = configs.Value.Global;
             var globalConfig = UserConfigScopes.WithGlobalSettings(
                 existingGlobalConfig,
                 userConfig);
 
+            async Task<IResponse> SaveAndObserve(
+                string storageUserId, string storageGroupId,
+                UserConfigResponse config, bool global, bool group)
+            {
+                var saved = await SaveConfigAsync(storageUserId, storageGroupId, config);
+                if (saved.Success)
+                {
+                    if (global)
+                        _usageTelemetry.TrackGlobalPreferences(
+                            ver, userId, config, entitlements, "saved", existingGlobalConfig);
+                    if (group)
+                        _usageTelemetry.TrackGroupPreferences(
+                            ver, userId, access.OwnerId, access.GroupId, config,
+                            "saved", "saved", existingGroupConfig);
+                }
+                return saved;
+            }
+
             IResponse response;
             if (!saveGlobalSettings)
             {
-                response = await SaveConfigAsync(
+                response = await SaveAndObserve(
                     access.OwnerId,
                     access.GroupId,
-                    groupConfig);
+                    groupConfig, false, true);
             }
             else if (!saveGroupSettings)
             {
-                response = await SaveConfigAsync(
+                response = await SaveAndObserve(
                     userId,
                     PlayersStorageBlobConnector.DefaultGroupId,
-                    globalConfig);
+                    globalConfig, true, false);
             }
             else if (
                 string.Equals(
@@ -230,25 +237,25 @@ namespace TeamsGeneratorWebAPI.Controllers
                 var combined = UserConfigScopes.WithGlobalSettings(
                     groupConfig,
                     userConfig);
-                response = await SaveConfigAsync(
+                response = await SaveAndObserve(
                     access.OwnerId,
                     access.GroupId,
-                    combined);
+                    combined, true, true);
             }
             else
             {
-                var groupResponse = await SaveConfigAsync(
+                var groupResponse = await SaveAndObserve(
                     access.OwnerId,
                     access.GroupId,
-                    groupConfig);
+                    groupConfig, false, true);
                 if (!groupResponse.Success)
                 {
                     return groupResponse;
                 }
-                response = await SaveConfigAsync(
+                response = await SaveAndObserve(
                     userId,
                     PlayersStorageBlobConnector.DefaultGroupId,
-                    globalConfig);
+                    globalConfig, true, false);
             }
             _usageTelemetry.Track(
                 "ConfigurationSaved",
@@ -257,6 +264,8 @@ namespace TeamsGeneratorWebAPI.Controllers
                 new Dictionary<string, string?>
                 {
                     ["outcome"] = response.Success ? "succeeded" : "failed",
+                    ["scope"] = saveGlobalSettings
+                        ? saveGroupSettings ? "both" : "global" : "group",
                     ["custom_player_limit"] =
                         userConfig.HasCustomMatchdayPlayerLimit
                             .ToString()
@@ -293,32 +302,46 @@ namespace TeamsGeneratorWebAPI.Controllers
                 return Forbid();
             }
             var groups = await _players.ListGroupsAsync(access.OwnerId);
-            if (!groups.Success || !groups.Groups.Any(group =>
+            if (!groups.Success)
+            {
+                _logger.LogWarning("Configuration group storage read failed; group absence is unknown.");
+                return StatusCode(StatusCodes.Status503ServiceUnavailable,
+                    GetConfigResponse.Failure("Player groups could not be loaded. Please retry."));
+            }
+            if (!groups.Groups.Any(group =>
                 group.Id == access.GroupId))
             {
                 return NotFound();
             }
-            var ownerDefault = await LoadConfigAsync(
-                access.OwnerId,
-                PlayersStorageBlobConnector.DefaultGroupId);
-            var groupConfig = access.GroupId
-                == PlayersStorageBlobConnector.DefaultGroupId
-                ? ownerDefault
-                : await LoadConfigAsync(access.OwnerId, access.GroupId)
-                    ?? UserConfigScopes.InheritGroupSettings(ownerDefault);
-            var globalConfig = string.Equals(
-                    userId,
-                    access.OwnerId,
-                    StringComparison.Ordinal)
-                ? ownerDefault
-                : await LoadConfigAsync(
-                    userId,
-                    PlayersStorageBlobConnector.DefaultGroupId);
+            var configs = await LoadConfigsAsync(userId, access);
+            if (!configs.HasValue)
+                return StatusCode(StatusCodes.Status503ServiceUnavailable,
+                    GetConfigResponse.Failure("Configuration could not be loaded. Please retry."));
             return Ok(new GetConfigResponse(
-                UserConfigScopes.Merge(groupConfig, globalConfig)));
+                UserConfigScopes.Merge(configs.Value.Group, configs.Value.Global)));
         }
 
-        private async Task<UserConfigResponse> LoadConfigAsync(
+        private async Task<(UserConfigResponse? Group, UserConfigResponse? Global)?> LoadConfigsAsync(
+            string userId, GroupAccess access)
+        {
+            var ownerDefault = await LoadConfigAsync(
+                access.OwnerId, PlayersStorageBlobConnector.DefaultGroupId);
+            var group = access.GroupId == PlayersStorageBlobConnector.DefaultGroupId
+                ? ownerDefault : await LoadConfigAsync(access.OwnerId, access.GroupId);
+            var global = string.Equals(userId, access.OwnerId, StringComparison.Ordinal)
+                ? ownerDefault : await LoadConfigAsync(userId, PlayersStorageBlobConnector.DefaultGroupId);
+            if (!GetConfigResponse.IsAvailable(ownerDefault)
+                || !GetConfigResponse.IsAvailable(group)
+                || !GetConfigResponse.IsAvailable(global))
+            {
+                _logger.LogWarning("Configuration storage read failed; defaults and writes are suppressed.");
+                return null;
+            }
+            return (group?.Config ?? (access.GroupId == PlayersStorageBlobConnector.DefaultGroupId
+                ? null : UserConfigScopes.InheritGroupSettings(ownerDefault?.Config)), global?.Config);
+        }
+
+        private async Task<GetConfigResponse?> LoadConfigAsync(
             string userId,
             string groupId)
         {
@@ -328,7 +351,7 @@ namespace TeamsGeneratorWebAPI.Controllers
                     UId = userId,
                     GroupId = groupId
                 }) as GetConfigResponse;
-            return response?.Config;
+            return response;
         }
 
         private Task<IResponse> SaveConfigAsync(

@@ -15,10 +15,42 @@ namespace TeamsGeneratorWebAPI.Clients
             set => _serializedMatch = PrivatePlayerFields.SanitizeJson(value);
         }
         public ETag ETag { get; set; }
+        [System.Runtime.Serialization.IgnoreDataMember]
+        public string Revision => ETag.ToString();
         public DateTime CreatedAt { get; set; }
 
         public DateTimeOffset? Timestamp { get; set; }
-        //public ETag ETag { get; set; } consider use it for editing matches
+    }
+
+    public record MatchReadResponse(
+        string PartitionKey, string RowKey, string SerializedMatch,
+        DateTime CreatedAt, DateTimeOffset? Timestamp, ETag ETag,
+        [property: Newtonsoft.Json.JsonProperty("revision")] string Revision)
+    {
+        public static MatchReadResponse FromEntity(MatchEntity match) => new(
+            match.PartitionKey, match.RowKey, match.SerializedMatch,
+            match.CreatedAt, match.Timestamp, match.ETag, match.Revision);
+    }
+
+    public class MatchWriteRequest
+    {
+        public string PartitionKey { get; set; }
+        public string RowKey { get; set; }
+        private string? _serializedMatch;
+        public string? SerializedMatch
+        {
+            get => _serializedMatch;
+            set => _serializedMatch = value == null ? null : PrivatePlayerFields.SanitizeJson(value);
+        }
+        public int? WriteContractVersion { get; set; }
+        public string? ExpectedRevision { get; set; }
+
+        public MatchEntity ToEntity() => new()
+        {
+            PartitionKey = PartitionKey,
+            RowKey = RowKey,
+            SerializedMatch = SerializedMatch ?? string.Empty
+        };
     }
 
     public class PlayerSwapEntity : ITableEntity
@@ -36,6 +68,17 @@ namespace TeamsGeneratorWebAPI.Clients
         public DateTimeOffset? Timestamp { get; set; }
     }
 
+    internal sealed class MatchdayEventEntity : ITableEntity
+    {
+        public string PartitionKey { get; set; } = "";
+        public string RowKey { get; set; } = "";
+        public string? SerializedMatch { get; set; }
+        public string? SerializedSwap { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public ETag ETag { get; set; }
+        public DateTimeOffset? Timestamp { get; set; }
+    }
+
     public class MatchdayMetadataEntity : ITableEntity
     {
         public string PartitionKey { get; set; } // matchdayId
@@ -44,6 +87,11 @@ namespace TeamsGeneratorWebAPI.Clients
         public ETag ETag { get; set; }
         public DateTimeOffset? Timestamp { get; set; }
         public bool IsClosed { get; set; }
+        public DateTime? LastMatchCreatedAt { get; set; }
+        public string? OwnerId { get; set; }
+        public string? GroupId { get; set; }
+        public string? SerializedTeams { get; set; }
+        public string? TeamsRevision { get; set; }
 
     }
 

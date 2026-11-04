@@ -20,13 +20,16 @@ namespace TeamsGeneratorWebAPI.Telemetry
         private const string AnonymousUserNamespace = "teamify-usage-v1:";
         private readonly TelemetryClient _telemetryClient;
         private readonly string _environmentName;
+        private readonly IHttpContextAccessor? _httpContext;
 
         public UsageTelemetry(
             TelemetryClient telemetryClient,
-            IHostEnvironment environment)
+            IHostEnvironment environment,
+            IHttpContextAccessor? httpContext = null)
         {
             _telemetryClient = telemetryClient;
             _environmentName = environment.EnvironmentName;
+            _httpContext = httpContext;
         }
 
         public void Track(
@@ -37,10 +40,27 @@ namespace TeamsGeneratorWebAPI.Telemetry
             IReadOnlyDictionary<string, double>? measurements = null)
         {
             var telemetry = new EventTelemetry(eventName);
+            var context = _httpContext?.HttpContext;
+            if (UsageMetrics.IsVerificationClient(clientVersion ?? context?.Request.Headers["client_version"].ToString()))
+                return;
+            var authenticatedId = context == null ? null
+                : Authentication.RequestUserId.ResolveOptional(context.User, null);
+            var participant = properties != null
+                && properties.TryGetValue("actor_type", out var actorType)
+                && actorType == "participant";
+            userId = participant ? null
+                : !string.IsNullOrWhiteSpace(authenticatedId) ? authenticatedId : userId;
             telemetry.Properties["client_version"] =
-                NormalizeValue(clientVersion, "unknown");
+                NormalizeValue(clientVersion ?? context?.Request.Headers["client_version"].ToString(), "unknown");
             telemetry.Properties["environment"] =
                 NormalizeValue(_environmentName, "unknown");
+            telemetry.Properties["schema_version"] = "2";
+            telemetry.Properties["event_source"] = "backend";
+            telemetry.Properties["actor_type"] =
+                string.IsNullOrWhiteSpace(userId) ? "unknown" : "organizer";
+            telemetry.Properties["identity_source"] = string.IsNullOrWhiteSpace(userId)
+                ? "unattributed"
+                : authenticatedId == userId ? "authenticated" : "legacy";
 
             if (!string.IsNullOrWhiteSpace(userId))
             {
@@ -72,7 +92,7 @@ namespace TeamsGeneratorWebAPI.Telemetry
             _telemetryClient.TrackEvent(telemetry);
         }
 
-        private static string CreateAnonymousUserId(string userId)
+        public static string CreateAnonymousUserId(string userId)
         {
             var bytes = Encoding.UTF8.GetBytes(
                 AnonymousUserNamespace + userId.Trim());

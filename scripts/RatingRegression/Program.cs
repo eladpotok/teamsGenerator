@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using TeamsGenerator.Algos;
@@ -22,6 +23,19 @@ using TeamsGeneratorWebAPI.Storage;
 using TeamsGeneratorWebAPI.Telemetry;
 
 var assertions = 0;
+if (args.Contains("--backfill-player-memberships"))
+{
+    var connection = Environment.GetEnvironmentVariable("BlobConnectionString");
+    var container = Environment.GetEnvironmentVariable("PlayersBlobContainerName");
+    if (string.IsNullOrWhiteSpace(connection) || string.IsNullOrWhiteSpace(container))
+        throw new InvalidOperationException("Set BlobConnectionString and PlayersBlobContainerName explicitly for the intended environment.");
+    var configuration = new Microsoft.Extensions.Configuration.ConfigurationBuilder().AddInMemoryCollection(
+        new Dictionary<string, string?> { ["BlobConnectionString"] = connection, ["PlayersBlobContainerName"] = container }).Build();
+    var store = new TeamsGeneratorWebAPI.Invitations.BlobInvitationDocumentStore(configuration);
+    var result = await new TeamsGeneratorWebAPI.PlayerProfiles.PlayerMembershipBackfill(store).RunAsync(args.Contains("--apply"));
+    Console.WriteLine(JsonConvert.SerializeObject(result));
+    return;
+}
 void Check(bool condition, string message)
 {
     assertions++;
@@ -32,7 +46,120 @@ void Equal(double expected, double actual, string message) =>
 object Invoke(Type type, string name, params object[] values) =>
     type.GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public)!.Invoke(null, values)!;
 
+if (args.Contains("--account-observations"))
+{
+    await AuthenticatedAccountRegression.Run(Check);
+    Console.WriteLine($"Passed {assertions} authenticated account observation assertions.");
+    return;
+}
+
+if (args.Contains("--announcements"))
+{
+    await AnnouncementRegression.Run(Check);
+    Console.WriteLine($"Passed {assertions} account announcement assertions.");
+    return;
+}
+
+if (args.Contains("--ai-summary"))
+{
+    MatchSummaryRegression.Run(Check);
+    Console.WriteLine($"Passed {assertions} AI summary accuracy assertions.");
+    return;
+}
+
+if (args.Contains("--polls"))
+{
+    await PollRegression.Run(Check);
+    Console.WriteLine($"Passed {assertions} ranked poll assertions.");
+    return;
+}
+
+if (args.Contains("--invitations"))
+{
+    WebAppAPI.Init();
+    await InvitationRegression.Run(Check);
+    Console.WriteLine($"Passed {assertions} invitation assertions.");
+    return;
+}
+
+if (args.Contains("--player-profiles"))
+{
+    await GroupJoinRegression.RunProfiles(Check);
+    await GroupJoinRegression.Run(Check);
+    await GroupJoinRegression.RunMemberships(Check);
+    await GroupJoinRegression.RunDualMode(Check);
+    await PlayerPerformanceRegression.Run(Check);
+    Console.WriteLine($"Passed {assertions} player profile and group join assertions.");
+    return;
+}
+
+if (args.Contains("--group-joins"))
+{
+    await GroupJoinRegression.Run(Check);
+    Console.WriteLine($"Passed {assertions} group join assertions.");
+    return;
+}
+
+if (args.Contains("--live-match-concurrency"))
+{
+    await LiveMatchConcurrencyRegression.Run(Check);
+    Console.WriteLine($"Passed {assertions} live match and saved-teams concurrency assertions.");
+    return;
+}
+
+if (args.Contains("--hosting-startup"))
+{
+    await AzureHostingStartupRegression.Run(Check);
+    Console.WriteLine($"Passed {assertions} isolated Azure hosting startup assertions.");
+    return;
+}
+
+if (args.Contains("--share-images"))
+{
+    await ShareImageRegression.Run(Check);
+    Console.WriteLine($"Passed {assertions} Classic share image assertions ({System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture}).");
+    return;
+}
+
 WebAppAPI.Init();
+if (args.Contains("--owner-email"))
+{
+    await OwnerEmailRegression.Run(Check);
+    await BillingRegression.Run(Check);
+    await BillingStorageRegression.Run(Check);
+    Console.WriteLine($"Passed {assertions} owner email and billing assertions.");
+    return;
+}
+await RuntimeFrameworkRegression.Run(Check);
+MatchSummaryRegression.Run(Check);
+if (args.Contains("--billing"))
+{
+    await BillingRegression.Run(Check);
+    await BillingStorageRegression.Run(Check);
+    await PremiumInvitationRegression.Run(Check);
+    await RuntimeCapacityRegression.Run(Check);
+    Console.WriteLine($"Passed {assertions} billing and Premium compatibility assertions.");
+    return;
+}
+if (args.Contains("--capacity"))
+{
+    await CapacityContractRegression.Run(Check);
+    await RuntimeCapacityRegression.Run(Check);
+    await PremiumInvitationRegression.Run(Check);
+    await UsageMetricsRegression.Run(Check);
+    Console.WriteLine($"Passed {assertions} capacity, compatibility and usage metrics assertions.");
+    return;
+}
+if (args.Contains("--usage-metrics"))
+{
+    await UsageMetricsRegression.Run(Check);
+    await ChemistryResetRegression.Run(Check);
+    await InvitationTelemetryRegression.Run(Check);
+    await InvitationRegression.Run(Check);
+    await PremiumInvitationRegression.Run(Check);
+    Console.WriteLine($"Passed {assertions} backend usage metrics, chemistry-reset and invitation compatibility assertions.");
+    return;
+}
 const string oldJson = """{"key":"old","name":"Old","rank":7,"attack":8,"defence":4,"passing":6,"leadership":7,"stamina":5,"isGoalKeeper":true}""";
 var legacy = JsonConvert.DeserializeObject<SkillWisePlayer>(oldJson)!;
 Equal(6, legacy.Rank, "legacy derived base rank");
@@ -325,7 +452,7 @@ Check(!coOrganizerRoster["players"]![0]!["isRecoveringFromInjury"]!.Value<bool>(
 controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity());
 var beforeRejectedSave = assessmentReads.Count;
 var rejectedSave = await controller.Post("test",
-    JArray.Parse("""[{"key":"old","isRecoveringFromInjury":true}]"""), "owner", 0);
+    JArray.Parse("""[{"key":"old","name":"Old","isRecoveringFromInjury":true}]"""), "owner", 0);
 Check(rejectedSave is UnauthorizedObjectResult && assessmentReads.Count == beforeRejectedSave,
     "anonymous callers cannot write recovery to an organizer's private overlay");
 
@@ -340,10 +467,19 @@ var publicTeams = ReadResult(await teamsController.GetTeamsFromStorage("test", "
 Check(!publicTeams.Contains("goalkeeperSkill", StringComparison.OrdinalIgnoreCase)
     && !publicTeams.Contains("isRecoveringFromInjury", StringComparison.OrdinalIgnoreCase),
     "anonymous teams endpoint strips private fields even from older snapshots");
+await CapacityContractRegression.Run(Check);
+await RuntimeCapacityRegression.Run(Check);
 await ChemistryResetRegression.Run(Check);
+await LiveMatchConcurrencyRegression.Run(Check);
 await InvitationRegression.Run(Check);
+await GroupJoinRegression.Run(Check);
 await PremiumInvitationRegression.Run(Check);
-Console.WriteLine($"Passed {assertions} rating, algorithm, locking, AI-input, privacy, chemistry-reset, invitation and notification assertions.");
+await BillingRegression.Run(Check);
+await BillingStorageRegression.Run(Check);
+await UsageMetricsRegression.Run(Check);
+await InvitationTelemetryRegression.Run(Check);
+await ShareImageRegression.Run(Check);
+Console.WriteLine($"Passed {assertions} rating, algorithm, locking, AI-input, privacy, chemistry-reset, invitation, notification, usage metrics and share image assertions.");
 
 public class CallbackProxy : DispatchProxy
 {

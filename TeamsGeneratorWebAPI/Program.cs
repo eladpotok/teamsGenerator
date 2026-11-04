@@ -14,6 +14,11 @@ using TeamsGeneratorWebAPI.Telemetry;
 using TeamsGeneratorWebAPI.UsersBlob;
 using TeamsGeneratorWebAPI.Invitations;
 using Microsoft.ApplicationInsights.Extensibility;
+using TeamsGeneratorWebAPI.Capacity;
+using Microsoft.Extensions.Logging.AzureAppServices;
+using TeamsGeneratorWebAPI.OwnerEmail;
+using TeamsGeneratorWebAPI.Polls;
+using TeamsGeneratorWebAPI.Announcements;
 
 var builder = WebApplication.CreateBuilder(args);
 // Capability URLs must not enter the default hosting request-start/request-end logs.
@@ -24,6 +29,31 @@ WebAppAPI.Init();
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddRuntimeCapacity(builder.Configuration);
+builder.Services.AddPremiumBilling(builder.Configuration);
+builder.Services.AddOwnerEmail(builder.Configuration);
+builder.Services.AddAccountAnnouncements(builder.Configuration);
+builder.Logging.AddFilter("System.Net.Http.HttpClient.OwnerEmail", LogLevel.None);
+// Opaque billing customer IDs are credentials, not telemetry dimensions.
+builder.Logging.AddFilter("System.Net.Http.HttpClient.RevenueCat", LogLevel.None);
+builder.Logging.AddFilter("System.Net.Http.HttpClient.GooglePlay", LogLevel.None);
+if (builder.Configuration.GetValue<bool>("Billing:WorkerFileLoggingEnabled"))
+{
+    builder.Logging.AddAzureWebAppDiagnostics();
+    builder.Services.Configure<AzureFileLoggerOptions>(options =>
+    {
+        options.FileName = "teamify-billing-worker-";
+        options.FileSizeLimit = 16 * 1024 * 1024;
+        options.RetainedFileCountLimit = 3;
+        options.IncludeScopes = false;
+    });
+    builder.Services.Configure<LoggerFilterOptions>(options =>
+    {
+        options.Rules.Add(new LoggerFilterRule("AzureAppServicesFile", null, null, (_, category, level) =>
+            category == typeof(BillingWorker).FullName && level >= LogLevel.Information));
+        options.Rules.Add(new LoggerFilterRule("AzureAppServicesBlob", null, LogLevel.None, null));
+    });
+}
 var firebaseProjectId =
     builder.Configuration["Firebase:ProjectId"] ??
     "teamsgeneratorapp";
@@ -46,9 +76,20 @@ builder.Services
         };
         options.Events = new JwtBearerEvents
         {
-            OnTokenValidated = context => context.HttpContext.RequestServices
-                .GetRequiredService<IPremiumAccountStore>()
-                .UpdateVerifiedIdentityAsync(context.Principal!, context.HttpContext.RequestAborted)
+            OnTokenValidated = async context =>
+            {
+                await context.HttpContext.RequestServices.GetRequiredService<IPremiumAccountStore>()
+                    .UpdateVerifiedIdentityAsync(context.Principal!, context.HttpContext.RequestAborted);
+                var token = context.SecurityToken switch
+                {
+                    Microsoft.IdentityModel.JsonWebTokens.JsonWebToken jwt => jwt.EncodedToken,
+                    System.IdentityModel.Tokens.Jwt.JwtSecurityToken jwt => jwt.RawData,
+                    _ => string.Empty
+                };
+                await context.HttpContext.RequestServices.GetRequiredService<AuthenticatedAccountObserver>()
+                    .ObserveAsync(context.Principal!, token,
+                        context.Request.Headers["client_version"].ToString(), context.HttpContext.RequestAborted);
+            }
         };
     });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -65,6 +106,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddTransient<IUserConfigAzureStorage, UserConfigAzureStorage>();
 builder.Services.AddMemoryCache();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IPlayersStorageBlobConnector, PlayersStorageBlobConnector>();
 builder.Services.AddTransient<ITeamsStorageBlobConnector, TeamsStorageBlobConnector>();
 builder.Services.AddTransient<IUserAzureStorage, UserAzureStorage>();
@@ -73,6 +115,12 @@ builder.Services.AddSingleton<IPremiumAccountStore, PremiumAccountStore>();
 builder.Services.AddSingleton<IGroupCollaborationService, GroupCollaborationService>();
 builder.Services.AddSingleton<IPlayerAssessmentService, PlayerAssessmentService>();
 builder.Services.AddSingleton<AzureTableStorageService>();
+builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
+builder.Services.AddSingleton<TablePollStore>();
+builder.Services.AddSingleton<PollService>();
+builder.Services.AddSingleton<PollPublicRateLimiter>();
+builder.Services.AddScoped<PollExceptionFilter>();
+builder.Services.AddSingleton<ITelemetryInitializer, PollTelemetryRedactor>();
 builder.Services.AddSingleton<AzureTableGroceries>();
 builder.Services.AddSingleton<GroceriesBlobStorage>();
 builder.Services.AddSingleton(provider =>
@@ -84,10 +132,25 @@ builder.Services.AddSingleton(provider =>
             configuration["AiAudience"]));
 });
 builder.Services.AddSingleton<IUsageTelemetry, UsageTelemetry>();
+builder.Services.AddSingleton<IRegistrationStore, RegistrationStore>();
+builder.Services.AddSingleton<AccountObservationStore>();
+builder.Services.AddSingleton<AuthenticatedAccountObserver>();
+builder.Services.AddSingleton<IFirebaseAccountLookup, FirebaseAccountLookup>();
+builder.Services.AddHttpClient(FirebaseAccountLookup.ClientName)
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
+builder.Logging.AddFilter("System.Net.Http.HttpClient." + FirebaseAccountLookup.ClientName, LogLevel.None);
+builder.Services.AddSingleton<ITelemetryInitializer, FirebaseAccountTelemetryRedactor>();
 builder.Services.AddSingleton<IInvitationDocumentStore, BlobInvitationDocumentStore>();
 builder.Services.AddSingleton<IInvitationClock, InvitationClock>();
 builder.Services.AddSingleton<IInvitationGroupSource, InvitationGroupSource>();
 builder.Services.AddSingleton<InvitationService>();
+builder.Services.AddSingleton<TeamsGeneratorWebAPI.PlayerProfiles.PlayerProfileService>();
+builder.Services.AddSingleton<TeamsGeneratorWebAPI.PlayerProfiles.PlayerMembershipService>();
+builder.Services.AddSingleton<TeamsGeneratorWebAPI.PlayerProfiles.IPlayerPerformanceSource, TeamsGeneratorWebAPI.PlayerProfiles.PlayerPerformanceSource>();
+builder.Services.AddSingleton<TeamsGeneratorWebAPI.PlayerProfiles.PlayerPerformanceService>();
+builder.Services.AddSingleton<TeamsGeneratorWebAPI.GroupJoins.GroupJoinService>();
+builder.Services.AddSingleton<TeamsGeneratorWebAPI.GroupJoins.GroupJoinRoster>();
+builder.Services.AddSingleton<TeamsGeneratorWebAPI.GroupJoins.IGroupJoinAnalyzer, TeamsGeneratorWebAPI.GroupJoins.GroupJoinAnalyzer>();
 builder.Services.AddSingleton<NotificationAccountService>();
 builder.Services.AddSingleton<InvitationPublicRateLimiter>();
 builder.Services.AddScoped<InvitationExceptionFilter>();
@@ -98,6 +161,7 @@ if (builder.Configuration.GetValue<bool>("Notifications:Fcm:Enabled"))
     builder.Services.AddHostedService<InvitationDigestWorker>();
 }
 builder.Services.AddSingleton<ITelemetryInitializer, InvitationTelemetryRedactor>();
+builder.Services.AddSingleton<ITelemetryInitializer, BillingTelemetryRedactor>();
 
 
 var applicationInsightsConnectionString =
@@ -106,6 +170,14 @@ var applicationInsightsConnectionString =
 builder.Services.AddApplicationInsightsTelemetry(options =>
 {
     options.ConnectionString = applicationInsightsConnectionString;
+    options.EnableAdaptiveSampling = false;
+});
+builder.Services.Configure<TelemetryConfiguration>(configuration =>
+{
+    // Keep product events for distinct-user and latest-preference reporting.
+    configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder
+        .UseAdaptiveSampling(maxTelemetryItemsPerSecond: 5, excludedTypes: "Event")
+        .Build();
 });
 
 builder.Services.AddCors(options =>
@@ -126,7 +198,8 @@ builder.Services.AddCors(options =>
         }
 
         policy.AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .WithExposedHeaders("Retry-After");
     });
 });
 
@@ -146,6 +219,7 @@ builder.Services
     });
 
 var app = builder.Build();
+TeamsGeneratorWebAPI.ApplicationHealth.UseDeploymentIdentity(app);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -164,8 +238,9 @@ app.UseStaticFiles();
 app.UseCors("Frontend");
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<RuntimeCapacityMiddleware>();
 
-app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
+app.MapGet("/health", TeamsGeneratorWebAPI.ApplicationHealth.Read);
 app.MapControllers();
 
 

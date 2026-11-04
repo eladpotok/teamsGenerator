@@ -157,6 +157,15 @@ namespace TeamsGenerator.API
         [JsonIgnore]
         [System.Text.Json.Serialization.JsonIgnore]
         public bool HasEnableMatchInvitations => _enableMatchInvitations.HasValue;
+        private bool? _enableGroupJoinRequests;
+        public bool EnableGroupJoinRequests
+        {
+            get => _enableGroupJoinRequests ?? true;
+            set => _enableGroupJoinRequests = value;
+        }
+        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        public bool HasEnableGroupJoinRequests => _enableGroupJoinRequests.HasValue;
         public int MaxMatchdayPlayers { get; set; }
         public bool HasCustomMatchdayPlayerLimit { get; set; }
         public MatchdayRules MatchdayRules { get; set; }

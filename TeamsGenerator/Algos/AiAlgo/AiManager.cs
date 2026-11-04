@@ -60,11 +60,12 @@ namespace TeamsGenerator.Algos.AiAlgo
             Exception lastError = null;
             for (var attempt = 0; attempt < MaxAttempts; attempt++)
             {
+                GenerationCancellation.ThrowIfCancellationRequested();
                 try
                 {
                     return Generate(inputPlayers, lockedTeamList);
                 }
-                catch (Exception exception)
+                catch (Exception exception) when (exception is not OperationCanceledException)
                 {
                     lastError = exception;
                 }
@@ -184,7 +185,8 @@ namespace TeamsGenerator.Algos.AiAlgo
             return _aiService
                 .GetResponseFromAgentForTeams(
                     prompt,
-                    JsonConvert.SerializeObject(input))
+                    JsonConvert.SerializeObject(input),
+                    GenerationCancellation.Token)
                 .GetAwaiter()
                 .GetResult();
         }

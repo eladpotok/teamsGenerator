@@ -3,6 +3,7 @@ namespace TeamsGenerator.API
     public class MatchdayRules
     {
         public string Language { get; set; } = "en";
+        public int? EventDurationMinutes { get; set; }
         public bool TimeLimitEnabled { get; set; }
         public int Minutes { get; set; } = 8;
         public bool GoalLimitEnabled { get; set; }
@@ -30,6 +31,10 @@ namespace TeamsGenerator.API
             if (Language != "en" && Language != "he")
             {
                 error = "Matchday rules language must be en or he.";
+            }
+            else if (EventDurationMinutes is < 1 or > 1440)
+            {
+                error = "Total event duration must be between 1 and 1440 minutes, or omitted for 2 hours.";
             }
             else if (TieResolution != "none"
                 && TieResolution != "penalties"

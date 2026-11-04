@@ -52,6 +52,7 @@ namespace TeamsGenerator.Algos.PositionsAlgo
 
             while (positionsPlayers.Any())
             {
+                GenerationCancellation.ThrowIfCancellationRequested();
                 var playersCountBeforePass = positionsPlayers.Count;
 
                 for (int i = 0; i < numberOfPositions; i++)

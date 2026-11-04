@@ -80,12 +80,18 @@ namespace TeamsGeneratorWebAPI.Controllers
             {
                 UId = access.OwnerId,
                 AlgoType = algoKey,
-                GroupId = access.GroupId
+                GroupId = access.GroupId,
+                ExpectedRevision = Request.Headers["X-Roster-Revision"].FirstOrDefault()
             };
             var playersToSave = access.IsOwner
                 ? PrivatePlayerFields.RemoveFromSnapshot(new JArray(playerItems))
                 : await MergeSharedRosterAsync(players, config);
-            if (canUsePrivateAssessments)
+            var response = await _azureStorage.UploadAsync(
+                playersToSave,
+                config);
+            if (response is SavePlayersResponse { Conflict: true } conflict)
+                return Conflict(conflict);
+            if (response.Success && canUsePrivateAssessments)
             {
                 await _assessments.SaveAsync(
                     userId,
@@ -94,9 +100,6 @@ namespace TeamsGeneratorWebAPI.Controllers
                     new JArray(playerItems.Select(item => item.DeepClone())),
                     dedicatedOnly: access.IsOwner);
             }
-            var response = await _azureStorage.UploadAsync(
-                playersToSave,
-                config);
             _usageTelemetry.Track(
                 "PlayerRosterSaved",
                 ver,
@@ -178,6 +181,8 @@ namespace TeamsGeneratorWebAPI.Controllers
                 new Dictionary<string, string?>
                 {
                     ["graphic_type"] = "players",
+                    ["outcome"] = "succeeded",
+                    ["renderer"] = "server",
                     ["language"] = GetLanguage(culture)
                 },
                 new Dictionary<string, double>
@@ -304,14 +309,15 @@ namespace TeamsGeneratorWebAPI.Controllers
                 return Ok(new
                 {
                     success = true,
-                    players = sharedPlayers
+                    players = sharedPlayers,
+                    revision = sharedResponse.Revision
                 });
             }
             return Ok(response);
         }
 
         [HttpGet("Groups")]
-        public async Task<PlayerGroupsResponse> GetGroups(string uid)
+        public async Task<PlayerGroupsResponse> GetGroups(string uid, bool readOnly = false)
         {
             var userId = RequestUserId.Resolve(User, uid);
             var owned = await _azureStorage.ListGroupsAsync(userId);
@@ -330,18 +336,32 @@ namespace TeamsGeneratorWebAPI.Controllers
                         GroupId =
                             PlayersStorageBlobConnector.DefaultGroupId
                     }) as GetConfigResponse;
+                if (!GetConfigResponse.IsAvailable(defaultConfigResponse))
+                {
+                    _logger.LogWarning("Default group configuration read failed; group-name migration is deferred.");
+                    return PlayerGroupsResponse.Failure("Configuration could not be loaded. Please retry.");
+                }
                 var matchdayName =
                     defaultConfigResponse?.Config?.TeamName?.Trim();
                 if (!string.IsNullOrWhiteSpace(matchdayName))
                 {
-                    var migration =
-                        await _azureStorage.InitializeDefaultGroupNameAsync(
-                            userId,
-                            matchdayName);
-                    if (migration.Success)
+                    if (readOnly) defaultGroup.Name = matchdayName;
+                    else
                     {
-                        defaultGroup.Name = migration.Group.Name;
+                        var migration =
+                            await _azureStorage.InitializeDefaultGroupNameAsync(
+                                userId,
+                                matchdayName);
+                        if (migration.Success)
+                        {
+                            defaultGroup.Name = migration.Group.Name;
+                        }
                     }
+                }
+                else if (readOnly)
+                {
+                    owned = PlayerGroupsResponse.Succeeded(
+                        owned.Groups.Where(group => !group.IsDefault).ToList());
                 }
             }
             var memberships =
@@ -389,13 +409,16 @@ namespace TeamsGeneratorWebAPI.Controllers
         }
 
         [HttpDelete("Groups/{groupId}")]
-        public Task<SavePlayersResponse> DeleteGroup(
+        public async Task<SavePlayersResponse> DeleteGroup(
             string groupId,
             string uid)
         {
-            return _azureStorage.DeleteGroupAsync(
-                RequestUserId.Resolve(User, uid),
-                groupId);
+            var userId = RequestUserId.Resolve(User, uid);
+            var result = await _azureStorage.DeleteGroupAsync(userId, groupId);
+            if (result.Success)
+                _usageTelemetry.TrackGroupSkills(null, userId, userId, groupId, null,
+                    "deleted", "deleted", deleted: true);
+            return result;
         }
 
         [HttpPost("Move")]
@@ -432,6 +455,11 @@ namespace TeamsGeneratorWebAPI.Controllers
         {
             var existingResponse =
                 await _azureStorage.ListAsync(config) as GetPlayersResponse;
+            if (existingResponse?.Success != true && existingResponse?.Error != "Players were not found")
+                throw new InvalidOperationException("The shared roster could not be loaded.");
+            // Pin the private-field merge without treating a legacy request as versioned.
+            config.MergeRevision = existingResponse.Revision
+                ?? throw new InvalidOperationException("The shared roster revision could not be loaded.");
             var existingPlayers = existingResponse?.Success == true
                 ? JArray.FromObject(existingResponse.Players)
                 : new JArray();

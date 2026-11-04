@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using TeamsGenerator.Orchestration;
 using TeamsGenerator.Utilities;
 using TeamsGeneratorWebAPI.DesignCreator;
 
@@ -235,7 +236,7 @@ namespace TeamsDesignCreator
             for (var index = 0; index < headers.Length; index++)
             {
                 headerPaint.TextAlign = SKTextAlign.Center;
-                canvas.DrawText(headers[index], numericCenters[index], 468, headerPaint);
+                DrawCanvasText(canvas, headers[index], numericCenters[index], 468, SKTextAlign.Center, headerPaint);
             }
 
             var entries = table
@@ -271,7 +272,7 @@ namespace TeamsDesignCreator
                         canvas.DrawCircle(rankX, rowRect.MidY, 18, rankCirclePaint);
                     }
                     rankPaint.TextAlign = SKTextAlign.Center;
-                    canvas.DrawText((index + 1).ToString(CultureInfo.InvariantCulture), rankX, rowRect.MidY + 6, rankPaint);
+                    DrawCanvasText(canvas, (index + 1).ToString(CultureInfo.InvariantCulture), rankX, rowRect.MidY + 6, SKTextAlign.Center, rankPaint);
                     DrawJerseyIcon(canvas, jerseyX, rowRect.MidY, teamColor, 0.55f);
                     DrawFittedRosterText(
                         canvas,
@@ -296,7 +297,7 @@ namespace TeamsDesignCreator
                 {
                     statPaint.Color = valueIndex == values.Length - 1 ? SKColor.Parse("#7AFCB7") : SKColors.White;
                     statPaint.TextAlign = SKTextAlign.Center;
-                    canvas.DrawText(values[valueIndex].ToString(CultureInfo.InvariantCulture), numericCenters[valueIndex], rowRect.MidY + 9, statPaint);
+                    DrawCanvasText(canvas, values[valueIndex].ToString(CultureInfo.InvariantCulture), numericCenters[valueIndex], rowRect.MidY + 9, SKTextAlign.Center, statPaint);
                 }
             }
         }
@@ -355,7 +356,7 @@ namespace TeamsDesignCreator
                     15);
                 scorePaint.Color = index == 0 ? SKColor.Parse("#7AFCB7") : SKColors.White;
                 scorePaint.TextAlign = SKTextAlign.Center;
-                canvas.DrawText(leader.Scores.ToString(CultureInfo.InvariantCulture), scoreX, rowRect.MidY + 9, scorePaint);
+                DrawCanvasText(canvas, leader.Scores.ToString(CultureInfo.InvariantCulture), scoreX, rowRect.MidY + 9, SKTextAlign.Center, scorePaint);
             }
         }
 
@@ -641,7 +642,7 @@ namespace TeamsDesignCreator
 
         private static void DrawText(float x, float y, SKPaint paint, SKCanvas canvas, string text)
         {
-            canvas.DrawText(text, x, y, paint);
+            DrawCanvasText(canvas, text, x, y, paint.TextAlign, paint);
         }
 
         private static CultureInfo GetCulture(string symbol)
@@ -941,10 +942,12 @@ namespace TeamsDesignCreator
                 var positionText = player.IsWaiting
                     ? $"W{(player.WaitingListOrder ?? 0) + 1}"
                     : (index + 1).ToString(CultureInfo.InvariantCulture);
-                canvas.DrawText(
+                DrawCanvasText(
+                    canvas,
                     positionText,
                     numberCenterX,
                     numberCenterY + 8,
+                    SKTextAlign.Center,
                     numberPaint);
 
                 var textRect = isRtlLayout
@@ -980,7 +983,7 @@ namespace TeamsDesignCreator
             canvas.DrawRoundRect(pillRect, 22, 22, fillPaint);
             textPaint.Color = SKColor.Parse("#071A2E");
             textPaint.TextAlign = SKTextAlign.Center;
-            canvas.DrawText(preparedText, pillRect.MidX, pillRect.MidY + 9, textPaint);
+            DrawCanvasText(canvas, preparedText, pillRect.MidX, pillRect.MidY + 9, SKTextAlign.Center, textPaint);
             textPaint.Color = originalColor;
             textPaint.TextAlign = originalAlignment;
         }
@@ -1106,29 +1109,57 @@ namespace TeamsDesignCreator
             SKTextAlign alignment,
             float minimumTextSize)
         {
+            GenerationCancellation.ThrowIfCancellationRequested();
             var originalSize = paint.TextSize;
             var value = string.IsNullOrWhiteSpace(text) ? "—" : text.Trim();
             var preparedText = PrepareTextForCanvas(value);
 
             while (paint.TextSize > minimumTextSize && paint.MeasureText(preparedText) > availableRect.Width)
             {
+                GenerationCancellation.ThrowIfCancellationRequested();
                 paint.TextSize -= 1;
             }
 
-            while (paint.MeasureText(preparedText) > availableRect.Width && value.Length > 2)
+            if (paint.MeasureText(preparedText) > availableRect.Width && value.Length > 2)
             {
-                value = value.Substring(0, value.Length - 2).TrimEnd() + "…";
-                preparedText = PrepareTextForCanvas(value);
+                // Measure logarithmically many prefixes instead of repeatedly shaping almost the entire title.
+                var boundaries = StringInfo.ParseCombiningCharacters(value);
+                var low = 0;
+                var high = boundaries.Length - 1;
+                preparedText = PrepareTextForCanvas("…");
+                while (low <= high)
+                {
+                    GenerationCancellation.ThrowIfCancellationRequested();
+                    var middle = low + (high - low) / 2;
+                    var candidate = PrepareTextForCanvas(value.Substring(0, boundaries[middle]).TrimEnd() + "…");
+                    if (paint.MeasureText(candidate) <= availableRect.Width)
+                    {
+                        preparedText = candidate;
+                        low = middle + 1;
+                    }
+                    else
+                    {
+                        high = middle - 1;
+                    }
+                }
             }
 
+            GenerationCancellation.ThrowIfCancellationRequested();
             paint.TextAlign = alignment;
             var x = alignment == SKTextAlign.Center
                 ? availableRect.MidX
                 : alignment == SKTextAlign.Right
                     ? availableRect.Right
                     : availableRect.Left;
-            canvas.DrawText(preparedText, x, baseline, paint);
+            DrawCanvasText(canvas, preparedText, x, baseline, alignment, paint);
             paint.TextSize = originalSize;
+        }
+
+        private static void DrawCanvasText(SKCanvas canvas, string text, float x, float y, SKTextAlign alignment, SKPaint paint)
+        {
+            // The legacy paint-based overload loses text coordinates on optimized .NET x86.
+            using var font = new SKFont(paint.Typeface, paint.TextSize);
+            canvas.DrawText(text, x, y, alignment, font, paint);
         }
 
         private static DateTime? ParseMatchDate(string date)

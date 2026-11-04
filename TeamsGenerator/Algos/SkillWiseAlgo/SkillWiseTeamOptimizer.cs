@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TeamsGenerator.API;
 using TeamsGenerator.Orchestration.Contracts;
+using TeamsGenerator.Orchestration;
 
 namespace TeamsGenerator.Algos.SkillWiseAlgo
 {
@@ -46,6 +47,7 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
                              firstPlayerIndex < firstTeam.Players.Count;
                              firstPlayerIndex++)
                         {
+                            GenerationCancellation.ThrowIfCancellationRequested();
                             if (IsLocked(
                                 firstTeam.Players[firstPlayerIndex],
                                 lockedPlayerKeys,

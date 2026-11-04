@@ -86,6 +86,10 @@ internal static class UserConfigScopes
         {
             target.EnableMatchInvitations = source.EnableMatchInvitations;
         }
+        if (!preserveMissingInvitationSetting || source.HasEnableGroupJoinRequests)
+        {
+            target.EnableGroupJoinRequests = source.EnableGroupJoinRequests;
+        }
         target.ShareImageTemplate = NormalizeShareImageTemplate(
             source.ShareImageTemplate);
         target.AvailableLanguages = source.AvailableLanguages;

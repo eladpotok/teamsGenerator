@@ -72,6 +72,7 @@ namespace TeamsGenerator.Algos.BackAndForthAlgo
                     while (team.Players.Count < maxPlayersInTeam
                         && _orderedPlayers.Any())
                     {
+                        GenerationCancellation.ThrowIfCancellationRequested();
                         var optionalRank = new List<int>() { avgRankOfTeamWithMaxPlayers, avgRankOfTeamWithMaxPlayers + 1, avgRankOfTeamWithMaxPlayers - 1 };
                         var player = _orderedPlayers.Where(t => optionalRank.Contains((int)PlayerRatings.GetRank(t))).FirstOrDefault();
                         
@@ -123,6 +124,7 @@ namespace TeamsGenerator.Algos.BackAndForthAlgo
             teams = teams.OrderBy(t => t.TotalRank).ToList();
             for (int i = firstUnassignedPlayer; i < playersCount; i++)
             {
+                GenerationCancellation.ThrowIfCancellationRequested();
                 var teamNumber = toggle ? teamsCount - i % teamsCount - 1 : i % teamsCount;
                 teams[teamNumber].AddPlayer(_orderedPlayers[i]);
 
