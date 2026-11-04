@@ -1,3 +1,5 @@
+using TeamsGeneratorWebAPI.PlayerProfiles;
+
 namespace TeamsGeneratorWebAPI.Invitations;
 
 public sealed class NotificationAccountService
@@ -8,6 +10,15 @@ public sealed class NotificationAccountService
 
     public async Task<NotificationAccount> GetAsync(string userId, CancellationToken ct) =>
         (await _store.ReadAsync<NotificationAccount>(InvitationKeys.Account(userId), ct))?.Value ?? new();
+
+    public async Task<string?> PlayerRecipientAsync(string profileId, CancellationToken ct)
+    {
+        var recipient = await _store.ReadAsync<PlayerNotificationRecipient>(InvitationKeys.PlayerRecipient(profileId), ct);
+        if (recipient == null) return null;
+        if (PlayerProfileService.Id(recipient.Value.UserId) != profileId)
+            throw new InvalidDataException("Player notification recipient does not match its account.");
+        return recipient.Value.UserId;
+    }
 
     public async Task<NotificationPreferences> SetPreferencesAsync(string userId, NotificationPreferences preferences, CancellationToken ct)
     {
@@ -21,6 +32,10 @@ public sealed class NotificationAccountService
     {
         ValidateToken(request.Token);
         if (request.Platform != "android") throw new InvitationException(400, "Only the android platform is supported.");
+        var recipientKey = InvitationKeys.PlayerRecipient(PlayerProfileService.Id(userId));
+        if (!await _store.WriteAsync(recipientKey, new PlayerNotificationRecipient(userId), null, ct)
+            && await PlayerRecipientAsync(PlayerProfileService.Id(userId), ct) != userId)
+            throw new InvalidDataException("Player notification recipient could not be established.");
         var key = InvitationKeys.Hash(request.Token);
         var existingAccount = await GetAsync(userId, ct);
         if (!existingAccount.Devices.ContainsKey(key) && existingAccount.Devices.Count >= 20)

@@ -1,8 +1,8 @@
-# Match occurrence invitations and Android notification digests
+# Match occurrence invitations and Android notifications
 
 ## Current rollout scope
 
-Phone notifications are deferred. The invitation page, In/Out responses, waiting list,
+Phone notifications default to off. The invitation page, In/Out responses, waiting list,
 and organizer attendance refresh remain active without Firebase messaging setup.
 The frontend defaults `REACT_APP_ENABLE_INVITATION_PUSH` to off: notification settings,
 native registration, and push-related authentication cleanup do not run.
@@ -13,6 +13,45 @@ The notification implementation below is retained for a later feature. Enabling 
 requires `REACT_APP_ENABLE_INVITATION_PUSH=true` at frontend/Android build time,
 server FCM opt-in, provisioning, and a coordinated rollout. Do not enable these
 switches as part of the RSVP-only release.
+
+### Waiting-list promotion alerts
+
+The independent `REACT_APP_ENABLE_PLAYER_PROMOTION_PUSH=true` Android build flag
+enables player notification registration, permission controls in the account profile
+and on a linked waiting player's invitation, and exact-match notification opens.
+Only registered, signed-in accounts with a verified link to that roster entry are
+eligible. Guest name selection is never used to find an account or device.
+Permission is requested only after the player taps the opt-in button.
+
+For a promotion-only rollout, configure:
+
+```
+Notifications:Fcm:Enabled=true
+Notifications:Promotions:Enabled=true
+Notifications:Digests:Enabled=false
+REACT_APP_ENABLE_PLAYER_PROMOTION_PUSH=true
+```
+
+Keep the organizer frontend flag off unless organizer digests are also intended.
+`Notifications:Promotions:Enabled` defaults to false;
+`Notifications:Digests:Enabled` defaults to true for compatibility with existing
+FCM deployments. Provision FCM project/ADC credentials with sending permissions,
+the matching Android Firebase configuration, notification permission, and Always On
+before enabling delivery. These changes do not provision or enable production.
+
+An RSVP change atomically persists alerts for previously waiting, now-confirmed
+linked players in the occurrence's existing ETag-protected document. Initial joins
+and identical responses do not create alerts. Delivery is separate from organizer
+thresholds and cooldowns. A worker scans pages every ten seconds and persists leases,
+per-device progress and retries. Before sending, it rechecks the exact occurrence,
+current confirmation/response order, roster account link, device ownership and age.
+Withdrawal, removal, disabled invitations, revocation and kickoff cancel stale alerts.
+
+Background/closed-app notifications use the high-priority `matchday-promotions`
+Android channel; foreground delivery shows an in-app notice. Tapping opens the
+original invitation, not a recalculated next match. Content follows the group language.
+The stable notification ID/tag limits duplicate tray entries, but an FCM send followed
+by a process crash can still be retried: delivery is not exactly once.
 
 ## API
 
@@ -65,8 +104,9 @@ then group existence and the live roster are checked using existing storage conn
 | `POST /Invitations/Public/{token}/Responses` | `{playerKey, status: "in"|"out"}` | `PublicInvitation` directly |
 | `DELETE /Invitations/Current?groupId=...&scheduledAt=...` | Authenticated revocation of that occurrence | `{success:true}` |
 | `GET /Notifications/Preferences` | Authenticated | `{enabled, playerThreshold, intervalMinutes, deliveryConfigured}` |
+| `GET /Notifications/Promotions/Status` | Registered account | `{deliveryConfigured}` for promotion delivery |
 | `PUT /Notifications/Preferences` | `{enabled, playerThreshold, intervalMinutes}`; threshold 1..50, interval 60..1440 | Saved three-field preferences directly |
-| `POST /Notifications/Devices` | `{token, platform:"android"}` | `{success:true}` |
+| `POST /Notifications/Devices` | Registered account; `{token, platform:"android"}` | `{success:true}` |
 | `DELETE /Notifications/Devices` | `{token}` (body, authenticated before logout) | `{success:true}` |
 
 `PublicInvitation` has exactly `id`, `groupName`, `matchName`, `location`,

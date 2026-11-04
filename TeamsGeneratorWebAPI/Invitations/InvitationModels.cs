@@ -48,6 +48,7 @@ public record ResponseEvent(long Revision, string PlayerKey, string Status, Date
 public record TokenPointer(string InvitationId);
 public record RegisteredDevice(string Token, DateTimeOffset UpdatedAt, string? OwnershipVersion = null);
 public record DeviceOwnership(string? OwnerId, string Version, DateTimeOffset RegisteredAt);
+public record PlayerNotificationRecipient(string UserId);
 public sealed class NotificationAccount
 {
     public NotificationPreferences Preferences { get; set; } = new();
@@ -83,6 +84,21 @@ public sealed class InvitationState
     public string? LeaseOwner { get; set; }
     public DateTimeOffset? LeaseUntil { get; set; }
     public DigestBatch? Batch { get; set; }
+    public List<PromotionNotification> Promotions { get; set; } = new();
+}
+
+public sealed class PromotionNotification
+{
+    public string Id { get; set; } = "";
+    public string PlayerKey { get; set; } = "";
+    public string ProfileId { get; set; } = "";
+    public long ResponseOrder { get; set; }
+    public HashSet<string>? TargetDevices { get; set; }
+    public HashSet<string> CompletedDevices { get; set; } = new();
+    public string? LeaseOwner { get; set; }
+    public DateTimeOffset? LeaseUntil { get; set; }
+    public DateTimeOffset? RetryAt { get; set; }
+    public int Failures { get; set; }
 }
 
 public sealed class DigestBatch

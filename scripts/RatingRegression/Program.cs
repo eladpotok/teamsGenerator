@@ -86,6 +86,7 @@ if (args.Contains("--invitations"))
 {
     WebAppAPI.Init();
     await InvitationRegression.Run(Check);
+    await InvitationPromotionRegression.Run(Check);
     Console.WriteLine($"Passed {assertions} invitation assertions.");
     return;
 }

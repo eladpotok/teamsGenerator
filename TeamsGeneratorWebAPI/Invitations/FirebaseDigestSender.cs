@@ -12,7 +12,14 @@ public interface IInvitationPushSender
     Task<PushResult> SendAsync(string deviceToken, InvitationState invitation, DigestBatch batch, CancellationToken ct);
 }
 
-public sealed class FirebaseDigestSender : IInvitationPushSender, IDisposable
+public interface IInvitationPromotionPushSender
+{
+    bool Enabled { get; }
+    Task<PushResult> SendPromotionAsync(string deviceToken, string userId, InvitationState invitation,
+        PromotionNotification promotion, string language, CancellationToken ct);
+}
+
+public sealed class FirebaseDigestSender : IInvitationPushSender, IInvitationPromotionPushSender, IDisposable
 {
     private readonly string? _projectId;
     private readonly ILogger<FirebaseDigestSender> _logger;
@@ -69,11 +76,19 @@ public sealed class FirebaseDigestSender : IInvitationPushSender, IDisposable
     }
 
     public async Task<PushResult> SendAsync(string deviceToken, InvitationState invitation, DigestBatch batch, CancellationToken ct)
+        => await SendMessageAsync(BuildMessage(deviceToken, invitation, batch, DateTimeOffset.UtcNow), ct);
+
+    public async Task<PushResult> SendPromotionAsync(string deviceToken, string userId, InvitationState invitation,
+        PromotionNotification promotion, string language, CancellationToken ct)
+        => await SendMessageAsync(BuildPromotionMessage(deviceToken, userId, invitation, promotion, language,
+            DateTimeOffset.UtcNow), ct);
+
+    private async Task<PushResult> SendMessageAsync(Message message, CancellationToken ct)
     {
         if (!await IsDeliveryConfiguredAsync(ct)) return PushResult.Unavailable;
         try
         {
-            await FirebaseMessaging.GetMessaging(_app).SendAsync(BuildMessage(deviceToken, invitation, batch, DateTimeOffset.UtcNow), ct);
+            await FirebaseMessaging.GetMessaging(_app).SendAsync(message, ct);
             return PushResult.Delivered;
         }
         catch (FirebaseMessagingException ex)
@@ -109,6 +124,35 @@ public sealed class FirebaseDigestSender : IInvitationPushSender, IDisposable
             Priority = Priority.Normal, CollapseKey = invitation.Id,
             TimeToLive = TimeSpan.FromSeconds(Math.Clamp((invitation.ScheduledAt - now).TotalSeconds, 0, 6 * 3600)),
             Notification = new AndroidNotification { Tag = invitation.Id, ChannelId = "matchday-rsvp" }
+        }
+    };
+
+    public static Message BuildPromotionMessage(string token, string userId, InvitationState invitation,
+        PromotionNotification promotion, string language, DateTimeOffset now) => new()
+    {
+        Token = token,
+        Notification = new Notification
+        {
+            Title = language == "he" ? "אתם בפנים!" : "You're in!",
+            Body = language == "he"
+                ? $"{invitation.GroupName} · {invitation.MatchName}: התפנה מקום ועברתם מרשימת ההמתנה לרשימת המשתתפים."
+                : $"{invitation.GroupName} · {invitation.MatchName}: a spot opened up. You've moved from the waiting list into the confirmed squad."
+        },
+        Data = new Dictionary<string, string>
+        {
+            ["type"] = "waitlist_promotion", ["invitationId"] = invitation.Id,
+            ["invitationToken"] = invitation.Token, ["groupId"] = invitation.GroupId,
+            ["scheduledAt"] = invitation.ScheduledAt.UtcDateTime.ToString("O"),
+            ["notificationId"] = promotion.Id, ["recipientUserId"] = userId
+        },
+        Android = new AndroidConfig
+        {
+            Priority = Priority.High, CollapseKey = promotion.Id,
+            TimeToLive = TimeSpan.FromSeconds(Math.Clamp((invitation.ScheduledAt - now).TotalSeconds, 0, 6 * 3600)),
+            Notification = new AndroidNotification
+            {
+                Tag = promotion.Id, ChannelId = "matchday-promotions", Sound = "default"
+            }
         }
     };
 
