@@ -2,6 +2,8 @@ namespace TeamsGeneratorWebAPI.Invitations;
 
 public record CreateInvitationRequest(string GroupId, string ScheduledAt, string TimeZone);
 public record InvitationResponseRequest(string PlayerKey, string Status);
+public record OwnInvitationResponseRequest(string Status);
+public record OwnInvitation(PublicInvitation Invitation, string? PlayerKey);
 public record DeviceRequest(string Token, string? Platform);
 public record NotificationPreferences(bool Enabled = true, int PlayerThreshold = 10, int IntervalMinutes = 360);
 public record NotificationPreferencesResponse(bool Enabled, int PlayerThreshold, int IntervalMinutes, bool DeliveryConfigured);
@@ -18,6 +20,7 @@ public class PublicInvitation
     public DateTimeOffset ScheduledAt { get; set; }
     public string TimeZone { get; set; } = "";
     public string Language { get; set; } = "en";
+    public int EventDurationMinutes { get; set; } = 120;
     public int Capacity { get; set; }
     public string Status { get; set; } = "open";
     public long Revision { get; set; }
@@ -34,7 +37,12 @@ public sealed class OrganizerInvitation : PublicInvitation
 public record RosterPlayer(string Key, string Name);
 public record InvitationGroup(string OwnerId, string GroupId, string Name, string MatchName,
     string Location, string? Logo, int Capacity, IReadOnlyList<RosterPlayer> Players,
-    bool InvitationsEnabled, string Language);
+    bool InvitationsEnabled, string Language, int EventDurationMinutes = 120)
+{
+    public TeamsGenerator.API.UserConfigResponse Configuration { get; init; } = new();
+    public int MaximumPlayers { get; init; } = 1000;
+    public bool GroupJoinRequestsEnabled { get; init; }
+}
 public record Rsvp(string Status, long Order);
 public record ResponseEvent(long Revision, string PlayerKey, string Status, DateTimeOffset At);
 public record TokenPointer(string InvitationId);
@@ -60,6 +68,7 @@ public sealed class InvitationState
     public DateTimeOffset ScheduledAt { get; set; }
     public DateTimeOffset ExpiresAt { get; set; }
     public string TimeZone { get; set; } = "";
+    public int EventDurationMinutes { get; set; } = 120;
     public int Capacity { get; set; }
     public bool Revoked { get; set; }
     public long Revision { get; set; }

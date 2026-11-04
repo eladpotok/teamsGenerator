@@ -46,12 +46,16 @@ public sealed class InvitationTelemetryRedactor : ITelemetryInitializer
     public void Initialize(ITelemetry telemetry)
     {
         if (telemetry is not RequestTelemetry request || request.Url == null) return;
-        const string route = "/Invitations/Public/";
+        var route = request.Url.AbsolutePath.Contains("/GroupJoins/Public/", StringComparison.OrdinalIgnoreCase)
+            ? "/GroupJoins/Public/" : "/Invitations/Public/";
         var index = request.Url.AbsolutePath.IndexOf(route, StringComparison.OrdinalIgnoreCase);
         if (index < 0) return;
         var builder = new UriBuilder(request.Url) { Path = request.Url.AbsolutePath[..index] + route + "[redacted]", Query = "" };
         request.Url = builder.Uri;
-        request.Name = request.Name.Contains("Responses", StringComparison.OrdinalIgnoreCase)
+        request.Name = route == "/GroupJoins/Public/"
+            ? (request.Name.StartsWith("POST", StringComparison.OrdinalIgnoreCase)
+                ? "POST GroupJoins/Public/[redacted]/Requests" : "GET GroupJoins/Public/[redacted]")
+            : request.Name.Contains("Responses", StringComparison.OrdinalIgnoreCase)
             ? "POST Invitations/Public/[redacted]/Responses" : "GET Invitations/Public/[redacted]";
         request.Context.Operation.Name = request.Name;
     }

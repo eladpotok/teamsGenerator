@@ -1,0 +1,32 @@
+// Deduplicate retries/reloads across workers by session_key, never raw event count.
+// Browser IDs approximate distinct browsers, not people; client attribution is not proof of origin.
+let start = ago(1d);
+let visits = customEvents
+| where timestamp >= start and name == "WebsiteVisitObserved"
+| where tostring(customDimensions.traffic_type) == "browser"
+| where tostring(customDimensions.client_version) !startswith "metrics-verification"
+| where tostring(customDimensions.utm_campaign) !startswith "verification-"
+| extend session = tostring(customDimensions.session_key),
+    visitor = tostring(customDimensions.visitor_key),
+    source = tostring(customDimensions.utm_source),
+    medium = tostring(customDimensions.utm_medium),
+    campaign = tostring(customDimensions.utm_campaign)
+| where isnotempty(session) and isnotempty(visitor)
+| summarize arg_min(timestamp, *) by session;
+let accounts = customEvents
+| where timestamp >= start
+| where tostring(customDimensions.identity_source) == "authenticated" and isnotempty(user_Id)
+| extend session = tostring(customDimensions.session_key)
+| where isnotempty(session)
+| summarize activeAccounts = make_set(user_Id),
+    registrations = make_set_if(tostring(customDimensions.registration_key),
+        name == "AccountRegistrationObserved"
+        and todatetime(customDimensions.created_at) >= start
+        and isnotempty(tostring(customDimensions.registration_key))) by session;
+visits
+| join kind=leftouter accounts on session
+| summarize Visits = count(), Visitors = dcount(visitor),
+    ActiveAccounts = make_set(activeAccounts), NewAccounts = make_set(registrations)
+    by source, medium, campaign
+| extend ActiveAccounts = array_length(ActiveAccounts), NewAccounts = array_length(NewAccounts)
+| order by Visits desc

@@ -61,6 +61,7 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
                  candidateIndex < candidateCount;
                  candidateIndex++)
             {
+                GenerationCancellation.ThrowIfCancellationRequested();
                 var teams = CloneTeams(baseTeams);
                 FillTeams(
                     teams,
@@ -151,6 +152,7 @@ namespace TeamsGenerator.Algos.SkillWiseAlgo
 
             while (playersLeft.Count > 0)
             {
+                GenerationCancellation.ThrowIfCancellationRequested();
                 if (skillIndex >= skills.Count)
                 {
                     skills = Shuffle(skills);

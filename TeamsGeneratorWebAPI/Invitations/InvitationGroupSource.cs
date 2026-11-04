@@ -57,8 +57,13 @@ public sealed class InvitationGroupSource : IInvitationGroupSource
             string.IsNullOrEmpty(config.GroupLogoDataUrl) ? null : config.GroupLogoDataUrl,
             config.HasCustomMatchdayPlayerLimit ? Math.Clamp(config.MaxMatchdayPlayers, 5, 50)
                 : Math.Clamp(config.NumberOfTeams * 5, 5, 50), roster,
-            defaults.EnableMatchInvitations && entitlements.CanUseMatchInvitations,
-            NormalizeLanguage(defaults.Language));
+            defaults.EnableMatchInvitations,
+            NormalizeLanguage(defaults.Language), config.MatchdayRules?.EventDurationMinutes ?? 120)
+        {
+            Configuration = config,
+            MaximumPlayers = entitlements.MaximumPlayers,
+            GroupJoinRequestsEnabled = defaults.EnableGroupJoinRequests
+        };
     }
 
     public static string NormalizeLanguage(string? language) =>
@@ -68,8 +73,7 @@ public sealed class InvitationGroupSource : IInvitationGroupSource
     {
         var response = await _config.ListAsync(new UserConfigBlobConfig { UId = owner, GroupId = group })
             as GetConfigResponse;
-        if (response?.Success == true) return response.Config;
-        if (response?.Error == "config isn't found") return null;
+        if (GetConfigResponse.IsAvailable(response)) return response?.Config;
         throw new InvitationException(503, "Group configuration could not be loaded.");
     }
 }

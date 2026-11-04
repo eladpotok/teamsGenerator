@@ -7,6 +7,8 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
         public string Error { get; set; }
 
         public bool Success { get; set; }
+        public string? Revision { get; set; }
+        public bool Conflict { get; set; }
 
         public SavePlayersResponse()
         {

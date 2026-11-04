@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TeamsGeneratorWebAPI.Authentication;
 using TeamsGeneratorWebAPI.Invitations;
+using TeamsGeneratorWebAPI.Telemetry;
+using TeamsGeneratorWebAPI.PlayerProfiles;
 
 namespace TeamsGeneratorWebAPI.Controllers;
 
@@ -14,8 +16,10 @@ public sealed class InvitationsController : ControllerBase
 {
     private readonly InvitationService _invitations;
     private readonly InvitationPublicRateLimiter _limiter;
-    public InvitationsController(InvitationService invitations, InvitationPublicRateLimiter limiter)
-        => (_invitations, _limiter) = (invitations, limiter);
+    private readonly IUsageTelemetry? _telemetry;
+    public InvitationsController(InvitationService invitations, InvitationPublicRateLimiter limiter,
+        IUsageTelemetry? telemetry = null)
+        => (_invitations, _limiter, _telemetry) = (invitations, limiter, telemetry);
 
     [HttpPost]
     public async Task<ActionResult<OrganizerInvitation>> Create(CreateInvitationRequest request, CancellationToken ct) =>
@@ -41,8 +45,25 @@ public sealed class InvitationsController : ControllerBase
     public async Task<ActionResult<PublicInvitation>> Public(string token, CancellationToken ct)
     {
         PublicHeaders();
-        _limiter.Check(token, HttpContext.Connection.RemoteIpAddress?.ToString(), null);
-        return Ok(await _invitations.PublicAsync(token, ct));
+        var outcome = "failed";
+        try
+        {
+            _limiter.Check(token, HttpContext.Connection.RemoteIpAddress?.ToString(), null);
+            var result = await _invitations.PublicAsync(token, ct);
+            outcome = "succeeded";
+            return Ok(result);
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            outcome = "canceled";
+            throw;
+        }
+        finally
+        {
+            // These are HTTP read attempts, including polling and automated clients, not unique visitors.
+            _telemetry?.Track("InvitationPublicReadRequested", properties: new Dictionary<string, string?>
+                { ["actor_type"] = "participant", ["outcome"] = outcome });
+        }
     }
 
     [AllowAnonymous]
@@ -54,6 +75,25 @@ public sealed class InvitationsController : ControllerBase
         _limiter.Check(token, HttpContext.Connection.RemoteIpAddress?.ToString(), null);
         _limiter.Check(token, null, request.PlayerKey ?? "");
         return Ok(await _invitations.RespondAsync(token, request, ct));
+    }
+
+    [HttpGet("Public/{token}/Me")]
+    public async Task<ActionResult<OwnInvitation>> Own(string token, CancellationToken ct)
+    {
+        PublicHeaders();
+        var user = PlayerProfileService.Account(User);
+        _limiter.Check(token, HttpContext.Connection.RemoteIpAddress?.ToString(), user);
+        return Ok(await _invitations.OwnAsync(user, token, ct));
+    }
+
+    [HttpPost("Public/{token}/Me/Responses")]
+    [RequestSizeLimit(4096)]
+    public async Task<ActionResult<PublicInvitation>> RespondOwn(string token, OwnInvitationResponseRequest request, CancellationToken ct)
+    {
+        PublicHeaders();
+        var user = PlayerProfileService.Account(User);
+        _limiter.Check(token, HttpContext.Connection.RemoteIpAddress?.ToString(), user);
+        return Ok(await _invitations.RespondOwnAsync(user, token, request, ct));
     }
 
     private void PublicHeaders()

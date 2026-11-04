@@ -69,6 +69,7 @@ namespace TeamsGenerator.Orchestration
                              firstPlayerIndex < firstTeam.Players.Count;
                              firstPlayerIndex++)
                         {
+                            GenerationCancellation.ThrowIfCancellationRequested();
                             if (IsLocked(firstTeam.Players[firstPlayerIndex]))
                             {
                                 continue;

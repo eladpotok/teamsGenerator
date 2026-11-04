@@ -1,4 +1,8 @@
 using System.Security.Claims;
+using System.Net;
+using System.Text;
+using Azure.Core.Pipeline;
+using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,11 +19,15 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging.Abstractions;
 using TeamsGeneratorWebAPI.Premium;
 using TeamsGeneratorWebAPI.Telemetry;
+using TeamsGeneratorWebAPI.PlayerProfiles;
+using TeamsGeneratorWebAPI.GroupJoins;
 
 internal static class InvitationRegression
 {
     public static async Task Run(Action<bool, string> check)
     {
+        await DocumentPagination(check);
+        await EventDuration(check);
         var ct = CancellationToken.None;
         var clock = new Clock();
         var store = new MemoryStore();
@@ -253,6 +261,110 @@ internal static class InvitationRegression
         async Task<InvitationState> State() => (await store.ReadAsync<InvitationState>(key, ct))!.Value;
     }
 
+    internal static async Task DocumentPagination(Action<bool, string> check)
+    {
+        static string Page(string marker = "", params string[] keys) =>
+            "<EnumerationResults><Blobs>" + string.Concat(keys.Select(key => $"<Blob><Name>{key}</Name></Blob>"))
+            + $"</Blobs><NextMarker>{marker}</NextMarker></EnumerationResults>";
+        using var handler = new BlobListHandler(Page(), Page(), Page("", "scope/a", "scope/b"),
+            Page("next-a"), Page("next-b", "scope/a"), Page("", "scope/b"), Page(), Page());
+        using var client = new HttpClient(handler);
+        var options = new BlobClientOptions { Transport = new HttpClientTransport(client) };
+        options.Retry.MaxRetries = 0;
+        var container = new BlobContainerClient(new Uri("https://storage.invalid/players"), options);
+        await foreach (var raw in container.GetBlobsAsync(prefix: "scope/").AsPages())
+        {
+            check(raw.Values.Count == 0 && raw.ContinuationToken == "",
+                "real Blob SDK projects the final empty XML NextMarker as an empty string, not null");
+            break;
+        }
+        var store = new BlobInvitationDocumentStore(container);
+        var empty = await store.ListAsync("scope/", null, 100, CancellationToken.None);
+        check(empty.Keys.Count == 0 && empty.Continuation == null,
+            "document storage normalizes the empty Blob continuation so an empty account terminates");
+        var final = await store.ListAsync("scope/", null, 100, CancellationToken.None);
+        check(final.Keys.SequenceEqual(new[] { "scope/a", "scope/b" }) && final.Continuation == null,
+            "a populated final Blob page retains its keys and terminates");
+        var first = await store.ListAsync("scope/", null, 100, CancellationToken.None);
+        var second = await store.ListAsync("scope/", first.Continuation, 100, CancellationToken.None);
+        var third = await store.ListAsync("scope/", second.Continuation, 100, CancellationToken.None);
+        check(first.Keys.Count == 0 && first.Continuation == "next-a"
+            && second.Keys.SequenceEqual(new[] { "scope/a" }) && second.Continuation == "next-b"
+            && third.Keys.SequenceEqual(new[] { "scope/b" }) && third.Continuation == null,
+            "an empty intermediate page keeps its opaque marker and all subsequent pages remain discoverable");
+        check(handler.Requests[4].Query.Contains("marker=next-a")
+            && handler.Requests[5].Query.Contains("marker=next-b")
+            && handler.Requests.Skip(1).Take(5).All(uri => uri.Query.Contains("maxresults=100")
+                && uri.Query.Contains("prefix=scope%2F")),
+            "continuations, account prefixes and page sizes reach the Blob SDK unchanged");
+        var memberships = new PlayerMembershipService(store);
+        check((await memberships.SummariesAsync("unlinked", new Groups(), CancellationToken.None)).Count == 0,
+            "membership summaries terminate after one real SDK empty page");
+        var performance = new PlayerPerformanceService(memberships,
+            new PlayerPerformanceSource(new PollRegression.MemoryTables(), TimeProvider.System));
+        check((await performance.GetAsync("unlinked", CancellationToken.None)).Count == 0
+            && handler.Requests.Count == 8,
+            "unlinked performance terminates after one real SDK empty page without restarting the listing");
+    }
+
+    private sealed class BlobListHandler : HttpMessageHandler
+    {
+        private readonly string[] pages;
+        internal BlobListHandler(params string[] pages) => this.pages = pages;
+        internal List<Uri> Requests { get; } = new();
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
+        {
+            ct.ThrowIfCancellationRequested();
+            if (request.Method != HttpMethod.Get || !request.RequestUri!.Query.Contains("comp=list")
+                || Requests.Count >= pages.Length)
+                throw new InvalidOperationException("Unexpected or repeated Blob listing request.");
+            Requests.Add(request.RequestUri);
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(pages[Requests.Count - 1], Encoding.UTF8, "application/xml")
+            });
+        }
+    }
+
+    private static async Task EventDuration(Action<bool, string> check)
+    {
+        foreach (var minutes in new int?[] { null, 1, 150, 1440 })
+        {
+            var rules = new MatchdayRules { EventDurationMinutes = minutes };
+            check(rules.TryNormalize(out _), $"optional event duration {minutes} is valid");
+            check(!rules.TimeLimitEnabled && rules.Minutes == 8, "event duration does not change per-game timing");
+            var roundTrip = JsonConvert.DeserializeObject<MatchdayRules>(JsonConvert.SerializeObject(rules.Clone()))!;
+            check(roundTrip.EventDurationMinutes == minutes, "event duration survives cloning and serialization");
+        }
+        foreach (var minutes in new[] { -1, 0, 1441 })
+            check(!new MatchdayRules { EventDurationMinutes = minutes }.TryNormalize(out var error)
+                && error.Contains("duration"), "invalid event duration is rejected");
+        check(JsonConvert.DeserializeObject<MatchdayRules>("{}")!.EventDurationMinutes == null,
+            "legacy rules leave optional duration unset");
+        var clock = new Clock();
+        var groups = new Groups { EventDurationMinutes = 150 };
+        var service = new InvitationService(new MemoryStore(), groups, clock);
+        var ct = CancellationToken.None;
+        var request = new CreateInvitationRequest("group", clock.UtcNow.AddDays(1).ToString("O"), "Asia/Jerusalem");
+        var created = await service.CreateAsync("owner", request, ct);
+        check(created.EventDurationMinutes == 150
+            && (await service.PublicAsync(created.Token, ct)).EventDurationMinutes == 150,
+            "organizer and public invitation carry configured duration");
+        groups.EventDurationMinutes = 75;
+        check((await service.CreateAsync("owner", request, ct)).EventDurationMinutes == 150
+            && (await service.CurrentAsync("owner", "group", request.ScheduledAt, ct))!.EventDurationMinutes == 150
+            && (await service.PublicAsync(created.Token, ct)).EventDurationMinutes == 150,
+            "resharing and changed group rules preserve saved occurrence duration");
+        check((await service.CreateAsync("owner", request with { ScheduledAt = clock.UtcNow.AddDays(2).ToString("O") }, ct))
+            .EventDurationMinutes == 75, "next occurrence uses updated rules");
+        groups.EventDurationMinutes = 120;
+        check((await service.CreateAsync("owner", request with { ScheduledAt = clock.UtcNow.AddDays(3).ToString("O") }, ct))
+            .EventDurationMinutes == 120, "unset rules produce a two-hour occurrence");
+        var legacy = JsonConvert.DeserializeObject<InvitationState>("{}")!;
+        check(InvitationService.Project(legacy, Array.Empty<RosterPlayer>(), clock.UtcNow).EventDurationMinutes == 120,
+            "legacy invitation documents project a two-hour duration without storage migration");
+    }
+
     private static async Task ExistingStorageAdapter(Action<bool, string> check)
     {
         var empty = false;
@@ -260,7 +372,8 @@ internal static class InvitationRegression
         var config = new UserConfigResponse
         {
             TeamName = "Configured match", Location = "Configured pitch", GroupLogoDataUrl = "data:image/png;base64,AA==",
-            HasCustomMatchdayPlayerLimit = true, MaxMatchdayPlayers = 23, SelectedAlgoKey = 0
+            HasCustomMatchdayPlayerLimit = true, MaxMatchdayPlayers = 23, SelectedAlgoKey = 0,
+            MatchdayRules = new MatchdayRules { EventDurationMinutes = 150 }
         };
         var collaboration = CallbackProxy.Create<IGroupCollaborationService>((method, args) =>
             method.Name == nameof(IGroupCollaborationService.ResolveAccessAsync)
@@ -288,17 +401,28 @@ internal static class InvitationRegression
             }
             throw new InvalidOperationException("Invitation source must not mutate roster/history.");
         });
+        var missingGroupConfig = false;
         var settings = CallbackProxy.Create<IUserConfigAzureStorage>((method, args) =>
-            method.Name == "ListAsync" ? Task.FromResult<IResponse>(new GetConfigResponse(config))
+            method.Name == "ListAsync" ? Task.FromResult<IResponse>(
+                ((UserConfigBlobConfig)args[0]!).GroupId == "default"
+                    ? new GetConfigResponse(new UserConfigResponse { MatchdayRules = new MatchdayRules { EventDurationMinutes = 240 } })
+                    : missingGroupConfig ? GetConfigResponse.Missing() : new GetConfigResponse(config))
                 : throw new InvalidOperationException("Invitation source must not mutate group config."));
         var entitlements = CallbackProxy.Create<IAccountEntitlementService>((method, args) =>
             Task.FromResult(new AccountEntitlements { IsPremium = true }));
         var source = new InvitationGroupSource(collaboration, players, settings, entitlements);
         var group = await source.ResolveAsync("collaborator", "shared.reference", CancellationToken.None);
         check(group.Capacity == 23 && group.Name == "Configured group" && group.MatchName == config.TeamName
-            && group.Location == config.Location && group.Logo == config.GroupLogoDataUrl
+            && group.Location == config.Location && group.Logo == config.GroupLogoDataUrl && group.EventDurationMinutes == 150
             && group.Players.Single() == new RosterPlayer("actual-key", "Roster name"),
             "existing storage adapter loads all configured metadata and only player identity");
+        config.MatchdayRules.EventDurationMinutes = null;
+        check((await source.LoadAsync("canonical-owner", "group", CancellationToken.None)).EventDurationMinutes == 120,
+            "cleared group duration uses two hours instead of default group's duration");
+        missingGroupConfig = true;
+        check((await source.LoadAsync("canonical-owner", "group", CancellationToken.None)).EventDurationMinutes == 120,
+            "group without config does not inherit another group's event duration");
+        missingGroupConfig = false;
         empty = true;
         check((await source.LoadAsync("canonical-owner", "group", CancellationToken.None)).Players.Count == 0,
             "existing empty group is a legitimate zero-player invitation");
@@ -314,8 +438,9 @@ internal static class InvitationRegression
         var owner = new UserConfigResponse { Language = "he", EnableMatchInvitations = false };
         var member = new UserConfigResponse { Language = "en", EnableMatchInvitations = false };
         var groupConfig = new UserConfigResponse { Language = "en", EnableMatchInvitations = true };
-        var ownerPremium = true;
+        var ownerPremium = false;
         var memberPremium = false;
+        var denyAccess = false;
         var writes = 0;
         var settings = CallbackProxy.Create<IUserConfigAzureStorage>((method, args) =>
         {
@@ -338,7 +463,7 @@ internal static class InvitationRegression
             throw new InvalidOperationException("Unexpected config operation.");
         });
         var collaboration = CallbackProxy.Create<IGroupCollaborationService>((method, args) =>
-            Task.FromResult<GroupAccess?>(new GroupAccess
+            Task.FromResult<GroupAccess?>(denyAccess ? null : new GroupAccess
                 { OwnerId = "owner", GroupId = "group", IsOwner = (string)args[0]! == "owner" }));
         var players = CallbackProxy.Create<IPlayersStorageBlobConnector>((method, args) =>
             method.Name == "ListGroupsAsync"
@@ -368,14 +493,16 @@ internal static class InvitationRegression
             && !JsonConvert.DeserializeObject<UserConfigResponse>("{}")!.EnableMatchInvitations,
             "old/missing account invitation setting defaults off");
         check(!(await Setup()).InvitationAccess.Enabled, "group-local flag cannot enable owner's disabled invitations");
+        check((await Setup()).GroupJoinAccess.Enabled,
+            "Free owner group joining defaults on without opting into match invitations");
         await Error(() => service.CreateAsync("member", request, ct), 403, check);
         owner.EnableMatchInvitations = true;
         var setup = await Setup();
         check(setup.InvitationAccess.Enabled && !setup.Config.EnableMatchInvitations
-            && !setup.Entitlements.CanUseMatchInvitations && setup.Config.Language == "en",
+            && setup.Entitlements.CanUseMatchInvitations && !setup.Entitlements.IsPremium && setup.Config.Language == "en",
             "shared Home availability uses owner while preserving free requester's own global config and entitlement");
         var invite = await service.CreateAsync("member", request, ct);
-        check(invite.Language == "he", "free co-organizer can share entitled enabled canonical owner's invitation");
+        check(invite.Language == "he", "Free co-organizer can share an enabled Free owner's invitation");
         await service.RespondAsync(invite.Token, new("p1", "in"), ct);
         var before = await store.ReadAsync<InvitationState>(InvitationKeys.State(invite.Id), ct);
         owner.EnableMatchInvitations = false;
@@ -388,17 +515,21 @@ internal static class InvitationRegression
         await Error(() => service.CreateAsync("member", request, ct), 403, check);
         owner.EnableMatchInvitations = true;
         check((await service.PublicAsync(invite.Token, ct)).Status == "open", "reenabling reopens future original occurrence");
+        ownerPremium = true;
+        check((await Setup()).InvitationAccess.Enabled, "upgrading preserves enabled invitations");
         ownerPremium = false;
         memberPremium = true;
         member.EnableMatchInvitations = true;
-        check(!(await Setup()).InvitationAccess.Enabled, "Premium co-organizer cannot override free owner");
-        await Error(() => service.CreateAsync("member", request, ct), 403, check);
-        await Error(() => service.RespondAsync(invite.Token, new("p1", "in"), ct), 409, check);
-        check((await service.PublicAsync(invite.Token, ct)).Status == "closed", "live owner downgrade closes existing link");
+        check((await Setup()).InvitationAccess.Enabled && (await Setup()).GroupJoinAccess.Enabled,
+            "Premium co-organizer can use both invitation features with a Free owner");
+        check((await service.CreateAsync("member", request, ct)).Id == invite.Id,
+            "owner downgrade preserves the original invitation");
+        check((await service.PublicAsync(invite.Token, ct)).Status == "open", "owner downgrade keeps existing link open");
         var after = await store.ReadAsync<InvitationState>(InvitationKeys.State(invite.Id), ct);
         check(before!.ETag == after!.ETag && JsonConvert.SerializeObject(before.Value) == JsonConvert.SerializeObject(after.Value),
             "disable/downgrade/read/rejected responses do not alter events, queue, revision or stored response");
-        ownerPremium = true;
+        check((await service.RespondAsync(invite.Token, new("p1", "out"), ct)).Players.Single().Status == "out",
+            "anonymous RSVP can change after owner downgrades to Free");
         foreach (var language in new[] { "he", "heb", "he-il", "iw", " HE-IL ", "en", "fr", "" })
         {
             owner.Language = language;
@@ -406,15 +537,84 @@ internal static class InvitationRegression
             check(publicView.Language == (new[] { "en", "fr", "" }.Contains(language) ? "en" : "he"),
                 "public language follows live normalized owner preference: " + language);
         }
+        var freeOwner = await entitlements.GetAsync("owner");
+        check(freeOwner.CanUseMatchInvitations && !freeOwner.CanUseAiSummary && !freeOwner.CanUseAiAlgorithm
+            && !freeOwner.CanUseChemistry && !freeOwner.CanUsePremiumShareTemplates && !freeOwner.CanUseCustomGroupLogo
+            && freeOwner.MaximumPlayers == 25 && freeOwner.MaximumOwnedGroups == 2,
+            "Free invitation access does not unlock paid features or raise existing limits");
+        var analyzer = CallbackProxy.Create<IGroupJoinAnalyzer>((method, args) =>
+            throw new InvalidOperationException("Free invitation tests must never invoke AI."));
+        var joins = new GroupJoinService(store, source, clock, new GroupJoinRoster(store), analyzer, entitlements);
+        var link = (await joins.LinkAsync("owner", "group", true, ct)).Token!;
+        check((await joins.LinkAsync("member", "shared.group", true, ct)).Token == link,
+            "Free owner and Premium co-organizer share one canonical group link");
+        var joinView = await joins.PublicAsync(link, ct);
+        var ratings = joinView.Skills.ToDictionary(skill => skill.Id, _ => 5.0);
+        var submission = new GroupJoinSubmission(Guid.NewGuid().ToString("D"), "New Free player", false,
+            "I play weekly.", ratings, joinView.AlgorithmKey);
+        var rosterPath = (string)typeof(PlayersStorageBlobConnector).GetMethod("GetPlayersPath",
+            System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
+            .Invoke(null, new object[] { new PlayersBlobConfig
+                { UId = "owner", GroupId = "group", AlgoType = joinView.AlgorithmKey } })!;
+        var existingPlayers = new JArray(Enumerable.Range(1, 24).Select(index =>
+            new JObject { ["key"] = "existing-" + index, ["name"] = "Existing " + index, ["isArrived"] = false }));
+        await store.WriteAsync(rosterPath, existingPlayers, null, ct);
+        await joins.SubmitAsync(link, submission, ct);
+        var pending = (await joins.RequestsAsync("owner", "group", ct)).Single();
+        var storedRoster = (await store.ReadAsync<JToken>(rosterPath, ct))!;
+        check(pending.Status == "pending" && RosterDocument.Players(storedRoster.Value).Count == 24,
+            "a Free group request waits for approval and never adds attendance or roster membership");
+        await Error(() => joins.AnalyzeAsync("owner", "group", pending.Id, pending.Revision, ct), 403, check);
+        memberPremium = false;
+        await Error(() => joins.AnalyzeAsync("member", "shared.group", pending.Id, pending.Revision, ct), 403, check);
+        owner.EnableGroupJoinRequests = false;
+        check(!(await Setup()).GroupJoinAccess.Enabled && (await Setup()).InvitationAccess.Enabled,
+            "Free owner can disable group joining without disabling match RSVP");
+        await Error(() => joins.LinkAsync("member", "shared.group", true, ct), 403, check);
+        await Error(() => joins.PublicAsync(link, ct), 403, check);
+        await Error(() => joins.SubmitAsync(link, submission with { SubmissionId = Guid.NewGuid().ToString("D") }, ct), 403, check);
+        await Error(() => joins.ApproveAsync("owner", "group", pending.Id, new(pending.Revision, ratings), ct), 403, check);
+        owner.EnableGroupJoinRequests = true;
+        denyAccess = true;
+        await Error(() => joins.RequestsAsync("member", "shared.group", ct), 403, check);
+        await Error(() => joins.ApproveAsync("member", "shared.group", pending.Id, new(pending.Revision, ratings), ct), 403, check);
+        await Error(() => service.CreateAsync("member", request, ct), 403, check);
+        denyAccess = false;
+        check((await joins.RequestsAsync("owner", "group", ct)).Single().Revision == pending.Revision
+            && (await store.ReadAsync<JToken>(rosterPath, ct))!.ETag == storedRoster.ETag,
+            "disabled settings, AI rejection and revoked access do not change request or roster");
+        var approved = await joins.ApproveAsync("owner", "group", pending.Id, new(pending.Revision, ratings), ct);
+        storedRoster = (await store.ReadAsync<JToken>(rosterPath, ct))!;
+        var approvedPlayer = RosterDocument.Players(storedRoster.Value).Single(player => player["name"]!.Value<string>() == submission.Name);
+        check(approved.Status == "approved" && RosterDocument.Players(storedRoster.Value).Count == 25
+            && approvedPlayer["isArrived"]!.Value<bool>() == false && approvedPlayer["waitingListOrder"]!.Type == JTokenType.Null,
+            "Free owner can approve the 25th player without setting match attendance");
+        await joins.SubmitAsync(link, submission with { SubmissionId = Guid.NewGuid().ToString("D"), Name = "Over quota" }, ct);
+        var overQuota = (await joins.RequestsAsync("owner", "group", ct)).Single(item => item.Status == "pending");
+        memberPremium = true;
+        await Error(() => joins.ApproveAsync("member", "shared.group", overQuota.Id, new(overQuota.Revision, ratings), ct), 409, check);
+        check((await store.ReadAsync<JToken>(rosterPath, ct))!.ETag == storedRoster.ETag
+            && (await joins.RequestsAsync("owner", "group", ct)).Single(item => item.Id == overQuota.Id).Status == "pending",
+            "Premium co-organizer cannot exceed the Free owner's 25-player limit");
+        memberPremium = false;
+        await joins.RejectAsync("member", "shared.group", overQuota.Id, overQuota.Revision, ct);
+        check((await joins.RequestsAsync("owner", "group", ct)).Single(item => item.Id == overQuota.Id).Status == "rejected",
+            "Free co-organizer can reject a membership request");
+        await joins.RevokeAsync("member", "shared.group", ct);
+        await Error(() => joins.PublicAsync(link, ct), 404, check);
+
         var configController = new ConfigController(NullLogger<HomeController>.Instance, settings, telemetry,
             entitlements, collaboration, players)
         {
             ControllerContext = home.ControllerContext
         };
         memberPremium = false;
-        check(!(await configController.Post("test", new UserConfigResponse { EnableMatchInvitations = true },
-            "owner", "shared.group", "global")).Success && writes == 0,
-            "free caller cannot enable invitations by global save or forged UID");
+        owner.EnableMatchInvitations = false;
+        check((await configController.Post("test", new UserConfigResponse { EnableMatchInvitations = true },
+            "owner", "shared.group", "global")).Success && writes == 1
+            && member.EnableMatchInvitations && !owner.EnableMatchInvitations && !(await Setup()).InvitationAccess.Enabled,
+            "Free caller can enable their own invitations, but forged UID cannot change shared owner's disabled flag");
+        owner.EnableMatchInvitations = true;
         check((await configController.Post("test", new UserConfigResponse { EnableMatchInvitations = false },
             "owner", "shared.group", "global")).Success && !member.EnableMatchInvitations && owner.EnableMatchInvitations,
             "free account can disable without altering shared owner's global flag");
@@ -647,6 +847,7 @@ internal static class InvitationRegression
 
     private sealed class Groups : IInvitationGroupSource
     {
+        public int EventDurationMinutes { get; set; } = 120;
         public bool DenyAccess { get; set; }
         public List<RosterPlayer> Players { get; } = Enumerable.Range(1, 15)
             .Select(i => new RosterPlayer("p" + i, i <= 2 ? "Same name" : "Player " + i)).ToList();
@@ -662,7 +863,7 @@ internal static class InvitationRegression
         {
             if (groupId != "group") throw new InvitationException(404, "Missing");
             return Task.FromResult(new InvitationGroup(ownerId, groupId, "Private group", "Weekly football",
-                "Pitch", null, 2, Players.ToArray(), true, "en"));
+                "Pitch", null, 2, Players.ToArray(), true, "en", EventDurationMinutes));
         }
     }
 

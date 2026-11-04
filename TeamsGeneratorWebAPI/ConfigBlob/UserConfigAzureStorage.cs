@@ -81,7 +81,7 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
                 return GetConfigResponse.Failure(e.Message);
             }
 
-            return GetConfigResponse.Failure("config isn't found");
+            return GetConfigResponse.Missing();
         }
 
         public async Task<IResponse> UploadAsync(dynamic configs, IConfig config)

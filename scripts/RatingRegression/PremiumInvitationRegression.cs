@@ -95,8 +95,28 @@ internal static class PremiumInvitationRegression
         async Task<GetAppSetupResponse> Setup() =>
             (GetAppSetupResponse)((OkObjectResult)(await home.Get("test", "untrusted", "shared.default")).Result!).Value!;
         var setup = await Setup();
+        check(setup.Config.EnableGroupJoinRequests && setup.GroupJoinAccess.Enabled,
+            "group joining defaults on independently of the match invitation preference");
+        owner.EnableMatchInvitations = false;
+        check((await Setup()).GroupJoinAccess.Enabled && !(await Setup()).InvitationAccess.Enabled,
+            "turning match invitations off does not turn group joining off");
+        check((await config.Post("test", new UserConfigResponse { EnableGroupJoinRequests = false },
+            "untrusted", "default", "global")).Success && !owner.EnableGroupJoinRequests,
+            "separate account preference can disable group joining");
+        check((await config.Post("test", JsonConvert.DeserializeObject<UserConfigResponse>("{}")!,
+            "untrusted", "default", "global")).Success && !owner.EnableGroupJoinRequests
+            && !(await Setup()).GroupJoinAccess.Enabled,
+            "legacy omission preserves a disabled group join preference");
+        check(!JsonConvert.SerializeObject(owner).Contains("HasEnableGroupJoinRequests"),
+            "group join field-presence metadata is not serialized");
+        owner.EnableGroupJoinRequests = true;
+        owner.EnableMatchInvitations = true;
+        setup = await Setup();
         check(setup.Entitlements.IsPremium && setup.Config.EnableMatchInvitations && setup.InvitationAccess.Enabled,
             "email-only Premium save must also enable canonical owner invitation policy");
+        check(setup.Entitlements.MaximumPlayers == 0 && setup.Entitlements.MaximumOwnedGroups == 0
+            && setup.Entitlements.MaximumGenerationPlayers == 50,
+            "Premium setup preserves existing storage entitlements and exposes generation capacity");
         check(!await accounts.IsPremiumAsync("untrusted")
             && table.Rows.Keys.All(key => key.Partition != "Account"),
             "verified email binding neither trusts query UID nor manufactures an Account grant");
@@ -106,9 +126,17 @@ internal static class PremiumInvitationRegression
 
         accounts = new PremiumAccountStore(new MemoryTables(table), configuration);
         var restartedEntitlements = new AccountEntitlementService(configuration, accounts);
-        check((await restartedEntitlements.GetAsync("owner")).CanUseMatchInvitations,
+        check((await restartedEntitlements.GetAsync("owner")).IsPremium,
             "UID-only email entitlement survives a new account service without an owner session");
         var source = new InvitationGroupSource(collaboration, players, settings, restartedEntitlements);
+        owner.EnableMatchInvitations = false;
+        check((await source.LoadAsync("owner", "default", CancellationToken.None)).GroupJoinRequestsEnabled,
+            "public group join policy uses the independent default-on owner setting");
+        owner.EnableGroupJoinRequests = false;
+        check(!(await source.LoadAsync("owner", "default", CancellationToken.None)).GroupJoinRequestsEnabled,
+            "public group join policy rechecks disabled owner preference");
+        owner.EnableGroupJoinRequests = true;
+        owner.EnableMatchInvitations = true;
         var documents = new InvitationRegression.MemoryStore();
         var service = new InvitationService(documents, source, new InvitationClock());
         var ct = CancellationToken.None;
@@ -119,6 +147,11 @@ internal static class PremiumInvitationRegression
         setup = await Setup();
         check(setup.InvitationAccess.Enabled && !setup.Entitlements.IsPremium && !setup.Config.EnableMatchInvitations,
             "free co-organizer sees email-Premium owner's policy without inheriting owner entitlement/preferences");
+        member.EnableGroupJoinRequests = false;
+        check((await Setup()).GroupJoinAccess.Enabled && !(await Setup()).Config.EnableGroupJoinRequests,
+            "group join access follows the canonical owner, not the co-organizer's own preference");
+        check(setup.Entitlements.MaximumPlayers == 25 && setup.Entitlements.MaximumGenerationPlayers == 25,
+            "Free co-organizer retains their existing entitlement without inheriting owner generation entitlement");
         check((await service.CreateAsync("member", request with { GroupId = "shared.default" }, ct)).Id == invite.Id,
             "free co-organizer creation uses same email-Premium canonical owner");
         check((await service.RespondAsync(invite.Token, new("p1", "in"), ct)).Players.Single().Status == "in",
@@ -132,15 +165,24 @@ internal static class PremiumInvitationRegression
             grant.ExpiresAt = change == "expired" ? DateTimeOffset.UtcNow.AddSeconds(-1) : null;
             if (change == "deleted") table.Rows.Remove(("Email", emailKey));
             owner.EnableMatchInvitations = change != "toggle";
-            check(!(await Setup()).InvitationAccess.Enabled,
-                "live owner policy rejects " + change + " email grant/setting despite Premium member");
-            check((await service.PublicAsync(invite.Token, ct)).Status == "closed",
-                "anonymous read closes original occurrence for " + change);
-            await Error(() => service.CreateAsync("member", request, ct), 403, check);
-            await Error(() => service.RespondAsync(invite.Token, new("p1", "out"), ct), 409, check);
+            var enabled = change != "toggle";
+            check((await Setup()).InvitationAccess.Enabled == enabled && (await Setup()).GroupJoinAccess.Enabled,
+                "invitations follow owner settings, not " + change + " Premium grant");
+            check((await restartedEntitlements.GetAsync("owner")).IsPremium == !enabled,
+                "live email grant changes still control paid entitlement: " + change);
+            check((await service.PublicAsync(invite.Token, ct)).Status == (enabled ? "open" : "closed"),
+                "original occurrence closes only for the disabled owner setting: " + change);
+            if (enabled)
+                check((await service.CreateAsync("member", request, ct)).Id == invite.Id,
+                    "expired or removed Premium grant preserves invitation creation: " + change);
+            else
+            {
+                await Error(() => service.CreateAsync("member", request, ct), 403, check);
+                await Error(() => service.RespondAsync(invite.Token, new("p1", "out"), ct), 409, check);
+            }
             var after = await documents.ReadAsync<InvitationState>(InvitationKeys.State(invite.Id), ct);
             check(after!.ETag == before!.ETag && JsonConvert.SerializeObject(after.Value) == JsonConvert.SerializeObject(before.Value),
-                "rejected " + change + " policy does not mutate responses/journal/delivery");
+                change + " policy evaluation does not mutate responses/journal/delivery");
             grant.IsPremium = true;
             grant.ExpiresAt = null;
             table.Rows[("Email", emailKey)] = grant;
@@ -197,6 +239,34 @@ internal static class PremiumInvitationRegression
         {
             check(ex.Status == 503, "binding storage failures surface rather than authenticate with stale policy");
         }
+
+        var cachedTable = new MemoryTable { ReadDelay = TimeSpan.FromMilliseconds(50) };
+        var clock = new PollRegression.Clock();
+        using var cachedAccounts = new PremiumAccountStore(new MemoryTables(cachedTable), configuration, clock);
+        await Task.WhenAll(Enumerable.Range(0, 32).Select(_ => cachedAccounts.UpdateVerifiedIdentityAsync(identity)));
+        check(cachedTable.Reads == 1 && cachedTable.Writes == 1,
+            "32 concurrent authenticated requests coalesce one verified-identity read/write");
+        await cachedAccounts.UpdateVerifiedIdentityAsync(Principal("owner", " OWNER@EXAMPLE.TEST "));
+        check(cachedTable.Reads == 1, "warm unchanged identity avoids storage, including normalized email claims");
+        clock.Now = clock.Now.AddMinutes(6);
+        await cachedAccounts.UpdateVerifiedIdentityAsync(identity);
+        check(cachedTable.Reads == 2 && cachedTable.Writes == 1,
+            "verified-identity cache expires and rechecks storage without an unnecessary write");
+        cachedTable.FailWrites = true;
+        for (var attempt = 0; attempt < 2; attempt++)
+        {
+            try { await cachedAccounts.UpdateVerifiedIdentityAsync(Principal("owner", null)); check(false, "revocation must persist"); }
+            catch (RequestFailedException) { check(true, "failed changed identity remains fail-closed and is never cached"); }
+        }
+        check(cachedTable.Reads == 4, "failed identity changes are retried, not remembered as successful");
+        cachedTable.FailWrites = false;
+        await cachedAccounts.UpdateVerifiedIdentityAsync(Principal("owner", null));
+        check(cachedTable.Rows[("VerifiedIdentity", "owner")] is TableEntity binding && binding.GetString("EmailRowKey") == "",
+            "removing verification bypasses a warm cache and durably clears the binding");
+        using var cancelled = new CancellationTokenSource();
+        cancelled.Cancel();
+        try { await cachedAccounts.UpdateVerifiedIdentityAsync(Principal("owner", null), cancelled.Token); check(false, "cancelled identity request accepted"); }
+        catch (OperationCanceledException) { check(true, "even cached identity synchronization respects request cancellation"); }
     }
 
     private static ClaimsPrincipal Principal(string uid, string? email, string? verified = "true")
@@ -224,16 +294,21 @@ internal static class PremiumInvitationRegression
     {
         public Dictionary<(string Partition, string Key), ITableEntity> Rows { get; } = new();
         public int Writes { get; private set; }
+        public int Reads { get; private set; }
+        public TimeSpan ReadDelay { get; set; }
         public bool FailWrites { get; set; }
         public override Response<Azure.Data.Tables.Models.TableItem> CreateIfNotExists(
             CancellationToken cancellationToken = default) =>
             Response.FromValue<Azure.Data.Tables.Models.TableItem>(null!, new TableResponse());
 
-        public override Task<NullableResponse<T>> GetEntityIfExistsAsync<T>(string partitionKey, string rowKey,
+        public override async Task<NullableResponse<T>> GetEntityIfExistsAsync<T>(string partitionKey, string rowKey,
             IEnumerable<string>? select = null, CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+            Reads++;
+            if (ReadDelay > TimeSpan.Zero) await Task.Delay(ReadDelay, cancellationToken);
             Rows.TryGetValue((partitionKey, rowKey), out var entity);
-            return Task.FromResult<NullableResponse<T>>(Response.FromValue((T)entity!, new TableResponse()));
+            return Response.FromValue((T)entity!, new TableResponse());
         }
 
         public override Task<Response> UpsertEntityAsync<T>(T entity, TableUpdateMode mode = TableUpdateMode.Merge,

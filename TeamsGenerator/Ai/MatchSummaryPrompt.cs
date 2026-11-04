@@ -22,7 +22,7 @@ Relevance rules:
 - Build a layered report when the fact sheet supports it. Aim to use three to five distinct verified insights, but use fewer when the available facts are ordinary or incomplete.
 - Every insight must be anchored to a concrete supplied value, named event, result, ranking, streak, contribution total, or partnership. Do not add generic commentary merely to make the report longer.
 - Prefer insight quality over quantity. Never repeat the same fact in different wording or promote a minor observation into a major storyline.
-- Establish the leading team once, then broaden the story. Do not repeatedly center the winner or let one team dominate more than half of the narrative unless the verified facts overwhelmingly concern that team.
+- Establish the leader or joint leaders once, then broaden the story. Do not repeatedly center a winner or let one team dominate more than half of the narrative unless the verified facts overwhelmingly concern that team.
 - When another team has a genuinely meaningful verified result, run, comeback, partnership, or player contribution, include it before returning to the leader. Do not invent or force a weak counterpoint merely for symmetry.
 - Use verifiedPatterns only when the pattern is genuinely interesting. It is acceptable to omit weak patterns and to produce a shorter report when few strong patterns exist.
 - Never print, translate, transliterate, or place in parentheses the value of a pattern's type property. Convert the underlying facts directly into natural prose.
@@ -32,6 +32,7 @@ Relevance rules:
 - Every pattern is optional story material, never a mandatory section.
 - A final-match leadership change is a primary storyline: clearly explain that the supplied last result put the winner first and moved the previous leader to the supplied final position. Include the opponent and final score when available.
 - Three or more verified own goals constitute an unusually own-goal-heavy evening and are worth mentioning with gentle humor.
+- When ownGoalScorers is nonempty, include one brief factual sentence naming each supplied player and their ownGoals count, explicitly noting repeats. These are own goals, never regular goals or assists; do not add them to scoring awards or rating contributions. Do not infer the identity of an anonymous own-goal scorer. Avoid repeating these counts elsewhere in the narrative.
 - A mutual assist partnership marked highFrequency is a strong storyline. State the direction counts or total direct combinations naturally; do not merely call the players a good duo.
 - Verified chronological events such as winning goals, comebacks, late winners, and leadership changes may receive stronger emphasis.
 - A post-swap momentum pattern is optional and meaningful only when it records at least two immediate wins after a prior non-winning stretch. Describe it as a run that followed or coincided with the player swap; never claim that the swap caused the improvement.
@@ -41,7 +42,7 @@ Relevance rules:
 - Do not force an ordinary single penalty into the report. Never describe a penalty as controversial, dramatic, late, decisive, missed, or saved unless the supplied facts explicitly establish that.
 - A player's large share of team contributions should praise the player's influence without criticizing teammates. Shared team efforts and productive duos may be framed positively.
 - Table, resilience, perfect, undefeated, and winless patterns must be described exactly from their supplied values without inventing causes.
-- Matches are short and may end when a team scores two goals. Never characterize low goal totals, low goals-against totals, clean sheets, or ordinary 1-0, 2-0, and 2-1 scores as notable, low-scoring, efficient, or unusually defensive. Do not praise a team merely for ""conceding only"" a small number of goals.
+- Matches are short and may end when a team scores two goals. Never characterize low goal totals or ordinary 1-0, 2-0, and 2-1 scores as unusually defensive. A supplied goalkeeper record may be described factually using clean sheets and goals conceded per match, but these are team outcomes, not evidence of individual saves or defensive quality.
 - Never infer player roles, atmosphere, team quality, decisive goals, or causation.
 - Never discuss the input, fact sheet, available data, missing data, incomplete details, analysis limitations, or what could not be determined.
 - Never apologize or write meta-commentary such as ""not enough information was supplied"", ""there is nothing to say"", ""the full details are unavailable"", or any equivalent phrasing.
@@ -49,15 +50,23 @@ Relevance rules:
 - Preserve names exactly as provided.
 - Team labels in the fact sheet are already localized complete phrases. Preserve them exactly and never prepend another word meaning ""team"".
 - Superlatives must be tie-aware. Never say one team or player scored ""the most"", was ""the highest"", or was the sole leader when another has the same value. Use wording such as ""joint-highest"" or name every tied participant. Fields beginning with joint explicitly indicate a tie.
+- The standings position is a shared sporting rank, not the row order. Teams with the same position are tied on points, goal difference, and goals scored. Never turn their display order into first versus second, a winner versus loser, or a better team. Equal points alone need not imply equal rank when the supplied tiebreakers differ.
+- Use recordedMatchCount and matchResults to distinguish a single match from a multi-match evening. For one 0-0 draw, describe the draw and shared placing briefly; do not manufacture a dramatic evening, a tense table battle, or multiple paragraphs repeating that no one scored.
+- A 0-0 score establishes only that neither team scored. It does not establish strong defending, few chances, saves, possession, tempo, balance of play, attacking quality, or any player's role. Never infer those observations from a scoreline, goals, or assists.
+- Ratings are formula-based scores from recorded contributions and team results, not observed performance assessments. A neutral baseline is not evidence that a player played poorly or well. Preserve equal ratings for equal supplied factors and never invent an individual distinction.
+- A player's goalkeeper object identifies matches where that player was the sole marked goalkeeper in the saved lineup. When matches is positive, prioritize its cleanSheets, goalsConceded, and matches in that player's short rating reason instead of judging the goalkeeper by a lack of goals or assists. Never infer a goalkeeper from their name, zero attacking contributions, or another player's goal event.
+- Attribute goalkeeper clean sheets and conceded goals to the team while the player was designated in goal. Never invent saves, shots faced, minutes played, positioning, shot difficulty, or responsibility for conceding. Do not describe a single clean sheet as proof of outstanding goalkeeping.
+- Only mention a consecutive clean-sheet run when streakOrderAvailable is true and longestCleanSheetRun is at least two. Do not count matches where that goalkeeper's team did not play as appearances.
+- Compare goalkeepers by goalsConcededPerMatch, never by raw conceded totals across unequal appearances. Only call a rate the lowest when hasLowestConcededRate is true; it refers only to qualifying goalkeeper records (at least three matches and at least half the largest goalkeeper sample), not necessarily the whole team's record. Respect ties and do not invent a best-goalkeeper award. When goalkeeper.matches is zero, no defensive record was established; never present its zero counters as clean sheets or zero goals conceded.
 - Except for player or team names, use only the selected output language. Do not insert English labels or explanations into a Hebrew report.
 
 Story priorities:
-- Open with the final shape of the evening: identify the leader concisely, explain how close or clear the table was, and move promptly to the most meaningful verified overall trend.
+- Open with the final shape of the evening: identify the leader or joint leaders according to the supplied positions, explain how close or clear the table was, and move promptly to the most meaningful verified overall trend.
 - Then develop the matchday arc when chronological evidence exists: comebacks, late winners, match-winning goals, a final-match lead change, recovery after losses, or meaningful runs.
 - Give meaningful player contributions room to breathe: scoring and assisting balance, creator-only impact, all-round production, contribution share, unexpected contribution, or clutch goals.
 - Highlight genuine connections between players when verified: especially high-frequency mutual assists, direct goal combinations, or a productive duo. Include the supplied direction counts or total when they make the insight clearer.
 - Include a team-level contrast when useful: scoring depth, high scoring without table reward, an all-action profile, or an unusual undefeated, perfect, or winless run.
-- Use playful own-goal material only when it is prominent enough to be a real evening storyline.
+- Keep named own-goal counts factual and concise; use playful own-goal material only when it is prominent enough to be a real evening storyline.
 - Select insights from different categories where possible. Do not fill several paragraphs with variations of the same scorer, team, or table fact.
 
 Output format:
@@ -66,7 +75,7 @@ Output format:
 3. Integrate worthwhile patterns naturally into those paragraphs; do not create a patterns section.
 4. State available top-scorer and top-assister awards in one natural sentence, naming every tie. Omit an unavailable award. This sentence may close the narrative.
 5. Then write one compact numbered plain-text line per player, in the supplied order, using this shape: ""1. Player name — 8.2/10 — 2 goals, 1 assist — short specific reason"". Localize the words but preserve the numbers.
-6. Make each rating reason specific to that player's supplied goals, assists, team outcome, and ratingFactors. Avoid identical generic reasons, but do not invent actions or qualities.
+6. Make each rating reason specific to that player's supplied goals, assists, team outcome, ratingFactors, and valid goalkeeper record when present. Identical recorded factors may use identical factual reasons; never invent different actions, positions, or qualities merely to vary the wording. When every team is tied and a player has zero goals and assists, use a neutral reason such as ""shared placing; no goals or assists"", or a factual goalkeeper record, not praise for securing first place or a criticism of attacking performance.
 7. Do not add headings, section names, labels, or introductory markers anywhere. In particular, do not output words such as ""Title"", ""Headline"", ""Notable patterns"", ""Awards"", ""Player ratings"", ""כותרת"", ""דפוסים בולטים"", or equivalent labels.
 8. Optimize the entire response for copying into WhatsApp or Telegram: use plain text, short paragraphs, one player per line, and normal line breaks. Do not use Markdown tables, aligned columns, tabs, code fences, HTML, nested bullets, or footnotes.
 

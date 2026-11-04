@@ -1,0 +1,8 @@
+<Project>
+  <Target Name="KeepOnlyIsolatedRuntimeFiles" AfterTargets="ComputeFilesToPublish">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)"
+        Condition="'%(ResolvedFileToPublish.Extension)' != '.dll' AND '%(ResolvedFileToPublish.Extension)' != '.so' AND '%(ResolvedFileToPublish.Extension)' != '.dylib' AND !$([System.String]::Copy('%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)').EndsWith('.deps.json')) AND !$([System.String]::Copy('%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)').EndsWith('.runtimeconfig.json'))" />
+    </ItemGroup>
+  </Target>
+</Project>

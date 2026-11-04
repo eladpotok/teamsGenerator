@@ -90,7 +90,13 @@ namespace TeamsGeneratorWebAPI.Controllers
                 groupsTask);
 
             var groups = await groupsTask;
-            if (!groups.Success || !groups.Groups.Any(group =>
+            if (!groups.Success)
+            {
+                _logger.LogWarning("App setup group storage read failed; group absence is unknown.");
+                return StatusCode(StatusCodes.Status503ServiceUnavailable,
+                    GetConfigResponse.Failure("Player groups could not be loaded. Please retry."));
+            }
+            if (!groups.Groups.Any(group =>
                 group.Id == access.GroupId))
             {
                 return NotFound();
@@ -98,13 +104,21 @@ namespace TeamsGeneratorWebAPI.Controllers
             var ownerDefaultResponse =
                 await ownerDefaultTask as GetConfigResponse;
             var response = await groupConfigTask as GetConfigResponse;
+            var globalResponse =
+                await globalConfigTask as GetConfigResponse;
+            if (!GetConfigResponse.IsAvailable(ownerDefaultResponse)
+                || !GetConfigResponse.IsAvailable(response)
+                || !GetConfigResponse.IsAvailable(globalResponse))
+            {
+                _logger.LogWarning("App setup configuration read failed; defaults are suppressed.");
+                return StatusCode(StatusCodes.Status503ServiceUnavailable,
+                    GetConfigResponse.Failure("Configuration could not be loaded. Please retry."));
+            }
             var effectiveGroupConfig = response?.Config
                 ?? (access.GroupId == PlayersStorageBlobConnector.DefaultGroupId
                     ? ownerDefaultResponse?.Config
                     : UserConfigScopes.InheritGroupSettings(
                         ownerDefaultResponse?.Config));
-            var globalResponse =
-                await globalConfigTask as GetConfigResponse;
             var mergedConfig = UserConfigScopes.Merge(
                 effectiveGroupConfig,
                 globalResponse?.Config);
@@ -129,11 +143,13 @@ namespace TeamsGeneratorWebAPI.Controllers
             var appSetup = WebAppAPI.GetAppSetup(
                 ver,
                 mergedConfig);
-            var ownerEntitlements = await _entitlements.GetAsync(access.OwnerId);
             appSetup.InvitationAccess = new InvitationAccessResponse
             {
-                Enabled = ownerEntitlements.CanUseMatchInvitations
-                    && ownerDefaultResponse?.Config?.EnableMatchInvitations == true
+                Enabled = ownerDefaultResponse?.Config?.EnableMatchInvitations == true
+            };
+            appSetup.GroupJoinAccess = new InvitationAccessResponse
+            {
+                Enabled = ownerDefaultResponse?.Config?.EnableGroupJoinRequests != false
             };
             appSetup.Entitlements = new PremiumEntitlementsResponse
             {
@@ -147,7 +163,10 @@ namespace TeamsGeneratorWebAPI.Controllers
                     entitlements.CanUsePremiumShareTemplates,
                 CanUseMatchInvitations = entitlements.CanUseMatchInvitations,
                 MaximumPlayers = entitlements.MaximumPlayers,
-                MaximumOwnedGroups = entitlements.MaximumOwnedGroups
+                MaximumOwnedGroups = entitlements.MaximumOwnedGroups,
+                MaximumGenerationPlayers = entitlements.MaximumGenerationPlayers,
+                GenerationRequestsPerMinute = entitlements.GenerationRequestsPerMinute,
+                MaximumConcurrentGenerations = entitlements.MaximumConcurrentGenerations
             };
 
             if (_cache.TryGetValue<string>(
@@ -164,13 +183,24 @@ namespace TeamsGeneratorWebAPI.Controllers
             _usageTelemetry.Track(
                 "AppSetupLoaded",
                 ver,
-                uid,
+                userId,
                 new Dictionary<string, string?>
                 {
                     ["has_saved_config"] =
                         ((response?.Config ?? ownerDefaultResponse?.Config)
-                            != null).ToString().ToLowerInvariant()
+                            != null).ToString().ToLowerInvariant(),
+                    ["outcome"] = "succeeded",
+                    ["account_tier"] = entitlements.IsPremium ? "premium" : "free"
                 });
+            if (GetConfigResponse.IsAvailable(globalResponse))
+                _usageTelemetry.TrackGlobalPreferences(
+                    ver, userId, globalResponse?.Config, entitlements, "loaded");
+            if (response is { Success: true, Config: not null }
+                || response?.IsMissing == true && GetConfigResponse.IsAvailable(ownerDefaultResponse))
+                _usageTelemetry.TrackGroupPreferences(
+                    ver, userId, access.OwnerId, access.GroupId, effectiveGroupConfig,
+                    "loaded", response?.Config != null ? "saved"
+                        : ownerDefaultResponse?.Config != null ? "inherited" : "default");
             return Ok(appSetup);
         }
 

@@ -1,4 +1,6 @@
-﻿using Azure.Storage.Blobs;
+﻿using Azure;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Text;
@@ -7,10 +9,15 @@ using TeamsGenerator.API;
 using TeamsGenerator.Orchestration;
 using TeamsGenerator.Orchestration.Contracts;
 using TeamsGeneratorWebAPI.Storage;
+using TeamsGeneratorWebAPI.Clients;
 
 namespace TeamsGeneratorWebAPI.PlayersBlob
 {
-    public interface ITeamsStorageBlobConnector : IAzureStorage { }
+    public interface ITeamsStorageBlobConnector : IAzureStorage
+    {
+        Task<TeamsStorageWriteResponse> UploadVersionedAsync(
+            JObject snapshot, TeamsBlobConfig config, string expectedRevision);
+    }
 
     public class TeamsStorageBlobConnector : ITeamsStorageBlobConnector
     {
@@ -37,54 +44,68 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
 
         public async Task<IResponse> ListAsync(IConfig config)
         {
+            var teamsConfig = config as TeamsBlobConfig;
+            BlobContainerClient container = new BlobContainerClient(_storageConnectionString, _storageContainerName);
+            BlobClient client = container.GetBlobClient(GetTeamsPath(teamsConfig));
             try
             {
-                var teamsConfig = config as TeamsBlobConfig;
-                BlobContainerClient container = new BlobContainerClient(_storageConnectionString, _storageContainerName);
-
-                BlobClient client = container.GetBlobClient(
-                    GetTeamsPath(teamsConfig));
-                if (client == null) return GetTeamsFromStorageResponse.Failure("teams were not found");
-
-                if (await client.ExistsAsync())
+                var content = await client.DownloadContentAsync();
+                return new GetTeamsFromStorageResponse(
+                    (JObject)PrivatePlayerFields.RemoveFromSnapshot(JObject.Parse(content.Value.Content.ToString())))
                 {
-                    var data = await client.OpenReadAsync();
-                    Stream blobContent = data;
-
-                    var content = await client.DownloadContentAsync();
-                    var value = content.Value;
-                    var json = value.Content;
-
-                    return new GetTeamsFromStorageResponse(
-                        (JObject)PrivatePlayerFields.RemoveFromSnapshot(JObject.Parse(json.ToString())));
-                }
-                else
-                {
-                    return GetTeamsFromStorageResponse.Failure("Contact's teams where not found");
-                }
+                    Revision = content.Value.Details.ETag.ToString(),
+                    Exists = true
+                };
             }
-            catch (Exception e)
+            catch (RequestFailedException exception)
+                when (exception.Status == 404 && exception.ErrorCode == "BlobNotFound")
             {
-                return GetPlayersResponse.Failure(e.Message);
+                return GetTeamsFromStorageResponse.Failure("No teams have been saved yet.");
             }
-
-            return GetTeamsFromStorageResponse.Failure("Teams were not found");
         }
 
-        public async Task<IResponse> UploadAsync(dynamic teams, IConfig config)
+        public Task<IResponse> UploadAsync(dynamic teams, IConfig config) =>
+            Task.FromResult<IResponse>(TeamsStorageWriteResponse.UpgradeRequired());
+
+        public async Task<TeamsStorageWriteResponse> UploadVersionedAsync(
+            JObject snapshot, TeamsBlobConfig config, string expectedRevision)
         {
-            var playersConfig = config as TeamsBlobConfig;
+            if (expectedRevision != SafeWriteContract.AbsentRevision
+                && !AzureTableStorageService.HasExpectedRevision(expectedRevision))
+                return TeamsStorageWriteResponse.UpgradeRequired();
             BlobContainerClient container = new BlobContainerClient(_storageConnectionString, _storageContainerName);
             BlobClient client = container.GetBlobClient(
-                GetTeamsPath(playersConfig));
-            JToken snapshot = teams as JToken ?? JToken.FromObject((object)teams);
+                GetTeamsPath(config));
             using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(
                 PrivatePlayerFields.RemoveFromSnapshot(snapshot).ToString(Formatting.None))))
             {
-                await client.UploadAsync(ms, overwrite: true);
+                try
+                {
+                    var saved = await client.UploadAsync(ms, new BlobUploadOptions
+                    {
+                        Conditions = expectedRevision == SafeWriteContract.AbsentRevision
+                            ? new BlobRequestConditions { IfNoneMatch = ETag.All }
+                            : new BlobRequestConditions { IfMatch = new ETag(expectedRevision) }
+                    });
+                    return new TeamsStorageWriteResponse
+                    {
+                        Success = true,
+                        Revision = saved.Value.ETag.ToString()
+                    };
+                }
+                catch (RequestFailedException exception)
+                    when ((exception.Status == 412 && exception.ErrorCode == "ConditionNotMet")
+                        || (exception.Status == 409 && exception.ErrorCode == "BlobAlreadyExists")
+                        || (exception.Status == 404 && exception.ErrorCode == "BlobNotFound"))
+                {
+                    return new TeamsStorageWriteResponse
+                    {
+                        IsConflict = true,
+                        ErrorCode = "stale_revision",
+                        Error = "The saved teams changed. Reload them and review your changes before saving again."
+                    };
+                }
             }
-
-            return new SavePlayersResponse();
         }
 
         private static string GetTeamsPath(TeamsBlobConfig config)

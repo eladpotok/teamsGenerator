@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -14,6 +15,8 @@ namespace TeamsGenerator.Ai
                 {
                     "team",
                     "opponent",
+                    "first",
+                    "second",
                     "previousLeader",
                     "fromTeam",
                     "toTeam"
@@ -44,6 +47,7 @@ namespace TeamsGenerator.Ai
             var assisters = FindLeaderboard(source, matches, "topAssists");
             var players = FindPlayers(source, matches);
             var playerTeams = FindPlayerTeams(matches);
+            var goalkeepers = FindGoalkeepers(matches);
             ReplaceLeaderboardsWithVerifiedMatchTotals(
                 matches,
                 scorers,
@@ -74,12 +78,26 @@ namespace TeamsGenerator.Ai
                 scorers,
                 assisters,
                 standings,
-                playerTeams);
+                playerTeams,
+                goalkeepers);
             var factSheet = new
             {
-                standings = standings.Select((entry, index) => new
+                recordedMatchCount = matches.Count,
+                matchResults = matches.Select(match =>
                 {
-                    position = index + 1,
+                    MatchScoreFact score;
+                    return TryGetMatchScore(match, out score) ? score : null;
+                }).Where(score => score != null).Select(score => new
+                {
+                    team = score.TeamA,
+                    opponent = score.TeamB,
+                    goals = score.TeamAScore,
+                    opponentGoals = score.TeamBScore
+                }),
+                standings = standings.Select(entry => new
+                {
+                    position = entry.Position,
+                    jointPosition = entry.JointPosition,
                     team = entry.Team,
                     wins = entry.Wins,
                     draws = entry.Draws,
@@ -110,6 +128,10 @@ namespace TeamsGenerator.Ai
                     opponentScore = penaltyGoal.OpponentScore,
                     matchNumber = penaltyGoal.MatchNumber
                 }),
+                ownGoalScorers = ownGoals
+                    .Where(goal => !string.IsNullOrWhiteSpace(goal.Player))
+                    .GroupBy(goal => goal.Player, StringComparer.OrdinalIgnoreCase)
+                    .Select(group => new { player = group.Key, ownGoals = group.Count() }),
                 players = ratings,
                 verifiedPatterns = CreatePatterns(
                     matches,
@@ -302,11 +324,33 @@ namespace TeamsGenerator.Ai
                 });
             }
 
-            return standings
+            return RankStandings(standings);
+        }
+
+        private static List<StandingFact> RankStandings(IEnumerable<StandingFact> standings)
+        {
+            var ordered = standings
                 .OrderByDescending(item => item.Points)
                 .ThenByDescending(item => item.GoalsFor - item.GoalsAgainst)
                 .ThenByDescending(item => item.GoalsFor)
                 .ToList();
+            var position = 1;
+            foreach (var group in ordered.GroupBy(item => new
+            {
+                item.Points,
+                GoalDifference = item.GoalsFor - item.GoalsAgainst,
+                item.GoalsFor
+            }))
+            {
+                var count = group.Count();
+                foreach (var entry in group)
+                {
+                    entry.Position = position;
+                    entry.JointPosition = count > 1;
+                }
+                position += count;
+            }
+            return ordered;
         }
 
         private static Dictionary<string, int> FindLeaderboard(
@@ -432,13 +476,12 @@ namespace TeamsGenerator.Ai
                     if (!ownGoal)
                     {
                         scorerNames.Add(scorer);
+                        assisterNames.Add(GetName(GetValue(
+                            goal,
+                            "assist",
+                            "assister",
+                            "assistedBy")));
                     }
-
-                    assisterNames.Add(GetName(GetValue(
-                        goal,
-                        "assist",
-                        "assister",
-                        "assistedBy")));
                 }
             }
 
@@ -560,7 +603,8 @@ namespace TeamsGenerator.Ai
                         "assister",
                         "assistedBy"));
 
-                    if (string.IsNullOrWhiteSpace(scorer)
+                    if (IsGoalEventOwnGoal(candidate)
+                        || string.IsNullOrWhiteSpace(scorer)
                         || string.IsNullOrWhiteSpace(assister)
                         || string.Equals(scorer, assister, StringComparison.OrdinalIgnoreCase))
                     {
@@ -610,56 +654,73 @@ namespace TeamsGenerator.Ai
 
             foreach (var match in matches)
             {
-                foreach (var candidate in match.DescendantsAndSelf().OfType<JObject>())
+                MatchScoreFact score;
+                if (!TryGetMatchScore(match, out score))
                 {
-                    var ownGoalValue = GetValue(candidate, "ownGoal");
-                    var marker = GetValue(candidate, "isOwnGoal", "ownGoal", "isOwn");
-                    var eventType = GetValue(candidate, "type", "eventType", "goalType");
-                    var ownGoalPlayerName = ownGoalValue != null
-                        && ownGoalValue.Type == JTokenType.String
-                        && !IsTruthyText(ownGoalValue.Value<string>())
-                        && !IsExplicitFalseText(ownGoalValue.Value<string>());
-                    if (!IsTruthy(marker)
-                        && !IsOwnGoalType(eventType)
-                        && !ownGoalPlayerName)
+                    return new List<OwnGoalFact>();
+                }
+
+                var teamAGoals = GetValue(GetValue(match, "teamA") as JObject, "goals") as JArray;
+                var teamBGoals = GetValue(GetValue(match, "teamB") as JObject, "goals") as JArray;
+                List<GoalEventFact> events;
+                if (teamAGoals != null || teamBGoals != null)
+                {
+                    // Saved matches duplicate scorer records outside goals; count only actual events.
+                    if (teamAGoals == null || teamBGoals == null
+                        || teamAGoals.Count != score.TeamAScore || teamBGoals.Count != score.TeamBScore
+                        || teamAGoals.Concat(teamBGoals).Any(goal => !(goal is JObject)))
                     {
-                        continue;
+                        return new List<OwnGoalFact>();
                     }
-
-                    var player = GetName(GetValue(
-                        candidate,
-                        "scorer",
-                        "goalScorer",
-                        "scoredBy"));
-                    if (string.IsNullOrWhiteSpace(player)
-                        && ownGoalPlayerName)
+                    events = teamAGoals.OfType<JObject>().Select(goal => new GoalEventFact
                     {
-                        player = ownGoalValue.Value<string>()?.Trim();
-                    }
-
-                    string team = null;
-                    if (!string.IsNullOrWhiteSpace(player))
+                        Team = score.TeamA,
+                        Scorer = GetOwnGoalPlayer(goal),
+                        IsOwnGoal = IsGoalEventOwnGoal(goal)
+                    }).Concat(teamBGoals.OfType<JObject>().Select(goal => new GoalEventFact
                     {
-                        playerTeams.TryGetValue(player, out team);
+                        Team = score.TeamB,
+                        Scorer = GetOwnGoalPlayer(goal),
+                        IsOwnGoal = IsGoalEventOwnGoal(goal)
+                    })).ToList();
+                }
+                else
+                {
+                    events = FindOrderedGoalEvents(match, score, playerTeams);
+                    if (!GoalEventsMatchFinalScore(events, score))
+                    {
+                        return new List<OwnGoalFact>();
                     }
+                }
 
-                    team = team
-                        ?? GetName(GetValue(
-                            candidate,
-                            "ownGoalTeam",
-                            "concedingTeam",
-                            "scorerTeam",
-                            "team"));
-
+                foreach (var goal in events.Where(goal => goal.IsOwnGoal))
+                {
                     ownGoals.Add(new OwnGoalFact
                     {
-                        Player = player,
-                        Team = team
+                        Player = goal.Scorer,
+                        Team = string.Equals(goal.Team, score.TeamA, StringComparison.OrdinalIgnoreCase)
+                            ? score.TeamB : score.TeamA
                     });
                 }
             }
 
             return ownGoals;
+        }
+
+        private static string GetOwnGoalPlayer(JObject goal)
+        {
+            var player = GetName(GetValue(goal, "scorer", "goalScorer", "scoredBy"));
+            if (string.IsNullOrWhiteSpace(player))
+            {
+                var marker = GetValue(goal, "ownGoal");
+                if (marker?.Type == JTokenType.String
+                    && !IsTruthyText(marker.Value<string>())
+                    && !IsExplicitFalseText(marker.Value<string>()))
+                {
+                    player = marker.Value<string>()?.Trim();
+                }
+            }
+            return IsOwnGoalType(new JValue(player)) ? null : player;
         }
 
         private static List<PenaltyGoalFact> FindPenaltyGoals(
@@ -779,12 +840,136 @@ namespace TeamsGenerator.Ai
             return result;
         }
 
+        internal static double CalculateContributionRating(int goals, int assists)
+        {
+            return SmoothContribution(goals * 0.6 + assists * 0.45);
+        }
+
+        private static double SmoothContribution(double weightedContributions)
+        {
+            const double contributionRange = 3.6;
+            // Smoothly approach the contribution ceiling, reserving 1.4 for team and award bonuses.
+            return contributionRange * (1 - Math.Exp(-weightedContributions / contributionRange));
+        }
+
+        private static Dictionary<string, GoalkeeperFact> FindGoalkeepers(IList<JObject> matches)
+        {
+            var result = new Dictionary<string, GoalkeeperFact>(StringComparer.OrdinalIgnoreCase);
+            foreach (var match in matches)
+            foreach (var side in new[] { "teamA", "teamB" })
+            foreach (var player in TeamPlayers(GetValue(match, side) as JObject).Where(IsMarkedGoalkeeper))
+            {
+                var name = GetName(player);
+                if (!string.IsNullOrWhiteSpace(name) && !result.ContainsKey(name))
+                    result.Add(name, new GoalkeeperFact());
+            }
+
+            var dated = matches.Select(match => new
+            {
+                Match = match,
+                Date = DateTimeOffset.TryParse(GetValue(match, "createdAt")?.ToString(),
+                    CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var date)
+                    ? (DateTimeOffset?)date : null
+            }).ToList();
+            var chronological = dated.All(entry => entry.Date.HasValue)
+                && dated.Select(entry => entry.Date).Distinct().Count() == dated.Count;
+            foreach (var facts in result.Values)
+                facts.StreakOrderAvailable = chronological;
+            var ordered = chronological ? dated.OrderBy(entry => entry.Date).Select(entry => entry.Match) : matches;
+            var totalConceded = 0.0;
+            var teamAppearances = 0;
+            foreach (var match in ordered)
+            {
+                var teams = new[] { GetValue(match, "teamA") as JObject, GetValue(match, "teamB") as JObject };
+                var validScore = TryGetMatchScore(match, out var score)
+                    && score.TeamAScore >= 0 && score.TeamBScore >= 0;
+                if (validScore)
+                {
+                    totalConceded += (double)score.TeamAScore + score.TeamBScore;
+                    teamAppearances += 2;
+                }
+                var eligible = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var name in teams.SelectMany(TeamPlayers).Select(GetName)
+                    .Where(name => name != null).Distinct(StringComparer.OrdinalIgnoreCase))
+                {
+                    if (result.TryGetValue(name, out var fact))
+                        fact.RecordedAppearances++;
+                }
+                for (var side = 0; side < teams.Length; side++)
+                {
+                    var players = TeamPlayers(teams[side]).ToArray();
+                    var marked = players.Where(IsMarkedGoalkeeper).ToArray();
+                    if (marked.Length != 1)
+                        continue;
+                    var keeper = GetName(marked[0]);
+                    // A duplicate name across the two lineups cannot identify one goalkeeper.
+                    if (string.IsNullOrWhiteSpace(keeper) || !validScore
+                        || players.Count(player => string.Equals(GetName(player), keeper, StringComparison.OrdinalIgnoreCase)) != 1
+                        || TeamPlayers(teams[1 - side]).Any(player => string.Equals(GetName(player), keeper, StringComparison.OrdinalIgnoreCase)))
+                        continue;
+
+                    var facts = result[keeper];
+                    var conceded = side == 0 ? score.TeamBScore : score.TeamAScore;
+                    facts.Matches++;
+                    facts.GoalsConceded += conceded;
+                    facts.LastTeam = GetTeamName(teams[side]);
+                    facts.CurrentRun = chronological && conceded == 0 ? facts.CurrentRun + 1 : 0;
+                    if (conceded == 0)
+                        facts.CleanSheets++;
+                    facts.LongestCleanSheetRun = Math.Max(facts.LongestCleanSheetRun, facts.CurrentRun);
+                    eligible.Add(keeper);
+                }
+                foreach (var entry in result)
+                {
+                    if (!eligible.Contains(entry.Key) && teams.Any(team =>
+                        string.Equals(GetTeamName(team), entry.Value.LastTeam, StringComparison.OrdinalIgnoreCase)
+                        || TeamPlayers(team).Any(player => string.Equals(GetName(player), entry.Key, StringComparison.OrdinalIgnoreCase))))
+                        entry.Value.CurrentRun = 0;
+                }
+            }
+
+            var leagueRate = teamAppearances == 0 ? 0 : totalConceded / teamAppearances;
+            foreach (var facts in result.Values)
+                facts.MatchdayConcededPerTeamMatch = leagueRate;
+            var maximumMatches = result.Count == 0 ? 0 : result.Values.Max(facts => facts.Matches);
+            var comparable = result.Values.Where(facts => facts.Matches >= 3 && facts.Matches * 2 >= maximumMatches).ToList();
+            if (comparable.Count > 1)
+            {
+                var lowestRate = comparable.Min(facts => facts.GoalsConcededPerMatch);
+                foreach (var facts in comparable)
+                    facts.HasLowestConcededRate = facts.GoalsConcededPerMatch == lowestRate;
+            }
+            return result;
+        }
+
+        private static IEnumerable<JObject> TeamPlayers(JObject team) =>
+            (GetValue(team, "players") as JArray ?? new JArray()).OfType<JObject>();
+
+        private static bool IsMarkedGoalkeeper(JObject player) =>
+            GetValue(player, "isGoalKeeper")?.Type == JTokenType.Boolean
+            && GetValue(player, "isGoalKeeper").Value<bool>();
+
+        private static double GoalkeeperContribution(int goals, int assists, GoalkeeperFact keeper)
+        {
+            var prevention = keeper.MatchdayConcededPerTeamMatch == 0 ? 0
+                : keeper.MatchdayConcededPerTeamMatch / (keeper.MatchdayConcededPerTeamMatch + keeper.GoalsConcededPerMatch.Value);
+            var cleanSheetRate = (double)keeper.CleanSheets / keeper.Matches;
+            var streak = keeper.LongestCleanSheetRun <= 1 ? 0
+                : (double)(keeper.LongestCleanSheetRun - 1) / (keeper.LongestCleanSheetRun + 1);
+            // Shrink small samples and reduce attacking weight only for confirmed goalkeeper appearances.
+            var reliability = (double)keeper.Matches / (keeper.Matches + 3);
+            var defensiveEvidence = reliability * (2 * cleanSheetRate + 2 * prevention + streak);
+            var attackingWeight = 1 - 0.5 * keeper.Matches / keeper.RecordedAppearances;
+            return SmoothContribution((goals * 0.6 + assists * 0.45) * attackingWeight + defensiveEvidence);
+        }
+
         private static List<PlayerRatingFact> CreateRatings(
             IEnumerable<string> players,
             IDictionary<string, int> scorers,
             IDictionary<string, int> assisters,
             IList<StandingFact> standings,
-            IDictionary<string, string> playerTeams)
+            IDictionary<string, string> playerTeams,
+            IDictionary<string, GoalkeeperFact> goalkeepers)
         {
             var maxGoals = scorers.Count == 0 ? 0 : scorers.Values.Max();
             var maxAssists = assisters.Count == 0 ? 0 : assisters.Values.Max();
@@ -794,7 +979,17 @@ namespace TeamsGenerator.Ai
                 var goals = GetValue(scorers, player);
                 var assists = GetValue(assisters, player);
                 var factors = new List<string>();
-                var score = 5.0 + Math.Min(2.4, goals * 0.6) + Math.Min(1.8, assists * 0.45);
+                goalkeepers.TryGetValue(player, out var goalkeeper);
+                var score = 5.0 + (goalkeeper != null && goalkeeper.Matches > 0
+                    ? GoalkeeperContribution(goals, assists, goalkeeper)
+                    : CalculateContributionRating(goals, assists));
+                if (goalkeeper != null)
+                {
+                    if (goalkeeper.Matches > 0)
+                        factors.Add($"designated goalkeeper: {goalkeeper.CleanSheets} clean sheets and {goalkeeper.GoalsConceded} team goals conceded in {goalkeeper.Matches} matches");
+                    if (goalkeeper.RecordedAppearances > goalkeeper.Matches)
+                        factors.Add("defensive credit excludes appearances without an unambiguous goalkeeper assignment and valid score");
+                }
 
                 if (goals > 0)
                 {
@@ -819,32 +1014,33 @@ namespace TeamsGenerator.Ai
                 }
 
                 string team;
-                var teamPosition = 0;
                 if (playerTeams.TryGetValue(player, out team))
                 {
-                    teamPosition = standings
-                        .Select((entry, index) => new { entry.Team, Position = index + 1 })
-                        .Where(entry => string.Equals(
+                    var standing = standings.FirstOrDefault(entry => string.Equals(
                             entry.Team,
                             team,
-                            StringComparison.OrdinalIgnoreCase))
-                        .Select(entry => entry.Position)
-                        .FirstOrDefault();
+                            StringComparison.OrdinalIgnoreCase));
+                    var teamPosition = standing?.Position ?? 0;
 
-                    if (teamPosition == 1)
+                    if (standing != null && standings.Count > 1 && standings.All(entry => entry.Position == 1))
+                    {
+                        factors.Add("teams tied on all standings tiebreakers; no placement adjustment");
+                    }
+                    else if (teamPosition == 1)
                     {
                         score += 0.6;
-                        factors.Add("team finished first");
+                        factors.Add(standing.JointPosition ? "team finished joint first" : "team finished first");
                     }
                     else if (teamPosition == 2 && standings.Count > 2)
                     {
                         score += 0.35;
-                        factors.Add("team finished second");
+                        factors.Add(standing.JointPosition ? "team finished joint second" : "team finished second");
                     }
-                    else if (teamPosition == standings.Count && standings.Count > 1)
+                    else if (standing != null && standings.Count > 1
+                        && teamPosition == standings.Max(entry => entry.Position))
                     {
                         score -= 0.25;
-                        factors.Add("team finished last");
+                        factors.Add(standing.JointPosition ? "team finished joint last" : "team finished last");
                     }
                 }
 
@@ -859,6 +1055,7 @@ namespace TeamsGenerator.Ai
                     Team = playerTeams.ContainsKey(player) ? playerTeams[player] : null,
                     Goals = goals,
                     Assists = assists,
+                    Goalkeeper = goalkeeper,
                     Rating = Math.Round(Math.Max(1, Math.Min(10, score)), 1),
                     RatingFactors = factors
                 };
@@ -969,7 +1166,7 @@ namespace TeamsGenerator.Ai
                 });
             }
 
-            if (dataQuality.CompleteGoalTimelines && ownGoalList.Count >= 3)
+            if (ownGoalList.Count >= 3)
             {
                 patterns.Add(new
                 {
@@ -984,8 +1181,7 @@ namespace TeamsGenerator.Ai
             }
 
             foreach (var team in ownGoalList
-                .Where(item => dataQuality.CompleteGoalTimelines
-                    && !string.IsNullOrWhiteSpace(item.Team))
+                .Where(item => !string.IsNullOrWhiteSpace(item.Team))
                 .GroupBy(item => item.Team, StringComparer.OrdinalIgnoreCase)
                 .Where(group => group.Count() >= 2))
             {
@@ -998,8 +1194,7 @@ namespace TeamsGenerator.Ai
             }
 
             foreach (var player in ownGoalList
-                .Where(item => dataQuality.CompleteGoalTimelines
-                    && !string.IsNullOrWhiteSpace(item.Player))
+                .Where(item => !string.IsNullOrWhiteSpace(item.Player))
                 .GroupBy(item => item.Player, StringComparer.OrdinalIgnoreCase)
                 .Where(group => group.Count() >= 2))
             {
@@ -1151,7 +1346,6 @@ namespace TeamsGenerator.Ai
                     team = streak.Key,
                     consecutiveLosses = streak.Value,
                     finalPosition = standings
-                        .Select((entry, index) => new { entry.Team, Position = index + 1 })
                         .Where(entry => string.Equals(
                             entry.Team,
                             streak.Key,
@@ -1549,7 +1743,7 @@ namespace TeamsGenerator.Ai
             if (!string.Equals(
                 standings.First().Team,
                 winner,
-                StringComparison.OrdinalIgnoreCase))
+                StringComparison.OrdinalIgnoreCase) || standings.First().JointPosition)
             {
                 return;
             }
@@ -1596,17 +1790,16 @@ namespace TeamsGenerator.Ai
                 teamA.Losses--;
             }
 
-            var previousLeader = previousStandings
-                .OrderByDescending(team => team.Points)
-                .ThenByDescending(team => team.GoalsFor - team.GoalsAgainst)
-                .ThenByDescending(team => team.GoalsFor)
-                .First()
-                .Team;
+            var previousLeaderStanding = RankStandings(previousStandings).First();
+            if (previousLeaderStanding.JointPosition)
+            {
+                return;
+            }
+            var previousLeader = previousLeaderStanding.Team;
 
             if (!string.Equals(previousLeader, winner, StringComparison.OrdinalIgnoreCase))
             {
                 var previousLeaderFinalPosition = standings
-                    .Select((team, index) => new { team.Team, Position = index + 1 })
                     .Where(entry => string.Equals(
                         entry.Team,
                         previousLeader,
@@ -1642,7 +1835,16 @@ namespace TeamsGenerator.Ai
             }
 
             var gap = standings[0].Points - standings[1].Points;
-            if (gap <= 1)
+            if (standings[0].JointPosition)
+            {
+                patterns.Add(new
+                {
+                    type = "shared_table_lead",
+                    leaders = standings.Where(team => team.Position == 1).Select(team => new { team = team.Team }).ToArray(),
+                    points = standings[0].Points
+                });
+            }
+            else if (gap <= 1)
             {
                 patterns.Add(new
                 {
@@ -1659,7 +1861,7 @@ namespace TeamsGenerator.Ai
                 team => team.GoalsFor == highestGoalsFor);
             var lowPositionStart = (standings.Count + 1) / 2 + 1;
             foreach (var entry in standings
-                .Select((team, index) => new { Team = team, Position = index + 1 })
+                .Select(team => new { Team = team, team.Position })
                 .Where(entry =>
                     entry.Position >= lowPositionStart
                     && entry.Team.GoalsFor == highestGoalsFor
@@ -1695,7 +1897,7 @@ namespace TeamsGenerator.Ai
             }
 
             foreach (var entry in standings
-                .Select((team, index) => new { Team = team.Team, Position = index + 1 })
+                .Select(team => new { Team = team.Team, team.Position })
                 .Where(entry => entry.Position <= 2))
             {
                 List<char> teamOutcomes;
@@ -1836,7 +2038,9 @@ namespace TeamsGenerator.Ai
 
                 var team = explicitTeam ?? playerTeam;
                 var ownGoal = IsGoalEventOwnGoal(item);
-                if (ownGoal && !string.IsNullOrWhiteSpace(playerTeam))
+                if (ownGoal && string.IsNullOrWhiteSpace(explicitTeam)
+                    && (string.Equals(playerTeam, score.TeamA, StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(playerTeam, score.TeamB, StringComparison.OrdinalIgnoreCase)))
                 {
                     team = string.Equals(playerTeam, score.TeamA, StringComparison.OrdinalIgnoreCase)
                         ? score.TeamB
@@ -1852,8 +2056,8 @@ namespace TeamsGenerator.Ai
                 events.Add(new GoalEventFact
                 {
                     Team = team,
-                    Scorer = scorer,
-                    Assister = GetName(GetValue(
+                    Scorer = ownGoal ? GetOwnGoalPlayer(item) : scorer,
+                    Assister = ownGoal ? null : GetName(GetValue(
                         item,
                         "assist",
                         "assister",
@@ -1885,7 +2089,9 @@ namespace TeamsGenerator.Ai
         private static bool IsGoalEventOwnGoal(JObject goalEvent)
         {
             var marker = GetValue(goalEvent, "isOwnGoal", "ownGoal", "isOwn");
+            var scorer = GetValue(goalEvent, "scorer", "goalScorer", "scoredBy") as JObject;
             return IsTruthy(marker)
+                || IsTruthy(GetValue(scorer, "ownGoal", "isOwnGoal", "isOwn"))
                 || IsOwnGoalType(GetValue(goalEvent, "type", "eventType", "goalType"))
                 || (marker != null
                     && marker.Type == JTokenType.String
@@ -2341,6 +2547,8 @@ namespace TeamsGenerator.Ai
 
         private sealed class StandingFact
         {
+            public int Position { get; set; }
+            public bool JointPosition { get; set; }
             public string Team { get; set; }
             public int Wins { get; set; }
             public int Draws { get; set; }
@@ -2400,6 +2608,32 @@ namespace TeamsGenerator.Ai
             public bool AssistTotalsReliable { get; set; }
         }
 
+        private sealed class GoalkeeperFact
+        {
+            [JsonProperty("matches")]
+            public int Matches { get; set; }
+            [JsonProperty("recordedAppearances")]
+            public int RecordedAppearances { get; set; }
+            [JsonProperty("cleanSheets")]
+            public int CleanSheets { get; set; }
+            [JsonProperty("longestCleanSheetRun")]
+            public int LongestCleanSheetRun { get; set; }
+            [JsonProperty("goalsConceded")]
+            public int GoalsConceded { get; set; }
+            [JsonProperty("goalsConcededPerMatch")]
+            public double? GoalsConcededPerMatch => Matches == 0 ? null : (double)GoalsConceded / Matches;
+            [JsonProperty("matchdayConcededPerTeamMatch")]
+            public double MatchdayConcededPerTeamMatch { get; set; }
+            [JsonProperty("hasLowestConcededRate")]
+            public bool HasLowestConcededRate { get; set; }
+            [JsonProperty("streakOrderAvailable")]
+            public bool StreakOrderAvailable { get; set; }
+            [JsonIgnore]
+            public int CurrentRun { get; set; }
+            [JsonIgnore]
+            public string LastTeam { get; set; }
+        }
+
         private sealed class PlayerRatingFact
         {
             [JsonProperty("name")]
@@ -2413,6 +2647,9 @@ namespace TeamsGenerator.Ai
 
             [JsonProperty("assists")]
             public int Assists { get; set; }
+
+            [JsonProperty("goalkeeper", NullValueHandling = NullValueHandling.Ignore)]
+            public GoalkeeperFact Goalkeeper { get; set; }
 
             [JsonProperty("rating")]
             public double Rating { get; set; }

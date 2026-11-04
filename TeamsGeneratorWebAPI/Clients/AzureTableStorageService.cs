@@ -1,6 +1,7 @@
 ﻿using Azure;
 using Azure.Data.Tables;
 using System.Linq.Expressions;
+using TeamsGenerator.API;
 
 namespace TeamsGeneratorWebAPI.Clients
 {
@@ -26,13 +27,13 @@ namespace TeamsGeneratorWebAPI.Clients
             _tableClient.CreateIfNotExists();
         }
 
+        internal AzureTableStorageService(TableClient tableClient) => _tableClient = tableClient;
+
         internal async Task<MatchMutationResult> AddMatchAsync(
             MatchEntity match)
         {
             ArgumentNullException.ThrowIfNull(match);
             ValidateMatchIdentity(match);
-
-            match.CreatedAt = DateTime.UtcNow;
             match.ETag = default;
             match.Timestamp = null;
 
@@ -45,11 +46,20 @@ namespace TeamsGeneratorWebAPI.Clients
                     return MatchMutationResult.Closed;
                 }
 
+                var lastSavedAt = status.LastMatchCreatedAt
+                    ?? (await GetAllMatchesAsync(match.PartitionKey))
+                        .LastOrDefault()?.CreatedAt;
+                match.CreatedAt = DateTime.UtcNow;
+                if (lastSavedAt.HasValue && match.CreatedAt < lastSavedAt.Value.AddMilliseconds(1))
+                {
+                    match.CreatedAt = lastSavedAt.Value.AddMilliseconds(1);
+                }
+
                 try
                 {
                     await _tableClient.SubmitTransactionAsync(new[]
                     {
-                        CreateStatusGuardAction(status),
+                        CreateStatusGuardAction(status, match.CreatedAt),
                         new TableTransactionAction(
                             TableTransactionActionType.Add,
                             match)
@@ -85,7 +95,6 @@ namespace TeamsGeneratorWebAPI.Clients
                 throw new ArgumentException(
                     "Matchday, swap identity, and swap details are required.");
             }
-
             if (!playerSwap.RowKey.StartsWith(
                 PlayerSwapRowKeyPrefix,
                 StringComparison.Ordinal))
@@ -152,12 +161,12 @@ namespace TeamsGeneratorWebAPI.Clients
             await _tableClient.AddEntityAsync(entity);
         }
 
-        public async Task<List<MatchEntity>> GetAllMatchesAsync(string partitionKey)
+        public async Task<List<MatchEntity>> GetAllMatchesAsync(string partitionKey, CancellationToken ct = default)
         {
             var matches = new List<MatchEntity>();
             await foreach (var entity in _tableClient
                 .QueryAsync<MatchEntity>(
-                    e => e.PartitionKey == partitionKey))
+                    e => e.PartitionKey == partitionKey, cancellationToken: ct))
             {
                 matches.Add(entity);
             }
@@ -173,12 +182,12 @@ namespace TeamsGeneratorWebAPI.Clients
         }
 
         internal async Task<List<PlayerSwapEntity>> GetAllPlayerSwapsAsync(
-            string partitionKey)
+            string partitionKey, CancellationToken ct = default)
         {
             var playerSwaps = new List<PlayerSwapEntity>();
             await foreach (var entity in _tableClient
                 .QueryAsync<PlayerSwapEntity>(
-                    item => item.PartitionKey == partitionKey))
+                    item => item.PartitionKey == partitionKey, cancellationToken: ct))
             {
                 if (entity.RowKey.StartsWith(
                     PlayerSwapRowKeyPrefix,
@@ -193,6 +202,31 @@ namespace TeamsGeneratorWebAPI.Clients
                 .OrderBy(playerSwap => playerSwap.CreatedAt)
                 .ThenBy(playerSwap => playerSwap.RowKey)
                 .ToList();
+        }
+
+        internal async Task<(IReadOnlyList<MatchEntity> Matches, IReadOnlyList<PlayerSwapEntity> Swaps)>
+            GetMatchdayEventsAsync(string partitionKey, CancellationToken ct)
+        {
+            var matches = new List<MatchEntity>();
+            var swaps = new List<PlayerSwapEntity>();
+            await foreach (var row in _tableClient.QueryAsync<MatchdayEventEntity>(
+                item => item.PartitionKey == partitionKey,
+                select: new[] { "PartitionKey", "RowKey", "SerializedMatch", "SerializedSwap", "CreatedAt" },
+                cancellationToken: ct))
+            {
+                if (MatchesForStatusKeys.Contains(row.RowKey)) continue;
+                if (row.RowKey.StartsWith(PlayerSwapRowKeyPrefix, StringComparison.Ordinal))
+                {
+                    if (!string.IsNullOrWhiteSpace(row.SerializedSwap))
+                        swaps.Add(new PlayerSwapEntity { PartitionKey = row.PartitionKey, RowKey = row.RowKey,
+                            SerializedSwap = row.SerializedSwap, CreatedAt = row.CreatedAt });
+                }
+                else
+                    matches.Add(new MatchEntity { PartitionKey = row.PartitionKey, RowKey = row.RowKey,
+                        SerializedMatch = row.SerializedMatch!, CreatedAt = row.CreatedAt });
+            }
+            return (matches.OrderBy(match => match.CreatedAt).ToArray(),
+                swaps.OrderBy(swap => swap.CreatedAt).ThenBy(swap => swap.RowKey).ToArray());
         }
 
         public async Task<List<T>> GetAllEntities<T>(string partitionKey, CancellationToken cancellationToken = default)
@@ -400,12 +434,24 @@ namespace TeamsGeneratorWebAPI.Clients
             };
         }
 
-        internal async Task<bool> IsClosed(string partitionKey)
+        internal async Task<MatchdayMetadataEntity?> GetMatchdayIdentity(string partitionKey)
+        {
+            var response = await _tableClient.GetEntityIfExistsAsync<MatchdayMetadataEntity>(
+                partitionKey, RowKeyForStartStatus);
+            return response.HasValue ? response.Value : null;
+        }
+
+        internal IAsyncEnumerable<MatchdayMetadataEntity> GetGroupMatchdaysAsync(string ownerId, string groupId, CancellationToken ct) =>
+            _tableClient.QueryAsync<MatchdayMetadataEntity>(item =>
+                item.RowKey == RowKeyForStartStatus && item.OwnerId == ownerId && item.GroupId == groupId,
+                maxPerPage: 100, select: new[] { "PartitionKey" }, cancellationToken: ct);
+
+        internal async Task<bool> IsClosed(string partitionKey, CancellationToken ct = default)
         {
             var entity = await _tableClient
                 .GetEntityIfExistsAsync<MatchdayMetadataEntity>(
                     partitionKey,
-                    RowKeyForCloseStatus);
+                    RowKeyForCloseStatus, cancellationToken: ct);
             return entity.HasValue && entity.Value.IsClosed;
         }
 
@@ -429,10 +475,19 @@ namespace TeamsGeneratorWebAPI.Clients
                 return new { result = "closed" };
             }
 
-            return new { result = "ok" };
+            return new {
+                result = "ok",
+                ownerId = entity.Value.OwnerId,
+                groupId = entity.Value.GroupId,
+                teamsRevision = entity.Value.TeamsRevision,
+                teams = entity.Value.SerializedTeams == null
+                    ? null
+                    : Newtonsoft.Json.Linq.JArray.Parse(PrivatePlayerFields.SanitizeJson(entity.Value.SerializedTeams))
+            };
         }
 
-        internal async Task<bool> StartMatchday(string partitionKey)
+        internal async Task<bool> StartMatchday(string partitionKey, string? ownerId = null,
+            string? groupId = null, string? serializedTeams = null, string? teamsRevision = null)
         {
             if (string.IsNullOrWhiteSpace(partitionKey))
             {
@@ -445,11 +500,6 @@ namespace TeamsGeneratorWebAPI.Clients
                     .GetEntityIfExistsAsync<MatchdayMetadataEntity>(
                         partitionKey,
                         RowKeyForStartStatus);
-                if (startResponse.HasValue)
-                {
-                    return false;
-                }
-
                 var statusResponse = await _tableClient
                     .GetEntityIfExistsAsync<MatchdayMetadataEntity>(
                         partitionKey,
@@ -459,12 +509,23 @@ namespace TeamsGeneratorWebAPI.Clients
                 {
                     return false;
                 }
+                if (startResponse.HasValue)
+                {
+                    var existing = startResponse.Value;
+                    return existing.OwnerId == ownerId && existing.GroupId == groupId
+                        && existing.TeamsRevision == teamsRevision
+                        && existing.SerializedTeams == serializedTeams;
+                }
 
                 var start = new MatchdayMetadataEntity
                 {
                     PartitionKey = partitionKey,
                     RowKey = RowKeyForStartStatus,
-                    IsClosed = false
+                    IsClosed = false,
+                    OwnerId = ownerId,
+                    GroupId = groupId,
+                    SerializedTeams = serializedTeams,
+                    TeamsRevision = teamsRevision
                 };
                 var actions = new List<TableTransactionAction>();
                 if (statusResponse.HasValue)
@@ -503,10 +564,15 @@ namespace TeamsGeneratorWebAPI.Clients
             return false;
         }
 
-        internal async Task<MatchMutationResult> EditMatch(MatchEntity match)
+        internal async Task<MatchMutationResult> EditMatch(
+            MatchEntity match, string? expectedRevision = null)
         {
             ArgumentNullException.ThrowIfNull(match);
             ValidateMatchIdentity(match);
+            if (!HasExpectedRevision(expectedRevision))
+            {
+                return MatchMutationResult.UpgradeRequired;
+            }
 
             for (var attempt = 0; attempt < MaximumLifecycleAttempts; attempt++)
             {
@@ -529,6 +595,10 @@ namespace TeamsGeneratorWebAPI.Clients
                 }
 
                 var existing = existingResponse.Value;
+                if (!string.Equals(existing.Revision, expectedRevision, StringComparison.Ordinal))
+                {
+                    return MatchMutationResult.Conflict;
+                }
                 match.CreatedAt = existing.CreatedAt;
                 match.ETag = existing.ETag;
                 match.Timestamp = existing.Timestamp;
@@ -581,10 +651,14 @@ namespace TeamsGeneratorWebAPI.Clients
         }
 
         internal async Task<MatchMutationResult> DeleteMatch(
-            MatchEntity match)
+            MatchEntity match, string? expectedRevision = null)
         {
             ArgumentNullException.ThrowIfNull(match);
             ValidateMatchIdentity(match);
+            if (!HasExpectedRevision(expectedRevision))
+            {
+                return MatchMutationResult.UpgradeRequired;
+            }
 
             for (var attempt = 0; attempt < MaximumLifecycleAttempts; attempt++)
             {
@@ -607,6 +681,10 @@ namespace TeamsGeneratorWebAPI.Clients
                 }
 
                 var existing = existingResponse.Value;
+                if (!string.Equals(existing.Revision, expectedRevision, StringComparison.Ordinal))
+                {
+                    return MatchMutationResult.Conflict;
+                }
                 try
                 {
                     await _tableClient.SubmitTransactionAsync(new[]
@@ -745,16 +823,23 @@ namespace TeamsGeneratorWebAPI.Clients
                     : status.CreatedAt,
                 ETag = status.ETag,
                 Timestamp = status.Timestamp,
-                IsClosed = isClosed
+                IsClosed = isClosed,
+                LastMatchCreatedAt = status.LastMatchCreatedAt
             };
         }
 
         private static TableTransactionAction CreateStatusGuardAction(
-            MatchdayMetadataEntity status)
+            MatchdayMetadataEntity status,
+            DateTime? lastMatchCreatedAt = null)
         {
+            var updatedStatus = CopyStatus(status, false);
+            if (lastMatchCreatedAt.HasValue)
+            {
+                updatedStatus.LastMatchCreatedAt = lastMatchCreatedAt;
+            }
             return new TableTransactionAction(
                 TableTransactionActionType.UpdateReplace,
-                CopyStatus(status, false),
+                updatedStatus,
                 status.ETag);
         }
 
@@ -765,6 +850,14 @@ namespace TeamsGeneratorWebAPI.Clients
                 second.ToString(),
                 StringComparison.Ordinal);
         }
+
+        internal static bool HasExpectedRevision(string? revision) =>
+            !string.IsNullOrWhiteSpace(revision)
+            && revision.Length <= 1024
+            && !revision.Contains('\r')
+            && !revision.Contains('\n')
+            && System.Net.Http.Headers.EntityTagHeaderValue.TryParse(revision, out var tag)
+            && tag.Tag != "*";
 
         private static void ValidateMatchIdentity(MatchEntity match)
         {
@@ -782,6 +875,7 @@ namespace TeamsGeneratorWebAPI.Clients
         Succeeded,
         Closed,
         NotFound,
+        UpgradeRequired,
         Conflict
     }
 

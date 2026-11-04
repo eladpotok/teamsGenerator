@@ -10,6 +10,10 @@ namespace TeamsGeneratorWebAPI.ConfigBlob
 
         public bool Success { get; set; }
 
+        [Newtonsoft.Json.JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        public bool IsMissing { get; private set; }
+
         public GetConfigResponse(UserConfigResponse config)
         {
             Config = config;
@@ -25,5 +29,11 @@ namespace TeamsGeneratorWebAPI.ConfigBlob
         {
             return new GetConfigResponse() { Error = error, Success = false };
         }
+
+        public static GetConfigResponse Missing() =>
+            new GetConfigResponse { Error = "config isn't found", Success = false, IsMissing = true };
+
+        public static bool IsAvailable(GetConfigResponse? response) =>
+            response?.IsMissing == true || response is { Success: true, Config: not null };
     }
 }

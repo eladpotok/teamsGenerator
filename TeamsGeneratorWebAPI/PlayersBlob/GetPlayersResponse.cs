@@ -9,6 +9,7 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
         public string Error { get; set; }
 
         public bool Success { get; set; }
+        public string? Revision { get; set; }
 
         public GetPlayersResponse(IEnumerable<IPlayer> players)
         {

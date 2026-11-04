@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using TeamsGenerator.Orchestration;
 using TeamsGeneratorWebAPI.Clients;
 using TeamsGeneratorWebAPI.Controllers;
+using TeamsGeneratorWebAPI.Telemetry;
 
 internal static class ChemistryResetRegression
 {
@@ -49,7 +50,9 @@ internal static class ChemistryResetRegression
         check(original.Count == 2 && original.Scores.Count == 1, "chemistry without a reset retains legacy history");
 
         var controller = new TeamsController(
-            NullLogger<TeamsController>.Instance, null!, null!, service, null!, null!, null!)
+            NullLogger<TeamsController>.Instance,
+            CallbackProxy.Create<IUsageTelemetry>((method, args) => null),
+            null!, service, null!, null!, null!)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };

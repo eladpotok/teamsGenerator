@@ -9,6 +9,8 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
         public string UId { get; set; }
 
         public string GroupId { get; set; }
+        public string? ExpectedRevision { get; set; }
+        public string? MergeRevision { get; set; }
     }
 
     public class TeamsBlobConfig : IConfig

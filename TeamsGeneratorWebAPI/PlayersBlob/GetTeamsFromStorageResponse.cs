@@ -10,11 +10,15 @@ namespace TeamsGeneratorWebAPI.PlayersBlob
         public string Error { get; set; }
 
         public bool Success { get; set; }
+        public string Revision { get; set; } = Clients.SafeWriteContract.AbsentRevision;
+        public bool Exists { get; set; }
+        public int WriteContractVersion => Clients.SafeWriteContract.Version;
 
         public GetTeamsFromStorageResponse(JObject teams)
         {
             Teams = teams;  
             Success = true;
+            Exists = true;
         }
 
         private GetTeamsFromStorageResponse()
